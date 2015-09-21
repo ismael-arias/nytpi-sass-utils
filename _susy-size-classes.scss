@@ -1,0 +1,511 @@
+@import "../../node_modules/susy/sass/susy";
+@import "susy-vw-units";
+@import "susy-size-classes-support";
+
+//////////////
+// Defaults //
+//////////////
+$default-layout-unit: pixels !default;
+$scale-factor: 2 !default;
+
+@function px($unitless, $scale-factor: $scale-factor) {
+	@return $unitless / $scale-factor * 1px;
+}
+
+//////////////////
+// Pixel Widths //
+//////////////////
+$mobile-portrait-width:   640 !default;
+$tablet-portrait-width:  1536 !default;
+$tablet-landscape-width: 2048 !default;
+$desktop-width:          2582 !default;
+// We need to know the max width of the .shell container, so this is a "special" width.
+$shell-width:            3210 !default;
+
+////////////////
+// Grid Units //
+////////////////
+$mobile-portrait-grid:      4 !default;
+$tablet-portrait-grid:      6 !default;
+$tablet-landscape-grid:     8 !default;
+$desktop-grid:             12 !default;
+
+///////////////////////////////
+// Fluid Typography Settings //
+///////////////////////////////
+// For `mobile-portrait`: `false` allows you to take advantage of the longer line lengths
+// made possible by a fluid layout with statically-sized text on wider mobile screens.
+$mobile-portrait-font-size-unit: px !default;
+$tablet-portrait-font-unit:      vw !default;
+$tablet-landscape-font-unit:     vw !default;
+$desktop-font-unit:              vw !default;
+// For `shell`: should be `false`, since we need a way to set a "maximum" font-size
+$shell-font-unit:                px !default;
+
+///////////////////////////////////////
+// Private Stuff (Edit with Caution) //
+///////////////////////////////////////
+
+///////////////////
+// Pixel Layouts //
+///////////////////
+// Important: these are "pixel grids", so none of the layouts should have gutters.
+$mobile-portrait-pixels-layout:  layout($mobile-portrait-width  no-gutters);
+$tablet-portrait-pixels-layout:  layout($tablet-portrait-width  no-gutters);
+$tablet-landscape-pixels-layout: layout($tablet-landscape-width no-gutters);
+$desktop-pixels-layout:          layout($desktop-width          no-gutters);
+
+//////////////////
+// Grid Layouts //
+//////////////////
+// TODO: Specify gutter widths other than the Susy default gutter width
+$mobile-portrait-grid-layout:    layout($mobile-portrait-grid);
+$tablet-portrait-grid-layout:    layout($tablet-portrait-grid);
+$tablet-landscape-grid-layout:   layout($tablet-landscape-grid);
+$desktop-grid-layout:            layout($desktop-grid);
+
+// Old Values
+//$tablet-portrait-min-width-factor:  1.5;
+//$tablet-landscape-min-width-factor: 0.9375;
+//$desktop-min-width-factor:          1.125;
+
+$tablet-portrait-min-width-factor:  1.6875;
+$tablet-landscape-min-width-factor: 1.1119791667;
+$desktop-min-width-factor:          1.25;
+
+$widths: (
+	mobile-portrait:  $mobile-portrait-width,
+	tablet-portrait:  $tablet-portrait-width,
+	tablet-landscape: $tablet-landscape-width,
+	desktop:          $desktop-width
+);
+
+$susy-media-font-units: (
+	mobile-portrait:           $mobile-portrait-font-size-unit,
+	tablet-portrait:           $tablet-portrait-font-unit,
+	tablet-landscape:          $tablet-landscape-font-unit,
+	desktop:                   $desktop-font-unit,
+	beyond-desktop:            $desktop-font-unit,
+	between-desktop-and-shell: $desktop-font-unit,
+	shell:                     $shell-font-unit
+);
+
+// TODO: See if it's possible to generalize this
+$tablet-portrait-min-width: round( map-get($widths, mobile-portrait) * $tablet-portrait-min-width-factor );
+$tablet-landscape-min-width: round( map-get($widths, tablet-portrait) * $tablet-landscape-min-width-factor );
+$desktop-min-width: round( map-get($widths, tablet-landscape) * $desktop-min-width-factor );
+$beyond-desktop-min-width: round( map-get($widths, desktop) );
+$shell-min-width: $shell-width;
+
+$susy-media: (
+	////////////////////////
+	// Main Media Queries //
+	////////////////////////
+	mobile-portrait:  (max-width: px($tablet-portrait-min-width - $scale-factor)),
+	tablet-portrait:  (min-width: px($tablet-portrait-min-width), max-width: px($tablet-landscape-min-width - $scale-factor)),
+	tablet-landscape: (min-width: px($tablet-landscape-min-width), max-width: px($desktop-min-width - $scale-factor)),
+	desktop: 		  (min-width: px($desktop-min-width)),
+	///////////////////////////
+	// Utility Media Queries //
+	///////////////////////////
+	// "Beyond Desktop": viewports wider than the desktop design
+	beyond-desktop:   (min-width: px($beyond-desktop-min-width + $scale-factor)),
+	// "Between Desktop and Shell": viewports wider than the desktop design width **and** narrower than $shell-width
+	between-desktop-and-shell: (min-width: px($beyond-desktop-min-width + $scale-factor), max-width: px($shell-width - $scale-factor)),
+	// "Shell": viewports as wide as the shell width and wider
+	shell:            (min-width: px($shell-width))
+);
+
+@debug (susy-media: $susy-media);
+
+////////////////////////
+// Pixel Layout Setup //
+////////////////////////
+$susy-pixels-layouts: (
+	mobile-portrait:  $mobile-portrait-pixels-layout,
+	tablet-portrait:  $tablet-portrait-pixels-layout,
+	tablet-landscape: $tablet-landscape-pixels-layout,
+	desktop: 		  $desktop-pixels-layout
+);
+
+///////////////////////
+// Grid Layout Setup //
+///////////////////////
+$susy-grid-layouts: (
+	mobile-portrait:  $mobile-portrait-grid-layout,
+	tablet-portrait:  $tablet-portrait-grid-layout,
+	tablet-landscape: $tablet-landscape-grid-layout,
+	desktop:          $desktop-grid-layout
+);
+
+////////////////////////////////////
+// Layout to Media Query Mappings //
+////////////////////////////////////
+$susy-layout-to-media-mappings: (
+	mobile-portrait:  mobile-portrait,
+	tablet-portrait:  tablet-portrait,
+	tablet-landscape: tablet-landscape,
+	desktop:          (desktop, beyond-desktop, between-desktop-and-shell, shell)
+);
+
+$susy-layouts: (
+	grid: $susy-grid-layouts,
+	pixels: $susy-pixels-layouts
+);
+
+$susy-size-class-keywords: (
+	start-layout-name: map-keys($widths),
+	end-layout-name: map-keys($widths),
+	units: grid pixels,
+);
+
+@function can-merge-media-queries($map1, $map2) {
+	$_return:
+		not ( map-has-key($map1, max-width) and map-has-key($map2, min-width) and map-get($map1, max-width) < map-get($map2, min-width) - 1px )
+		and
+		not ( map-has-key($map2, max-width) and map-has-key($map1, min-width) and map-get($map2, max-width) < map-get($map1, min-width) - 1px )
+		and
+		not ( map-has-key($map1, min-width) and map-has-key($map2, min-width) and map-get($map1, min-width) > map-get($map2, min-width) - 1px )
+	;
+
+	@debug "		Can we merge " + $map1 + " and " + $map2 + "? " + $_return;
+
+	@return $_return;
+}
+
+// From http://hugogiraudel.com/2013/08/08/advanced-sass-list-functions/
+@function replace($list, $old-value, $new-value, $recursive: false) {
+	$result: ();
+
+	@for $i from 1 through length($list) {
+		@if type-of(nth($list, $i)) == list and $recursive {
+			$result: append($result, replace(nth($list, $i), $old-value, $new-value, $recursive));
+		}
+
+		@else {
+			@if nth($list, $i) == $old-value {
+				$result: append($result, $new-value);
+			}
+
+			@else {
+				$result: append($result, nth($list, $i));
+			}
+		}
+	}
+
+	@return $result;
+}
+
+@function media-query-map-merge($map1, $map2) {
+	$_return: map-merge($map1, $map2);
+
+	// Determine the minimum min-width between the two maps
+	@if map-has-key($map1, min-width) {
+		$_return: map-merge($_return, (min-width: map-get($map1, min-width)));
+	}
+
+	@if map-has-key($map2, min-width) and map-get($map2, min-width) < map-get($_return, min-width) {
+		$_return: map-merge($_return, (min-width: map-get($map2, min-width)));
+	}
+
+	// Determine the maximum max width between the two maps
+	@if map-has-key($map1, max-width) {
+		$_return: map-merge($_return, (max-width: map-get($map1, max-width)));
+	}
+
+	@if map-has-key($map2, max-width) and map-get($map2, max-width) > map-get($_return, max-width) {
+		$_return: map-merge($_return, (max-width: map-get($map2, max-width)));
+	}
+
+	@if map-has-key($map1, max-width) and map-has-key($map2, max-width) and map-get($map1, max-width) == map-get($map2, min-width) - 1px {
+		$_return: map-remove($_return, max-width);
+	}
+
+	@if map-has-key($_return, min-width) and map-has-key($_return, max-width) {
+		$_min-width: map-get($_return, min-width);
+		$_max-width: map-get($_return, max-width);
+
+		// Remove max-width if the min-width is greater than it
+		@if $_min-width > $_max-width {
+			$_return: map-remove($_return, max-width);
+		}
+
+		// Remove min-width if the max-width was / is less than it
+		@if $_max-width < $_min-width {
+			$_return: map-remove($_return, min-width);
+		}
+	}
+
+	@return $_return;
+}
+
+// Based on: http://stackoverflow.com/a/30740182
+@function media-query-map-collect($maps...) {
+	$collection: ((),);
+
+	$merge-left-index: 1;
+
+	@each $map in $maps {
+		$merge-left: nth($collection, $merge-left-index);
+
+		@if can-merge-media-queries($merge-left, $map) {
+			//@debug "		We CAN merge " + $merge-left + " and " + $map;
+			$merge-left: media-query-map-merge($merge-left, $map);
+			$collection: set-nth($collection, $merge-left-index, $merge-left);
+		} @else {
+			//@debug "		CANNOT merge " + $merge-left + " and " + $map + " !";
+			$merge-left-index: $merge-left-index + 1;
+			$collection: append($collection, $map);
+		}
+	}
+
+	@debug "		$collection: " + $collection;
+
+	@return $collection;
+}
+
+@function smallest-media-for-layout(
+	$layout-name,
+	$mappings: $susy-layout-to-media-mappings
+) {
+	$_return: ();
+	$mapping: map-get($mappings, $layout-name);
+
+	@if type-of($mapping) == string {
+		$_return: $mapping;
+	} @else if type-of($mapping) == list {
+		$_return: nth($mapping, 1);
+	}
+
+	@return $_return;
+}
+
+@function largest-media-for-layout(
+	$layout-name,
+	$mappings: $susy-layout-to-media-mappings
+) {
+	$_return: ();
+	$mapping: map-get($mappings, $layout-name);
+
+	@if type-of($mapping) == string {
+		$_return: $mapping;
+	} @else if type-of($mapping) == list {
+		$_return: nth( $mapping, length($mapping) );
+	}
+
+	@return $_return;
+}
+
+// Parse Susy Keywords and Maps
+// ----------------------------
+@function parse-size-class-settings(
+	$short: $susy
+) {
+	$_return: ();
+
+	@if type-of($short) == map {
+		$_return: $short;
+	} @else {
+		$_to: index($short, to);
+		$_i: 1;
+
+		@while $_i <= length($short) {
+			$item: nth($short, $_i);
+
+			// strings
+			@if type-of($item) == string {
+				@each $key, $value in $susy-size-class-keywords {
+					@if index($value, $item) {
+						@if not $_to or ($_to and ( ($_i < $_to and $key != end-layout-name) or ($_i > $_to and $key != start-layout-name))) {
+							$_key-value: append($key, $item);
+							$_return: _susy-deep-set($_return, $_key-value...);
+						}
+					}
+				}
+			// maps
+			} @else if type-of($item) == map {
+				$_return: map-merge($_return, $item);
+			}
+
+			$_i: $_i + 1;
+		}
+	}
+
+	@return $_return;
+}
+
+// From: http://hugogiraudel.com/2013/08/08/advanced-sass-list-functions/
+@function slice($list, $start: 1, $end: length($list)) {
+	$result: null;
+
+	@if type-of($start) != number or type-of($end) != number {
+		@warn "Either $start or $end are not a number for `slice`.";
+	}
+
+	@else if $start > $end {
+		@warn "The start index has to be lesser than or equals to the end index for `slice`.";
+	}
+
+	@else if $start < 1 or $end < 1 {
+		@warn "List indexes must be non-zero integers for `slice`.";
+	}
+
+	@else if $start > length($list) {
+		@warn "List index is #{$start} but list is only #{length($list)} item long for `slice`.";
+	}
+
+	@else if $end > length($list) {
+		@warn "List index is #{$end} but list is only #{length($list)} item long for `slice`.";
+	}
+
+	@else {
+		$result: ();
+
+		@for $i from $start through $end {
+			$result: append($result, nth($list, $i));
+		}
+	}
+
+	@return $result;
+}
+
+// From http://hugogiraudel.com/2013/08/08/advanced-sass-list-functions/
+@function reverse($list, $recursive: false) {
+	$result: ();
+
+	@for $i from length($list)*-1 through -1 {
+		@if type-of(nth($list, abs($i))) == list and $recursive {
+			$result: append($result, reverse(nth($list, abs($i)), $recursive));
+		}
+
+		@else {
+			$result: append($result, nth($list, abs($i)));
+		}
+	}
+
+	@return $result;
+}
+
+@function get-media-query-names-in-range($media-query-names...) {
+	$start-index: 0;
+	$end-index: 0;
+
+	$available-media-query-names: map-keys($susy-media);
+
+	@each $name in $media-query-names {
+		$index: index($available-media-query-names, $name);
+		@if $index {
+			//@debug "		" + $name + " is at index " + $index + "…" + (start-index: $start-index, end-index: $end-index);
+			@if $start-index == 0 or $index < $start-index {
+				$start-index: $index;
+			}
+			@if $end-index == 0 or $index > $end-index {
+				$end-index: $index;
+			}
+		}
+	}
+
+	@debug "		" + (start-index: $start-index, end-index: $end-index);
+
+	@return slice($available-media-query-names, $start-index, $end-index);
+}
+
+@mixin size-class(
+	$options,
+	$no-query: $susy-media-fallback
+) {
+	$_options: map-merge((units: $default-layout-unit), parse-size-class-settings($options));
+
+	@debug $options + " --> " + $_options;
+
+	// Get the layouts for the specified units
+	$layouts-for-unit: map-get( $susy-layouts, map-get($_options, units) );
+
+	$target-layout: map-get( $layouts-for-unit, map-get($_options, start-layout-name) );
+
+	// Get the breakpoints for the specified layouts
+	$start-media-name: smallest-media-for-layout( map-get($_options, start-layout-name) );
+	$end-media-name: largest-media-for-layout( map-get($_options, end-layout-name) );
+
+	$combined-queries: merge-query-range($start-media-name, $end-media-name);
+
+	@each $query in $combined-queries {
+		$layout-name: map-get($_options, start-layout-name);
+
+		$layout: map-merge($target-layout, (
+			name: $layout-name
+		));
+
+		@if length($query) > 0 {
+			@include susy-breakpoint(
+				$query,
+				$layout,
+				$no-query
+			) {
+				/* #{$options} --> Conditional Layout: #{$target-layout} */
+				@content;
+			}
+		} @else {
+			@include with-layout($layout) {
+				/* #{$options} --> Unconditional Layout: #{$target-layout} */
+				@content;
+			}
+		}
+	}
+}
+
+// Get Span Width
+// --------------
+// Return span width.
+// - $span: <map>
+@function get-span-min-width(
+	$span
+) {
+	$span     : parse-span($span);
+
+	$n        : susy-get(span, $span);
+	$location : get-location($span);
+	$columns  : susy-get(columns, $span);
+	$gutters  : susy-get(gutters, $span);
+	$spread   : susy-get(spread, $span);
+
+	$context  : null;
+	$span-sum : null;
+	$width    : null;
+
+	@if $n == 'full' {
+		$pos: susy-get(gutter-position, $span);
+		$role: susy-get(role, $span);
+		$n: if($pos == split and $role != nest, susy-count($columns), 100%);
+	}
+
+	@if type-of($n) != number {
+		@warn "(#{type-of($n)}) #{$n} is not a valid span.";
+	} @else if unitless($n) {
+		$context: susy-sum($columns, $gutters, if(is-split($span), wide, narrow));
+		$spread: if(is-inside($span), $spread or wide, $spread);
+		$span-sum: susy($n, $location, $columns, $gutters, $spread);
+
+		$_math: susy-get(math, $span);
+		$_column-width: susy-get(column-width, $span);
+		@if $_math == static {
+			$width: $span-sum * valid-column-math($_math, $_column-width);
+		} @else {
+			$width: percentage($span-sum / $context);
+		}
+	} @else {
+		$width: $n;
+	}
+
+	@debug $n;
+	@debug $location;
+	@debug $columns;
+	@debug $gutters;
+	@debug $spread;
+
+	@debug susy-media-context();
+
+	@debug $width;
+
+	@return $width;
+}

@@ -1,0 +1,109 @@
+@function merge-media-queries($left-query, $right-query, $threshold: 1px) {
+	// Start by map-merging the media queries and removing the min-width and max-width keys
+	$merged-query: map-merge($left-query, $right-query);
+	$merged-query: map-remove($merged-query, min-width);
+	$merged-query: map-remove($merged-query, max-width);
+
+	// Left query's min and max width
+	$left-min-width: 0;
+	$left-max-width: Infinity;
+	@if map-has-key($left-query, min-width) {
+		$left-min-width: map-get($left-query, min-width);
+	}
+	@if map-has-key($left-query, max-width) {
+		$left-max-width: map-get($left-query, max-width);
+	}
+
+	// Right query's min and max width
+	$right-min-width: 0;
+	$right-max-width: Infinity;
+	@if map-has-key($right-query, min-width) {
+		$right-min-width: map-get($right-query, min-width);
+	}
+	@if map-has-key($right-query, max-width) {
+		$right-max-width: map-get($right-query, max-width);
+	}
+
+	$merged: false;
+
+	//@if type-of($right-min-width) == number and type-of($left-max-width) == number and ($right-min-width - $left-max-width <= $threshold) {
+	//	@if $left-min-width > 0 {
+	//		$merged-query: map-merge($merged-query, (min-width: $left-min-width));
+	//	}
+	//	@if $right-max-width != Infinity {
+	//		$merged-query: map-merge($merged-query, (max-width: $right-max-width));
+	//	}
+	//
+	//	@debug (after-min-and-max-widths-in-range-of-each-other: $merged-query);
+	//
+	//	$merged: true;
+	//}
+
+	@if type-of($left-min-width) == number and type-of($right-max-width) == number and ($left-min-width - $right-max-width <= $threshold) {
+		@if $right-min-width > 0 {
+			$merged-query: map-merge($merged-query, (min-width: $right-min-width));
+		}
+		@if $left-max-width != Infinity {
+			$merged-query: map-merge($merged-query, (max-width: $left-max-width));
+		}
+
+		@debug (after-min-and-max-widths-in-range-of-each-other: $merged-query);
+
+		$merged: true;
+	}
+
+	@if type-of($right-min-width) == number and type-of($left-min-width) == number and $right-min-width > 0 and $left-min-width > 0 and $right-min-width <= $left-min-width {
+		@debug "Merging a narrower min-width-to-infinity query into a wider one";
+		$merged-query: map-merge($merged-query, (min-width: $right-min-width));
+
+		$merged: true;
+	}
+
+	@if $merged == true {
+		@return $merged-query;
+	} @else {
+		@return ($left-query, $right-query);
+	}
+}
+
+@function merge-query-range($start-media-name, $end-media-name) {
+	$query-names: get-media-query-names-in-range($start-media-name, $end-media-name);
+	// Reverse the query-names since we have to combine from the largest breakpoints on down.
+	$query-names: reverse($query-names);
+
+	$combined-queries: ();
+
+	@each $query-name in $query-names {
+		@debug $query-name + ":";
+		$right-query: map-get($susy-media, $query-name);
+
+		@if length($combined-queries) == 0 {
+			$combined-queries: append($combined-queries, $right-query);
+			@debug (not-combined: true, combined-queries: $combined-queries);
+		} @else {
+			$left-query: nth($combined-queries, length($combined-queries));
+
+			// See if we can merge these media query maps together into one.
+			$combined-query: merge-media-queries($left-query, $right-query);
+
+			@if type-of($combined-query) == list {
+				// Queries could *not* be combined
+				$combined-queries: append($combined-queries, $right-query);
+				@debug (not-combined: true, combined-queries: $combined-queries);
+			} @else {
+				// Queries combined!
+				@if length($combined-queries) == 0 {
+					$combined-queries: append($combined-queries, $combined-query);
+				} @else {
+					$combined-queries: set-nth($combined-queries, length($combined-queries), $combined-query);
+				}
+
+				@debug (query-name: $query-name, combined: true, combined-queries: $combined-queries);
+			}
+		}
+	}
+
+	@debug "Merged " + $start-media-name + " to " + $end-media-name + ": " + $combined-queries;
+
+	@return $combined-queries;
+}

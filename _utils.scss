@@ -1,0 +1,51 @@
+@mixin image-replacement($background-props: false) {
+	text-indent: 100%;
+	white-space: nowrap;
+	overflow: hidden;
+	// Joe's addition, after months of no changes.
+	font-size: 0;
+
+	@if $background-props == true {
+		// background image properties
+		background-repeat: no-repeat;
+		background-position: top center;
+		background-size: 100% auto;
+	}
+}
+
+@mixin disable-text-selection {
+	/* http://stackoverflow.com/a/4407335 */
+	-webkit-touch-callout: none;
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+}
+
+@function pxtoem($px, $font-size: $base-font-size) {
+    @return 1em * $px / $font-size;
+}
+
+@function px($unitless, $scale-factor: 2) {
+	@return $unitless / $scale-factor * 1px;
+}
+
+// Susy Wrappers
+
+/* @mixin size-class(
+	$query-and-layout-name,
+	$no-query: $susy-media-fallback
+) {
+	@include susy-breakpoint(
+		$query-and-layout-name,
+		map-get($susy-layouts, $query-and-layout-name),
+		$no-query
+	) {
+		@content;
+	}
+}
+
+@function min-span($span) {
+	@return get-span-width($span) * $susy-min-width-ratio;
+} */
