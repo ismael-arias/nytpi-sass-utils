@@ -1,4 +1,4 @@
-@import "../../node_modules/susy/sass/susy";
+@import "susy";
 @import "susy-vw-units";
 @import "susy-size-classes-support";
 
@@ -116,7 +116,7 @@ $susy-media: (
 	shell:            (min-width: px($shell-width))
 );
 
-@debug (susy-media: $susy-media);
+// @debug (susy-media: $susy-media);
 
 ////////////////////////
 // Pixel Layout Setup //
@@ -168,7 +168,7 @@ $susy-size-class-keywords: (
 		not ( map-has-key($map1, min-width) and map-has-key($map2, min-width) and map-get($map1, min-width) > map-get($map2, min-width) - 1px )
 	;
 
-	@debug "		Can we merge " + $map1 + " and " + $map2 + "? " + $_return;
+	// @debug "		Can we merge " + $map1 + " and " + $map2 + "? " + $_return;
 
 	@return $_return;
 }
@@ -249,17 +249,17 @@ $susy-size-class-keywords: (
 		$merge-left: nth($collection, $merge-left-index);
 
 		@if can-merge-media-queries($merge-left, $map) {
-			//@debug "		We CAN merge " + $merge-left + " and " + $map;
+			//// @debug "		We CAN merge " + $merge-left + " and " + $map;
 			$merge-left: media-query-map-merge($merge-left, $map);
 			$collection: set-nth($collection, $merge-left-index, $merge-left);
 		} @else {
-			//@debug "		CANNOT merge " + $merge-left + " and " + $map + " !";
+			//// @debug "		CANNOT merge " + $merge-left + " and " + $map + " !";
 			$merge-left-index: $merge-left-index + 1;
 			$collection: append($collection, $map);
 		}
 	}
 
-	@debug "		$collection: " + $collection;
+	// @debug "		$collection: " + $collection;
 
 	@return $collection;
 }
@@ -395,7 +395,7 @@ $susy-size-class-keywords: (
 	@each $name in $media-query-names {
 		$index: index($available-media-query-names, $name);
 		@if $index {
-			//@debug "		" + $name + " is at index " + $index + "…" + (start-index: $start-index, end-index: $end-index);
+			//// @debug "		" + $name + " is at index " + $index + "…" + (start-index: $start-index, end-index: $end-index);
 			@if $start-index == 0 or $index < $start-index {
 				$start-index: $index;
 			}
@@ -405,7 +405,7 @@ $susy-size-class-keywords: (
 		}
 	}
 
-	@debug "		" + (start-index: $start-index, end-index: $end-index);
+	// @debug "		" + (start-index: $start-index, end-index: $end-index);
 
 	@return slice($available-media-query-names, $start-index, $end-index);
 }
@@ -416,7 +416,7 @@ $susy-size-class-keywords: (
 ) {
 	$_options: map-merge((units: $default-layout-unit), parse-size-class-settings($options));
 
-	@debug $options + " --> " + $_options;
+	// @debug $options + " --> " + $_options;
 
 	// Get the layouts for the specified units
 	$layouts-for-unit: map-get( $susy-layouts, map-get($_options, units) );
@@ -497,15 +497,15 @@ $susy-size-class-keywords: (
 		$width: $n;
 	}
 
-	@debug $n;
-	@debug $location;
-	@debug $columns;
-	@debug $gutters;
-	@debug $spread;
+	// @debug $n;
+	// @debug $location;
+	// @debug $columns;
+	// @debug $gutters;
+	// @debug $spread;
 
-	@debug susy-media-context();
+	// @debug susy-media-context();
 
-	@debug $width;
+	// @debug $width;
 
 	@return $width;
 }

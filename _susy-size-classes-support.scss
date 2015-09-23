@@ -34,7 +34,7 @@
 	//		$merged-query: map-merge($merged-query, (max-width: $right-max-width));
 	//	}
 	//
-	//	@debug (after-min-and-max-widths-in-range-of-each-other: $merged-query);
+	//	// @debug (after-min-and-max-widths-in-range-of-each-other: $merged-query);
 	//
 	//	$merged: true;
 	//}
@@ -47,13 +47,13 @@
 			$merged-query: map-merge($merged-query, (max-width: $left-max-width));
 		}
 
-		@debug (after-min-and-max-widths-in-range-of-each-other: $merged-query);
+		// @debug (after-min-and-max-widths-in-range-of-each-other: $merged-query);
 
 		$merged: true;
 	}
 
 	@if type-of($right-min-width) == number and type-of($left-min-width) == number and $right-min-width > 0 and $left-min-width > 0 and $right-min-width <= $left-min-width {
-		@debug "Merging a narrower min-width-to-infinity query into a wider one";
+		// @debug "Merging a narrower min-width-to-infinity query into a wider one";
 		$merged-query: map-merge($merged-query, (min-width: $right-min-width));
 
 		$merged: true;
@@ -74,12 +74,12 @@
 	$combined-queries: ();
 
 	@each $query-name in $query-names {
-		@debug $query-name + ":";
+		// @debug $query-name + ":";
 		$right-query: map-get($susy-media, $query-name);
 
 		@if length($combined-queries) == 0 {
 			$combined-queries: append($combined-queries, $right-query);
-			@debug (not-combined: true, combined-queries: $combined-queries);
+			// @debug (not-combined: true, combined-queries: $combined-queries);
 		} @else {
 			$left-query: nth($combined-queries, length($combined-queries));
 
@@ -89,7 +89,7 @@
 			@if type-of($combined-query) == list {
 				// Queries could *not* be combined
 				$combined-queries: append($combined-queries, $right-query);
-				@debug (not-combined: true, combined-queries: $combined-queries);
+				// @debug (not-combined: true, combined-queries: $combined-queries);
 			} @else {
 				// Queries combined!
 				@if length($combined-queries) == 0 {
@@ -98,12 +98,20 @@
 					$combined-queries: set-nth($combined-queries, length($combined-queries), $combined-query);
 				}
 
-				@debug (query-name: $query-name, combined: true, combined-queries: $combined-queries);
+				// @debug (query-name: $query-name, combined: true, combined-queries: $combined-queries);
 			}
 		}
 	}
 
-	@debug "Merged " + $start-media-name + " to " + $end-media-name + ": " + $combined-queries;
+	// @debug "Merged " + $start-media-name + " to " + $end-media-name + ": " + $combined-queries;
 
 	@return $combined-queries;
+}
+
+@mixin font-size($font-size) {
+	font-size: px($font-size);
+}
+
+@mixin line-height($font-size) {
+	line-height: px($font-size);
 }
