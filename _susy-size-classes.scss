@@ -53,10 +53,10 @@ $shell-font-unit:                px !default;
 // Pixel Layouts //
 ///////////////////
 // Important: these are "pixel grids", so none of the layouts should have gutters.
-$mobile-portrait-pixels-layout:  layout($mobile-portrait-width  no-gutters);
-$tablet-portrait-pixels-layout:  layout($tablet-portrait-width  no-gutters);
-$tablet-landscape-pixels-layout: layout($tablet-landscape-width no-gutters);
-$desktop-pixels-layout:          layout($desktop-width          no-gutters);
+$mobile-portrait-pixels-layout:  layout($mobile-portrait-width  0);
+$tablet-portrait-pixels-layout:  layout($tablet-portrait-width  0);
+$tablet-landscape-pixels-layout: layout($tablet-landscape-width 0);
+$desktop-pixels-layout:          layout($desktop-width          0);
 
 //////////////////
 // Grid Layouts //
