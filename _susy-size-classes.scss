@@ -9,7 +9,9 @@ $default-layout-unit: pixels !default;
 $scale-factor: 2 !default;
 
 $compact: mobile-portrait to tablet-portrait;
-$regular: tablet-landscape to desktop;
+$regular: desktop to tablet-landscape;
+$all-mobile: mobile-portrait to desktop;
+$all-desktop: desktop to mobile-portrait;
 
 @function px($unitless, $scale-factor: $scale-factor) {
 	@return $unitless / $scale-factor * 1px;
