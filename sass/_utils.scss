@@ -23,10 +23,6 @@
 	user-select: none;
 }
 
-@function pxtoem($px, $font-size: $base-font-size) {
-    @return 1em * $px / $font-size;
-}
-
 @function px($unitless, $scale-factor: 2) {
 	@return $unitless / $scale-factor * 1px;
 }

@@ -1,0 +1,47 @@
+{
+  "name": "nytpi-sass-utils",
+  "eyeglass": {
+    "exports": "eyeglass-exports.js"
+  },
+  "version": "1.0.0",
+  "description": "NYTPI Sass Utilities",
+  "main": "eyeglass-exports.js",
+  "author": {
+    "name": "Joe Kohlmann",
+    "url": "https://github.com/kohlmannj"
+  },
+  "keywords": [
+    "sass",
+    "susy",
+    "eyeglass-module"
+  ],
+  "license": "MIT",
+  "README": "README.md",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nytpi/nytpi-sass-utils.git"
+  },
+  "dependencies": {
+    "susy": "^2.2.5"
+  },
+  "devDependencies": {
+    "eslint": "^0.14.1",
+    "eyeglass-dev-eslint": "^1.0.1",
+    "gulp": "^3.8.11",
+    "gulp-eslint": "0.4.0",
+    "gulp-mocha": "^2.0.0",
+    "mocha": "^2.1.0",
+    "should": ">= 0.0.1"
+  },
+  "bugs": {
+    "url": "https://github.com/nytpi/nytpi-sass-utils/issues"
+  },
+  "homepage": "https://github.com/nytpi/nytpi-sass-utils",
+  "maintainers": [
+    {
+      "name": "kohlmannj",
+      "email": "joseph.kohlmann@nytimes.com"
+    }
+  ],
+  "readme": "ERROR: No README data found!"
+}

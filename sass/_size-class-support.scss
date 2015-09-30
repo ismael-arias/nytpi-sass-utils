@@ -107,39 +107,3 @@
 
 	@return $combined-queries;
 }
-
-$base-font-size-unitless: 16 !global;
-
-// Easy-peasy mixin to calculate an em value from the ratio of a given integer and the current font-size integer value
-@function em($unitless, $font-size: $base-font-size-unitless) {
-	@return 1em * $unitless / $font-size;
-}
-
-// Clever font-size mixin that changes value of $base-font-size-unitless in-scope
-// Also supports vw-unit output based on the current Susy layout
-@mixin font-size($new-font-size: 16, $output-unit: px) {
-	$old: $base-font-size-unitless;
-	// Reassign $base-font-size-unitless in this scope, and restore it once we're done
-	$base-font-size-unitless: $new-font-size !global;
-
-	@if $output-unit == px {
-		font-size: px($new-font-size);
-	} @else if $output-unit == vw and $susy {
-		// Use the current Susy layout's columns as a basis to calculate the correct vw value
-		font-size: $new-font-size / map-get($susy, columns) * 100vw;
-
-		// Temporary hack to limit font-size to a scaled pixel value for susy-size-class's `shell` breakpoint
-		@if (map-has-key($susy, name) and map-get($susy, name) == desktop) {
-			@include susy-breakpoint(shell) {
-				$scaled-font-size: $new-font-size * $shell-width / $desktop-width;
-				font-size: px($scaled-font-size);
-			}
-		}
-	}
-
-	// Any calls to em() here will be aware of our current $base-font-size-unitless value
-	@content;
-
-	// Restore the old value of $base $base-font-size-unitless
-	$base-font-size-unitless: $old !global;
-}

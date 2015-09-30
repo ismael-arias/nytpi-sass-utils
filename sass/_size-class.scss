@@ -1,6 +1,5 @@
 @import "susy";
-@import "susy-vw-units";
-@import "susy-size-classes-support";
+@import "size-class-support";
 
 //////////////
 // Defaults //
@@ -8,8 +7,8 @@
 $default-layout-unit: pixels !default;
 $scale-factor: 2 !default;
 
-$compact: mobile-portrait to tablet-portrait;
-$regular: desktop to tablet-landscape;
+$compact: mobile-portrait;
+$regular: desktop to tablet-portrait;
 $all-mobile: mobile-portrait to desktop;
 $all-desktop: desktop to mobile-portrait;
 
@@ -163,6 +162,10 @@ $susy-size-class-keywords: (
 	end-layout-name: map-keys($widths),
 	units: grid pixels,
 );
+
+////////////////////////
+// Additional Support //
+////////////////////////
 
 @function can-merge-media-queries($map1, $map2) {
 	$_return:
@@ -327,7 +330,7 @@ $susy-size-class-keywords: (
 						}
 					}
 				}
-			// maps
+				// maps
 			} @else if type-of($item) == map {
 				$_return: map-merge($_return, $item);
 			}
@@ -415,6 +418,10 @@ $susy-size-class-keywords: (
 	@return slice($available-media-query-names, $start-index, $end-index);
 }
 
+///////////////
+// The Mixin //
+///////////////
+
 @mixin size-class(
 	$options,
 	$no-query: $susy-media-fallback
@@ -457,60 +464,4 @@ $susy-size-class-keywords: (
 			}
 		}
 	}
-}
-
-// Get Span Width
-// --------------
-// Return span width.
-// - $span: <map>
-@function get-span-min-width(
-	$span
-) {
-	$span     : parse-span($span);
-
-	$n        : susy-get(span, $span);
-	$location : get-location($span);
-	$columns  : susy-get(columns, $span);
-	$gutters  : susy-get(gutters, $span);
-	$spread   : susy-get(spread, $span);
-
-	$context  : null;
-	$span-sum : null;
-	$width    : null;
-
-	@if $n == 'full' {
-		$pos: susy-get(gutter-position, $span);
-		$role: susy-get(role, $span);
-		$n: if($pos == split and $role != nest, susy-count($columns), 100%);
-	}
-
-	@if type-of($n) != number {
-		@warn "(#{type-of($n)}) #{$n} is not a valid span.";
-	} @else if unitless($n) {
-		$context: susy-sum($columns, $gutters, if(is-split($span), wide, narrow));
-		$spread: if(is-inside($span), $spread or wide, $spread);
-		$span-sum: susy($n, $location, $columns, $gutters, $spread);
-
-		$_math: susy-get(math, $span);
-		$_column-width: susy-get(column-width, $span);
-		@if $_math == static {
-			$width: $span-sum * valid-column-math($_math, $_column-width);
-		} @else {
-			$width: percentage($span-sum / $context);
-		}
-	} @else {
-		$width: $n;
-	}
-
-	// @debug $n;
-	// @debug $location;
-	// @debug $columns;
-	// @debug $gutters;
-	// @debug $spread;
-
-	// @debug susy-media-context();
-
-	// @debug $width;
-
-	@return $width;
 }
