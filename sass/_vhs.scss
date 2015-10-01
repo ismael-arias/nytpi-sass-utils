@@ -130,6 +130,15 @@ STYLING FOR VHS COVER CONTAINER
 		display: none;
 	}
 
+	&.resizeVHS {
+		background-color: #000;
+		overflow: hidden;
+
+		.video-inner-container {
+			margin: 0 auto;
+		}
+	}
+
 	//@media (min-width: px(2304px)) and (max-height: 903px) {
 	//	@include layout($regular-max-width / 1px 0);
 	//
