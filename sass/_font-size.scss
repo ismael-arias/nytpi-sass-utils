@@ -22,7 +22,7 @@ $base-font-size-unitless: 16 !global;
 
     @if $output-unit == px {
         font-size: px($new-font-size);
-    @else if $output-unit == vw {
+    } @else if $output-unit == vw {
         font-size: $vw-value;
     }
 
