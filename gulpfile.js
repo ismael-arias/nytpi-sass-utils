@@ -21,6 +21,8 @@ gulp.task('bump:patch', function(){
         .pipe(gulp.dest('./'));
 });
 
+gulp.task("bump", ["bump:patch"]);
+
 gulp.task('bump:minor', function(){
     gulp.src('./package.json')
         .pipe(bump({type: 'minor'}))
