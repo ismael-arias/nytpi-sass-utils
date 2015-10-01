@@ -3,7 +3,7 @@
   "eyeglass": {
     "exports": "eyeglass-exports.js"
   },
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "NYTPI Sass Utilities",
   "main": "eyeglass-exports.js",
   "author": {
@@ -22,6 +22,7 @@
     "url": "git+https://github.com/nytpi/nytpi-sass-utils.git"
   },
   "dependencies": {
+    "gulp-bump": "^1.0.0",
     "susy": "^2.2.5"
   },
   "devDependencies": {
@@ -31,6 +32,7 @@
     "gulp-eslint": "0.4.0",
     "gulp-mocha": "^2.0.0",
     "mocha": "^2.1.0",
+    "semver": "^5.0.3",
     "should": ">= 0.0.1"
   },
   "bugs": {
