@@ -14,7 +14,7 @@ $base-font-size-unitless: 16 !global;
 
     // Automatically switch to px-upscale when appropriate
     @if $output-unit == px and ($susy and map-has-key($susy, name) and map-get($susy, name) == desktop) {
-        $output-unit: px-upscale;
+        $output-unit: px;
         $scale-mode: upscale;
     }
 
@@ -24,9 +24,9 @@ $base-font-size-unitless: 16 !global;
         font-size: $new-font-size / map-get($susy, columns) * 100vw;
     }
 
-    @if ($output-unit == vw or $output-unit == px-upscale) and $susy {
+    @if ($output-unit == vw or ($output-unit == px and $scale-mode == upscale)) and $susy {
         // Use the current Susy layout's columns as a basis to calculate the correct vw value
-        @if $output-unit == px-upscale {
+        @if $output-unit == px and $scale-mode == upscale {
             // Set pixels for starters
             font-size: px($new-font-size);
 
