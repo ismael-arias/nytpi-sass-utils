@@ -14,33 +14,37 @@ $base-font-size-unitless: 16 !global;
 
     // Automatically switch to px-upscale when appropriate
     @if $output-unit == px and ($susy and map-has-key($susy, name) and map-get($susy, name) == desktop) {
+        $output-unit: px-upscale;
         $scale-mode: upscale;
     }
-
-    // Use the current Susy layout's columns as a basis to calculate the correct vw value
-    $vw-value: $new-font-size / map-get($susy, columns) * 100vw;
 
     @if $output-unit == px {
         font-size: px($new-font-size);
     } @else if $output-unit == vw {
-        font-size: $vw-value;
+        font-size: $new-font-size / map-get($susy, columns) * 100vw;
     }
 
-    //@if ($output-unit == px and $scale-mode == upscale) {
-    //    @include susy-breakpoint(beyond-desktop) {
-    //        font-size: $vw-value;
-    //    }
-    //}
-    //
-    //// Temporary hack to limit font-size to a scaled pixel value for susy-size-class's `shell` breakpoint
-    //@if $output-unit == vw or ($output-unit == px and $scale-mode == upscale) and $susy {
-    //    @if map-has-key($susy, name) and $widths and map-has-key($widths, map-get($susy, name)) {
-    //        @include susy-breakpoint(shell) {
-    //            $scaled-font-size: $new-font-size * $shell-width / map-get($widths, map-get($susy, name) );
-    //            font-size: px($scaled-font-size);
-    //        }
-    //    }
-    //}
+    @if ($output-unit == vw or $output-unit == px-upscale) and $susy {
+        // Use the current Susy layout's columns as a basis to calculate the correct vw value
+        @if $output-unit == px-upscale {
+            // Set pixels for starters
+            font-size: px($new-font-size);
+
+            @include susy-breakpoint(beyond-desktop) {
+                font-size: $new-font-size / map-get($susy, columns) * 100vw;
+            }
+        } @else if $output-unit == vw {
+            font-size: $new-font-size / map-get($susy, columns) * 100vw;
+        }
+
+        // Temporary hack to limit font-size to a scaled pixel value for susy-size-class's `shell` breakpoint
+        @if (map-has-key($susy, name) and map-get($susy, name) == desktop) {
+            @include susy-breakpoint(shell) {
+                $scaled-font-size: $new-font-size * $shell-width / $desktop-width;
+                font-size: px($scaled-font-size);
+            }
+        }
+    }
   
     // Any calls to em() here will be aware of our current $base-font-size-unitless value
     @content;
