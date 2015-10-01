@@ -7,37 +7,38 @@ $base-font-size-unitless: 16 !global;
 
 // Clever font-size mixin that changes value of $base-font-size-unitless in-scope
 // Also supports vw-unit output based on the current Susy layout
-@mixin font-size($new-font-size: 16, $output-unit: px) {
+@mixin font-size($new-font-size: 16, $output-unit: px, $scale-mode: none) {
     $old: $base-font-size-unitless;
     // Reassign $base-font-size-unitless in this scope, and restore it once we're done
     $base-font-size-unitless: $new-font-size !global;
 
-    // Automatically switch to px-upscale when appropriate
-    @if $output-unit == px and ($susy and map-has-key($susy, name) and map-get($susy, name) == desktop) {
-        $output-unit: px-upscale;
+    $vw-value: $new-font-size / map-get($susy, columns) * 100vw;
+
+    $is-desktop-layout: ($susy and map-has-key($susy, name) and map-get($susy, name) == desktop);
+
+    // Automatically enable upscaling for px values in the `desktop` layout
+    @if $output-unit == px and $is-desktop-layout {
+        $scale-mode: upscale;
     }
 
     @if $output-unit == px {
         font-size: px($new-font-size);
-    } @else if ($output-unit == vw or $output-unit == px-upscale) and $susy {
-        // Use the current Susy layout's columns as a basis to calculate the correct vw value
-        @if $output-unit == px-upscale {
-            // Set pixels for starters
-            font-size: px($new-font-size);
 
+        // Scale the font size in the `beyond-desktop` size-class breakpoint
+        @if $scale-mode == upscale and $is-desktop-layout {
             @include susy-breakpoint(beyond-desktop) {
-                font-size: $new-font-size / map-get($susy, columns) * 100vw;
+                font-size: $vw-value;
             }
-        } @else if $output-unit == vw {
-            font-size: $new-font-size / map-get($susy, columns) * 100vw;
         }
-
-        // Temporary hack to limit font-size to a scaled pixel value for susy-size-class's `shell` breakpoint
-        @if map-has-key($susy, name) and $widths and map-has-key($widths, map-get($susy, name)) {
-            @include susy-breakpoint(shell) {
-                $scaled-font-size: $new-font-size * $shell-width / map-get($widths, map-get($susy, name) );
-                font-size: px($scaled-font-size);
-            }
+    } @else if $output-unit == vw {
+        font-size: $vw-value;
+    }
+    
+    // Temporary hack to limit font-size to a scaled pixel value for susy-size-class's `shell` breakpoint
+    @if ($output-unit == vw or $scale-mode == upscale) and map-has-key($susy, name) and $widths and map-has-key($widths, map-get($susy, name)) {
+        @include susy-breakpoint(shell) {
+            $scaled-font-size: $new-font-size * $shell-width / map-get($widths, map-get($susy, name) );
+            font-size: px($scaled-font-size);
         }
     }
   
