@@ -31,16 +31,6 @@ $base-font-size-unitless: 16 !global;
             font-size: $vw-value;
         }
     }
-    
-    // Temporary hack to limit font-size to a scaled pixel value for susy-size-class's `shell` breakpoint
-    @if $output-unit == vw or ($output-unit == px and $scale-mode == upscale) and $susy {
-        @if map-has-key($susy, name) and $widths and map-has-key($widths, map-get($susy, name)) {
-            @include susy-breakpoint(shell) {
-                $scaled-font-size: $new-font-size * $shell-width / map-get($widths, map-get($susy, name) );
-                font-size: px($scaled-font-size);
-            }
-        }
-    }
   
     // Any calls to em() here will be aware of our current $base-font-size-unitless value
     @content;
