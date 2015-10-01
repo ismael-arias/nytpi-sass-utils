@@ -1,0 +1,10 @@
+.video-container {
+	&.auto-black-bars {
+		background-color: #000;
+		overflow: hidden;
+
+		.video-inner-container {
+			margin: 0 auto;
+		}
+	}
+}
