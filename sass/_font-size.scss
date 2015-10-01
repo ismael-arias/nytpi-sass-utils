@@ -33,9 +33,9 @@ $base-font-size-unitless: 16 !global;
         }
 
         // Temporary hack to limit font-size to a scaled pixel value for susy-size-class's `shell` breakpoint
-        @if (map-has-key($susy, name) and map-get($susy, name) == desktop) {
+        @if map-has-key($susy, name) and $widths and map-has-key($widths, map-get($susy, name)) {
             @include susy-breakpoint(shell) {
-                $scaled-font-size: $new-font-size * $shell-width / $desktop-width;
+                $scaled-font-size: $new-font-size * $shell-width / map-get($widths, map-get($susy, name) );
                 font-size: px($scaled-font-size);
             }
         }
