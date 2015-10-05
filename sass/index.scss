@@ -40,3 +40,16 @@
 		height: 100%;
 	}
 }
+
+@mixin height-ratio($ratio) {
+	$width: 100%;
+
+	&:after {
+		content: "";
+		display: block;
+		pointer-events: none;
+		width: $width;
+		height: 0;
+		padding-bottom: $ratio * $width;
+	}
+}
