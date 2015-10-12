@@ -135,6 +135,10 @@ Here’s the CSS output:
 - `between-desktop-and-shell`: 1291 - 1604px
 - `shell`: 1605px and wider
 
+### Breakpoints, Visualized
+
+[![](https://github.com/nytpi/nytpi-sass-utils/tree/no-eyeglass/docs/screens-09-15.png)](https://github.com/nytpi/nytpi-sass-utils/tree/no-eyeglass/docs/screens-09-15.png)
+
 ### Usage Examples
 
 ```scss
