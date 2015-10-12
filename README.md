@@ -100,7 +100,7 @@ The equivalent CSS output:
 
 ## Size Classes (Requires Susy)
 ```scss
-@import "../../node_modules/nytpi-sass-utils/sass/size-classes”;
+@import "../../node_modules/nytpi-sass-utils/sass/size-classes";
 ```
 
 Size classes implements four different Susy “pixel-grid” layouts, each with a corresponding media query. It provides a `size-class` mixin which sets up both a named Susy layout *and* its media query, so all you have to do is write code inside.
@@ -180,5 +180,82 @@ Seriously, click the above link to check out this very helpful diagram.
 	@include susy-breakpoint(tablet-portrait) {
 		// Just sets up a media query for a single named breakpoint. Fallback in case there's some issue with size-classes breakpoints
 	}
+}
+```
+
+## Font Size Mixin
+
+```scss
+@import "../../node_modules/nytpi-sass-utils/sass/font-size";
+```
+
+This mixin is a powerful approach to effectively use `vw` and `em` to not only size type, but easily define other layout properties relative to the font-size. The mixin also supports setting `font-size` in `vw` units, but in a way that lets you think in "pixels" *and* automatically switches to `px` units when the browser window is wider than the NYT5 shell's `max-width` of 1605 pixels.
+
+In other words, you can `think and code in pixels`, and the mixin automatically sets up scaling and relative proportions for you.
+
+1. Set a pixel `font-size` value that takes `$scale-factor` into account:
+
+```scss
+h1 {
+    @include font-size(64);
+     // with $scale-factor: 2, the output is:
+     // font-size: 32px;
+}
+```
+
+2. Use the `em` function to use pixel measurements to output CSS `em` values:
+
+```scss
+h1 {
+    @include font-size(64) {
+        // em() inside this context is aware of the font-size set by the mixin
+        // and uses it to scale the provided value accordingly
+        line-height: em(96);
+    }
+}
+```
+
+```css
+h1 {
+    font-size: 32px; /* = 64 / 2 * 1px */
+    line-height: 1.5em; /* = 96 / 64 * 1em */
+}
+```
+
+3. Use pixel measurements to set a `font-size` in `vw` units, which are proportional to a Size Classes layout:
+
+```scss
+h1 {
+    @include size-class($regular) {
+        // Susy layout: (columns: 2582, gutters: 0)
+        @include font-size(64, vw) {
+            line-height: em(96);
+            margin-bottom: em(32);
+        }
+    }
+}
+```
+
+Here's the output for the above example:
+
+```css
+
+/* Merged tablet-portrait, tablet-landscape, and desktop named breakpoints */
+@media (min-width: 540px) {
+    h1 {
+        font-size: 2.4786986832vw; /* = 64 / 2582 * 100vw */
+        line-height: 1.5em; /* = 96 / 64 * 1em */
+        margin-bottom: 0.5em; /* = 32 / 64 * 1em */
+    }
+}
+
+/* Separate media query to prevent font-size from continuing to scale once we're at shell's max-width of 1605 pixels */
+@media (min-width: 540px) and (min-width: 1605px) {
+    h1 {
+        /* Below, the font-size has been upscaled from the original value
+         * to match the upscaled size that the type should be at this width.
+         */
+        font-size: 39.7831138652px; /* = 64 / 2 * 3210 / 2582 * 1px */
+    }
 }
 ```
