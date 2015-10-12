@@ -86,15 +86,31 @@ The equivalent CSS output:
 	margin: 0 auto;
 	position: relative;
 	
-	/* We use the :after pseudo-element to set up a proportional height with padding-bottom that **doesn't** need to be recalculated when the element's width changes */
+	/* We use the :after pseudo-element to set up a proportional height
+	 * with padding-bottom that **doesn't** need to be recalculated when
+	 * the element's width changes */
 	&:after {
 		content: "";
 		display: block;
 		width: 100%;
 		height: 0;
 		padding-bottom: 56.25% /* = 9/16 * 100% */
-		
-	@include height-ratio(9/16); // 16:9 widescreen aspect ratio, reversed to express the height as a fraction of the width
+	}
+}
+```
+
+Compare this to the following _broken_ approach, which doesn't use a pseudo-element:
+
+```css
+.video-container {
+    width: 80%;
+    height: 0;
+     /* This is wrong: 56.25% is a fraction of the element's 80% width,
+      * and hence, is no longer going to set up a 16:9 container element.
+      */
+    padding-bottom: 56.25%;
+    position: relative;
+    margin: 0 auto;
 }
 ```
 
