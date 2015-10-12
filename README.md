@@ -88,7 +88,7 @@ The equivalent CSS output:
 	
 	/* We use the :after pseudo-element to set up a proportional height with padding-bottom that **doesn't** need to be recalculated when the element's width changes */
 	&:after {
-		content: \"\";
+		content: "";
 		display: block;
 		width: 100%;
 		height: 0;
@@ -140,7 +140,7 @@ Here’s the CSS output:
 
 ### Breakpoints, Visualized
 
-[![](https://github.com/nytpi/nytpi-sass-utils/tree/no-eyeglass/docs/screens-09-15.png)](https://github.com/nytpi/nytpi-sass-utils/tree/no-eyeglass/docs/screens-09-15.png)
+[![](https://raw.githubusercontent.com/nytpi/nytpi-sass-utils/no-eyeglass/docs/screens-09-15.png)](https://raw.githubusercontent.com/nytpi/nytpi-sass-utils/no-eyeglass/docs/screens-09-15.png)
 
 ### Usage Examples
 
