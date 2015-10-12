@@ -119,7 +119,7 @@ Here’s the CSS output:
 ```css
 @media (min-width: 1291px) {
 	.selector {
-		width: 38.729666925%; /* 1000 / 2582 * 100% */
+		width: 38.729666925%; /* = 1000 / 2582 * 100% */
 	}
 }
 ```
@@ -178,7 +178,7 @@ Seriously, please click the above link to check out this very helpful diagram. (
 
 	// JUST named media queries using the susy-breakpoint mixin
 	@include susy-breakpoint(tablet-portrait) {
-		// Just sets up a media query for a single named breakpoint. Fallback in case there's some issue with size-classes breakpoints
+		// Just sets up a media query for a single named breakpoint. Fallback in case there's some issue with using the size-classes mixin
 	}
 }
 ```
@@ -193,17 +193,22 @@ This mixin is a powerful approach to effectively use `vw` and `em` to not only s
 
 In other words, you can `think and code in pixels`, and the mixin automatically sets up scaling and relative proportions for you.
 
-1. Set a pixel `font-size` value that takes `$scale-factor` into account:
+Set a pixel `font-size` value that takes `$scale-factor` into account:
 
 ```scss
 h1 {
     @include font-size(64);
-     // with $scale-factor: 2, the output is:
-     // font-size: 32px;
 }
 ```
 
-2. Use the `em` function to use pixel measurements to output CSS `em` values:
+```css
+h1 {
+     // with $scale-factor: 2, the output is:
+     font-size: 32px;
+}
+```
+
+Use the `em` function to use pixel measurements to output CSS `em` values:
 
 ```scss
 h1 {
@@ -222,7 +227,7 @@ h1 {
 }
 ```
 
-3. Use pixel measurements to set a `font-size` in `vw` units, which are proportional to a Size Classes layout:
+Use pixel measurements to set a `font-size` in `vw` units, which are proportional to a Size Classes layout:
 
 ```scss
 h1 {
@@ -236,10 +241,8 @@ h1 {
 }
 ```
 
-Here's the output for the above example:
 
 ```css
-
 /* Merged tablet-portrait, tablet-landscape, and desktop named breakpoints */
 @media (min-width: 540px) {
     h1 {
