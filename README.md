@@ -85,17 +85,17 @@ The equivalent CSS output:
 	width: 80%;
 	margin: 0 auto;
 	position: relative;
-	
-	/* We use the :after pseudo-element to set up a proportional height
-	 * with padding-bottom that **doesn't** need to be recalculated when
-	 * the element's width changes */
-	&:after {
-		content: "";
-		display: block;
-		width: 100%;
-		height: 0;
-		padding-bottom: 56.25%; /* = 9/16 * 100% */
-	}
+}
+
+/* We use the :after pseudo-element to set up a proportional height
+ * with padding-bottom that **doesn't** need to be recalculated when
+ * the element's width changes */
+.video-container:after {
+    content: "";
+    display: block;
+    width: 100%;
+    height: 0;
+    padding-bottom: 56.25%; /* = 9/16 * 100% */
 }
 ```
 
