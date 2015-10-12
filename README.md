@@ -19,10 +19,10 @@ In your Sass file, you can then import one or more of the included Sass files. J
 
 ```scss
 @import "../../node_modules/nytpi-sass-utils/sass/index";
+@import "../../node_modules/nytpi-sass-utils/sass/size-class";
+@import "../../node_modules/nytpi-sass-utils/sass/font-size";
 // TODO: Fix oblong VHS play button once and for all
 @import "../../node_modules/nytpi-sass-utils/sass/vhs-auto-black-bars";
-@import "../../node_modules/nytpi-sass-utils/sass/font-size";
-@import "../../node_modules/nytpi-sass-utils/sass/size-class";
 ```
 
 ## Updating
@@ -116,7 +116,7 @@ Compare this to the following _broken_ approach, which doesn't use a pseudo-elem
 
 ## `size-class` Mixin (Requires Susy)
 ```scss
-@import "../../node_modules/nytpi-sass-utils/sass/size-classes";
+@import "../../node_modules/nytpi-sass-utils/sass/size-class";
 ```
 
 Size classes implements four different Susy “pixel-grid” layouts, each with a corresponding media query. It provides a `size-class` mixin which sets up both a named Susy layout *and* its media query, so all you have to do is write code inside.
