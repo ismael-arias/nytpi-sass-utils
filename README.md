@@ -203,14 +203,14 @@ Seriously, please click the above link to check out this very helpful diagram. (
 
 Susy's powerful grid system supports [nested contexts](http://susydocs.oddbird.net/en/latest/toolkit/#nested-context), which are critical for correctly sizing elements with Susy within child elements. For example, imagine we want to set up a container like this:
 
-  |-----------------------|
-  |                       |
-  |    |--------|----|    |
-  |    |        |    |    |
-  |    |        |    |    |
-  |    |--------|----|    |
-  |                       |
-  |-----------------------|
+    |-----------------------|
+    |                       |
+    |    |--------|----|    |
+    |    |        |    |    |
+    |    |        |    |    |
+    |    |--------|----|    |
+    |                       |
+    |-----------------------|
 
 Imagine we also want the layout to have a *fixed aspect ratio*, i.e. we want the child elements to fill the height of their parent. Here's an example of how we might do that:
 
