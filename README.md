@@ -25,6 +25,9 @@ In your Sass file, you can then import one or more of the included Sass files. J
 @import "../../node_modules/nytpi-sass-utils/sass/size-class";
 ```
 
+## Updating
+This package is still under very active development, so please consider running `npm update` from time to time to make sure you’re current!
+
 ## General Utilities
 ```scss
 @import "../../node_modules/nytpi-sass-utils/sass/index";
