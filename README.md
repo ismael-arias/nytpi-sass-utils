@@ -199,6 +199,59 @@ Seriously, please click the above link to check out this very helpful diagram. (
 }
 ```
 
+### Creating Nested Layouts with Susy
+
+Susy's powerful grid system supports [nested contexts](http://susydocs.oddbird.net/en/latest/toolkit/#nested-context), which are critical for correctly sizing elements with Susy within child elements. For example, imagine we want to set up a container like this:
+
+  |-----------------------|
+  |                       |
+  |    |--------|----|    |
+  |    |        |    |    |
+  |    |        |    |    |
+  |    |--------|----|    |
+  |                       |
+  |-----------------------|
+
+Imagine we also want the layout to have a *fixed aspect ratio*, i.e. we want the child elements to fill the height of their parent. Here's an example of how we might do that:
+
+```scss
+.layout-container {
+    // Set up the desktop pixel-grid and a merged media query for "wider than mobile-portrait"
+    @include size-class($regular) {
+        position: relative;
+        overflow: hidden;
+        margin: 0 auto;
+
+        // Set the container element's width
+        // 1800 of 2582 pixel-grid columns, since size-class set up that Susy layout
+        width: span(1800);
+        // Set a proportional height as well, using the height-ratio mixin
+        @include height-ratio(1000 / 1800);
+
+        // Use the Susy nested mixin to create a nested context
+        // so that child elements are correctly sized
+        @include nested(1800) {
+            .left, .right {
+                position: absolute;
+                top: 0;
+                bottom: 0;
+            }
+
+            .left {
+                left: 0;
+                // 1400 of 1800 pixel-grid columns, since we're in a nested context
+                width: span(1400);
+            }
+
+            .right {
+                right: 0;
+                width: span(400);
+            }
+        }
+    }
+}
+```
+
 ## `font-size` Mixin (and `em()` function)
 
 ```scss
