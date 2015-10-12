@@ -1,12 +1,12 @@
 # NYTPI Sass Utilities
 A collection of utilities (including Size Classes 2.0) to make your stylesheet development more pleasant and awesome.
 
-**Note:** these utilities are in a _pre-alpha_ state of development. Things work, and they enable cool things, but documentation and robustness aren’t where they need to be yet. Please let [@kohlmannj] know what bugs or design issues you find!
+**Note:** these utilities are in a _pre-alpha_ state of development. Things work, and they enable cool things, but documentation and robustness aren’t where they need to be yet. Please let [@kohlmannj](https://github.com/kohlmannj) know what bugs or design issues you find!
 
 ## Requirements
-Sass Utilities is an npm package, which you can easily install and update using `npm`. Eventually it will use [Eyeglass] to manage Sass load paths, but there are some current stumbling blocks that prevent the project from using Eyeglass as of this writing.
+Sass Utilities is an npm package, which you can easily install and update using `npm`. Eventually it will use [Eyeglass](http://eyeglass.rocks/) to manage Sass load paths, but there are some current stumbling blocks that prevent the project from using Eyeglass as of this writing.
 
-Note that the `size-class` Sass file requires that you install [the Susy grid layout framework] in your project:
+Note that the `size-class` Sass file requires that you install [the Susy grid layout framework](http://susy.oddbird.net) in your project:
 
 `$ npm install susy --save-dev`
 
@@ -34,7 +34,7 @@ This package is still under very active development, so please consider running 
 ```
 
 ### `image-replacement` mixin
-A mixin to apply some standard styles for using a background-image to "replace" an element's text node, using [the Kellum method].
+A mixin to apply some standard styles for using a background-image to "replace" an element's text node, using [the Kellum method](http://www.zeldman.com/2012/03/01/replacing-the-9999px-hack-new-image-replacement/).
 
 ### `disable-text-selection` (on iOS) mixin
 
