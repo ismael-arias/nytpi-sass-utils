@@ -38,7 +38,7 @@ A mixin to apply some standard styles for using a background-image to "replace" 
 
 ### `disable-text-selection` (on iOS) mixin
 
-### `px` function
+### `px()` function
 - Outputs unitless number values as CSS pixels, taking a `$scale-factor` into account
 - e.g. `px(32)` → `16px`, using the default `$scale-factor` of 2
 
@@ -199,15 +199,15 @@ Seriously, please click the above link to check out this very helpful diagram. (
 }
 ```
 
-## Font Size Mixin
+## `font-size` Mixin (and `em()` function)
 
 ```scss
 @import "../../node_modules/nytpi-sass-utils/sass/font-size";
 ```
 
-This mixin is a powerful approach to effectively use `vw` and `em` to not only size type, but easily define other layout properties relative to the font-size. The mixin also supports setting `font-size` in `vw` units, but in a way that lets you think in "pixels" *and* automatically switches to `px` units when the browser window is wider than the NYT5 shell's `max-width` of 1605 pixels.
+This mixin is a powerful approach to effectively use `vw` and `em` to not only size type, but easily define other layout properties relative to the font-size. The mixin also supports setting `font-size` in `vw` units in a way that automatically switches to `px` units when the browser window is wider than the NYT5 shell's `max-width` of 1605 pixels.
 
-In other words, you can `think and code in pixels`, and the mixin automatically sets up scaling and relative proportions for you.
+In other words, you can **think and code in pixels**, and the mixin automatically sets up scaling and relative proportions for you.
 
 Set a pixel `font-size` value that takes `$scale-factor` into account:
 
@@ -219,12 +219,12 @@ h1 {
 
 ```css
 h1 {
-     // with $scale-factor: 2, the output is:
+     /* with $scale-factor: 2, the output is: */
      font-size: 32px;
 }
 ```
 
-Use the `em` function to use pixel measurements to output CSS `em` values:
+Use the `em()` function to output pixel measurements as CSS `em` units:
 
 ```scss
 h1 {
@@ -243,7 +243,7 @@ h1 {
 }
 ```
 
-Use pixel measurements to set a `font-size` in `vw` units, which are proportional to a Size Classes layout:
+Use pixel measurements to set a `font-size` in `vw` units, which set proportionally to a Size Classes layout:
 
 ```scss
 h1 {
@@ -256,7 +256,6 @@ h1 {
     }
 }
 ```
-
 
 ```css
 /* Merged tablet-portrait, tablet-landscape, and desktop named breakpoints */
