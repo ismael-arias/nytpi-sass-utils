@@ -138,9 +138,9 @@ Here’s the CSS output:
 - `between-desktop-and-shell`: 1291 - 1604px
 - `shell`: 1605px and wider
 
-### Breakpoints, Visualized
+### [Breakpoints, Visualized](https://raw.githubusercontent.com/nytpi/nytpi-sass-utils/no-eyeglass/docs/screens-09-15.png)
 
-[![](https://raw.githubusercontent.com/nytpi/nytpi-sass-utils/no-eyeglass/docs/screens-09-15.png)](https://raw.githubusercontent.com/nytpi/nytpi-sass-utils/no-eyeglass/docs/screens-09-15.png)
+Seriously, click the above link to check out this very helpful diagram.
 
 ### Usage Examples
 
