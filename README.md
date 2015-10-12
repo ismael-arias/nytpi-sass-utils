@@ -109,8 +109,8 @@ Here’s a short example:
 
 ```scss
 .selector {
-	@include size-class(desktop) `{
-		width: span(1000)
+	@include size-class(desktop) {
+		width: span(1000);
 	}
 ```
 
