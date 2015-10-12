@@ -114,7 +114,7 @@ Compare this to the following _broken_ approach, which doesn't use a pseudo-elem
 }
 ```
 
-## Size Classes (Requires Susy)
+## `size-class` Mixin (Requires Susy)
 ```scss
 @import "../../node_modules/nytpi-sass-utils/sass/size-classes";
 ```
