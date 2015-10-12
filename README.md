@@ -94,7 +94,7 @@ The equivalent CSS output:
 		display: block;
 		width: 100%;
 		height: 0;
-		padding-bottom: 56.25% /* = 9/16 * 100% */
+		padding-bottom: 56.25%; /* = 9/16 * 100% */
 	}
 }
 ```
