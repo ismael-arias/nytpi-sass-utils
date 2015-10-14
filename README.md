@@ -25,6 +25,11 @@ In your Sass file, you can then import one or more of the included Sass files. J
 @import "../../node_modules/nytpi-sass-utils/sass/vhs-auto-black-bars";
 ```
 
+## Known Issues
+
+- There's a bug in the code used to merge multiple media queries into one, which may result in outputting a CSS media query with a redundant `min-width` that's superceded by a wider `min-width` (for example: `@media (min-width: 540px) and (min-width: 1605px)`)
+- Using the `font-size` mixin with `vw` units within [a Susy nested context](http://susydocs.oddbird.net/en/latest/toolkit/#nested-context) results in the wrong `vw` font-size being calculated. (More below!)
+
 ## Updating
 This package is still under very active development, so please consider running `npm update` from time to time to make sure you’re current!
 
@@ -39,7 +44,7 @@ A mixin to apply some standard styles for using a background-image to "replace" 
 ### `disable-text-selection` (on iOS) mixin
 
 ### `px()` function
-- Outputs unitless number values as CSS pixels, taking a `$scale-factor` into account
+- Outputs unitless number values as CSS pixels, taking a `$scale-factor: 2` into account
 - e.g. `px(32)` → `16px`, using the default `$scale-factor` of 2
 
 ### `svg-container` mixin
@@ -252,17 +257,25 @@ Imagine we also want the layout to have a *fixed aspect ratio*, i.e. we want the
 }
 ```
 
-## `font-size` Mixin (and `em()` function)
+## `font-size` and `min-font-size` Mixins (and `em()` function)
 
 ```scss
 @import "../../node_modules/nytpi-sass-utils/sass/font-size";
 ```
 
-This mixin is a powerful approach to effectively use `vw` and `em` to not only size type, but easily define other layout properties relative to the font-size. The mixin also supports setting `font-size` in `vw` units in a way that automatically switches to `px` units when the browser window is wider than the NYT5 shell's `max-width` of 1605 pixels.
+### `font-size` Mixin
+
+The `font-size` mixin is a powerful approach to effectively use `vw` and `em` to not only size type, but easily define other layout properties relative to the font-size. The mixin also supports setting `font-size` in `vw` units in a way that automatically switches to `px` units when the browser window is wider than the NYT5 shell's `max-width` of 1605 pixels.
 
 In other words, you can **think and code in pixels**, and the mixin automatically sets up scaling and relative proportions for you.
 
-Set a pixel `font-size` value that takes `$scale-factor` into account:
+**Known Bug:** using the `font-size` mixin with `vw` (i.e. `font-size($value, vw)`) within a Susy nested context results in the wrong `vw` font-size being calculated.
+
+**Workaround:** Use the mixin outside of Susy's `span()` or `nested()` mixin contexts.
+
+### Example Uses of the `font-size` Mixin
+
+Set a pixel `font-size` value that takes `$scale-factor: 2` into account:
 
 ```scss
 h1 {
@@ -329,4 +342,53 @@ h1 {
         font-size: 39.7831138652px; /* = 64 / 2 * 3210 / 2582 * 1px */
     }
 }
+```
+
+### `min-font-size` Mixin
+
+This mixin works in tandem with the `font-size` mixin's `vw` mode (e.g. `font-size($value, vw)`) to do two things:
+1. Calculate the viewport width at which a font-size set in `vw` units will reach the specified size in pixels (accounting for `$scale-factor: 2`)
+2. Create a media query with that width (e.g. `(max-width: something)` that sets the font-size in CSS `px` units
+
+Example:
+
+```scss
+p {
+    // Remember to call font-size($value, vw) within a size-class mixin context
+    // since it uses the current Susy layout to calculate the font-size in vw units
+    @include size-class($regular) {
+    	@include font-size(30, vw) {
+			line-height: em(40);
+			// Stop the font-size from shrinking when it reaches 28 units, i.e. 14px (accounting for `$scale-factor: 2`)
+			@include min-font-size(28);
+		}
+    }
+}
+```
+
+CSS output:
+
+```css
+@media (min-width: 540px) {
+	p {
+		font-size: 1.1618900077vw; /* = 30 / 2582 * 100vw */
+        line-height: 1.3333333333em; /* = 40 / 30 * 1em */
+    }
+
+    /* "Maximum" font-size in upscaled px units, for when the viewport is 1605px and wider */
+    @media (min-width: 540px) and (min-width: 1605px) {
+    	p {
+        	font-size: 18.648334625px; /* = 30 * 3210 / 2582 / 2 */
+		}
+	}
+
+	/* "Minimum" font-size, set when the viewport reaches the width at which
+	 * the vw font-size is equivalent to the desired minimum font-size, i.e.
+	 * (2582 * 28 / 30) / 2 = 1204.9333334px
+	 */
+    @media (min-width: 540px) and (max-width: 1204.9333334px) {
+		p {
+      		font-size: 14px;
+      	}
+	}
 ```

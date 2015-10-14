@@ -48,3 +48,14 @@ $base-font-size-unitless: 16 !global;
     // Restore the old value of $base $base-font-size-unitless
     $base-font-size-unitless: $old !global;
 }
+
+@mixin min-font-size($min-font-size) {
+	@if $susy and map-has-key($susy, name) {
+		$layout-pixels-width: map-get($widths, map-get($susy, name) );
+		$min-font-size-width: $layout-pixels-width * $min-font-size / $base-font-size-unitless;
+
+		@media (max-width: px($min-font-size-width) ) {
+			font-size: px($min-font-size);
+		}
+	}
+}
