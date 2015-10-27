@@ -454,12 +454,12 @@ $susy-size-class-keywords: (
 				$layout,
 				$no-query
 			) {
-				/* #{$options} --> Conditional Layout: #{$target-layout} */
+				/* Conditional Layout: inspect($target-layout) */
 				@content;
 			}
 		} @else {
 			@include with-layout($layout) {
-				/* #{$options} --> Unconditional Layout: #{$target-layout} */
+				/* Unconditional Layout: inspect($target-layout) */
 				@content;
 			}
 		}

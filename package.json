@@ -3,7 +3,7 @@
   "eyeglass": {
     "exports": "eyeglass-exports.js"
   },
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "NYTPI Sass Utilities",
   "main": "eyeglass-exports.js",
   "author": {
