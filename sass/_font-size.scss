@@ -17,6 +17,7 @@ $base-font-size-unitless: 16 !global !default;
 
 // Clever font-size mixin that changes value of $base-font-size-unitless in-scope
 // Also supports vw-unit output based on the current Susy layout
+// TODO: Default $scale-unit to the value of $output-unit
 @mixin font-size($new-font-size: $base-font-size-unitless, $output-unit: px, $scale-mode: none, $scale-unit: px) {
     $old: $base-font-size-unitless;
     // Reassign $base-font-size-unitless in this scope, and restore it once we're done
