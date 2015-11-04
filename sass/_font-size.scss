@@ -30,6 +30,9 @@ $base-font-size-unitless: 16 !global;
         $scale-mode: upscale;
     }
 
+	// Calculate the font-size in vw units (we use it twice below)
+	$new-font-size-in-vw-units: $new-font-size / map-get($susy, columns) * 100vw;
+
     @if $output-unit == px {
 		font-size: px($new-font-size);
 	} @else if $output-unit == em {
@@ -38,13 +41,13 @@ $base-font-size-unitless: 16 !global;
 		font-size: rem($new-font-size, $old);
     } @else if $output-unit == vw {
 		// Use the current Susy layout's columns as a basis to calculate the correct vw value
-        font-size: $new-font-size / map-get($susy, columns) * 100vw;
+        font-size: $new-font-size-in-vw-units;
     }
 
 	@if $scale-mode == upscale {
 		@include susy-breakpoint(beyond-desktop) {
 			// Use the current Susy layout's columns as a basis to calculate the correct vw value
-			font-size: $new-font-size / map-get($susy, columns) * 100vw;
+			font-size: $new-font-size-in-vw-units;
 		}
 	}
 
@@ -52,7 +55,9 @@ $base-font-size-unitless: 16 !global;
 	@if ($output-unit == vw or $scale-mode == upscale) and $susy {
         @if (map-has-key($susy, name) and map-get($susy, name) == desktop and $shell-width and $desktop-width) {
             @include susy-breakpoint(shell) {
+
                 $scaled-font-size: $new-font-size * $shell-width / $desktop-width;
+
 				@if $scale-unit == px {
 					font-size: px($scaled-font-size);
 				} @else if $scale-unit == em {
