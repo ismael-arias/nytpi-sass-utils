@@ -5,7 +5,7 @@
 // Defaults //
 //////////////
 $default-layout-unit: pixels !default;
-$scale-factor: 2 !default;
+$scale-factor: 2 !global !default;
 
 $compact: mobile-portrait;
 $regular: desktop to tablet-portrait;
