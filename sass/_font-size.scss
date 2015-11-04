@@ -23,7 +23,8 @@ $base-font-size-unitless: 16 !global !default;
     $base-font-size-unitless: $new-font-size !global;
 
     // Automatically switch to px-upscale when appropriate
-    @if ($output-unit == px or $output-unit == em or $output-unit == rem) and
+	// This should only happen for px (we shouldn't change from em to vw and back to avoid breaking certain accessibility issues)
+    @if ($output-unit == px) and
         (variable-exists(susy) and map-has-key($susy, name) and map-get($susy, name) == desktop)
     {
 		$scale-unit: $output-unit;
