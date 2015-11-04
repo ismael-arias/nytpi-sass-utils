@@ -1,43 +1,77 @@
-$base-font-size-unitless: 16 !global;
+// Mimicking browser-standard font-size: 16px default
+$base-font-size-unitless: 16 !global !default;
+
+// Re-assign $base-font-size-unitless if $scale-factor is present
+@if global-variable-exists(scale-factor) {
+	$base-font-size-unitless: $base-font-size-unitless * $scale-factor !global !default;
+}
 
 // Easy-peasy mixin to calculate an em value from the ratio of a given integer and the current font-size integer value
 @function em($unitless, $font-size: $base-font-size-unitless) {
     @return 1em * $unitless / $font-size;
 }
 
+@function rem($unitless, $font-size: $base-font-size-unitless) {
+	@return 1rem * $unitless / $font-size;
+}
+
 // Clever font-size mixin that changes value of $base-font-size-unitless in-scope
 // Also supports vw-unit output based on the current Susy layout
-@mixin font-size($new-font-size: 16, $output-unit: px, $scale-mode: none) {
+// TODO: Default $scale-unit to the value of $output-unit
+@mixin font-size($new-font-size: $base-font-size-unitless, $output-unit: px, $scale-mode: none, $scale-unit: px) {
     $old: $base-font-size-unitless;
     // Reassign $base-font-size-unitless in this scope, and restore it once we're done
     $base-font-size-unitless: $new-font-size !global;
 
     // Automatically switch to px-upscale when appropriate
-    @if $output-unit == px and ($susy and map-has-key($susy, name) and map-get($susy, name) == desktop) {
-        $output-unit: px;
+	// This should only happen for px (we shouldn't change from em to vw and back to avoid breaking certain accessibility issues)
+    @if ($output-unit == px) and
+        (variable-exists(susy) and map-has-key($susy, name) and map-get($susy, name) == desktop)
+    {
+		$scale-unit: $output-unit;
         $scale-mode: upscale;
     }
 
     @if $output-unit == px {
-        font-size: px($new-font-size);
+		font-size: px($new-font-size);
+	} @else if $output-unit == em {
+		font-size: em($new-font-size, $old);
+	} @else if $output-unit == rem {
+		font-size: rem($new-font-size, $old);
     } @else if $output-unit == vw {
-		// Use the current Susy layout's columns as a basis to calculate the correct vw value
-        font-size: $new-font-size / map-get($susy, columns) * 100vw;
-    }
-
-	@if $output-unit == px and $scale-mode == upscale {
-		@include susy-breakpoint(beyond-desktop) {
+		@if variable-exists(susy) and map-get($susy, columns) {
 			// Use the current Susy layout's columns as a basis to calculate the correct vw value
 			font-size: $new-font-size / map-get($susy, columns) * 100vw;
+		} @else {
+			@error "Cannot calculate vw units for font-size without a Susy layout. Please declare a Susy layout or call font-size() within a size-class() context.";
+		}
+    }
+
+	@if $scale-mode == upscale and variable-exists(susy) {
+		@include susy-breakpoint(beyond-desktop) {
+			// Use the current Susy layout's columns as a basis to calculate the correct vw value
+			@if variable-exists(susy) and map-get($susy, columns) {
+				// Use the current Susy layout's columns as a basis to calculate the correct vw value
+				font-size: $new-font-size / map-get($susy, columns) * 100vw;
+			} @else {
+				@error "Cannot upscale this font-size using vw units without a Susy layout. Please call font-size() within a size-class() context.";
+			}
 		}
 	}
 
-	// Temporary hack to limit font-size to a scaled pixel value for susy-size-class's `shell` breakpoint
-	@if ($output-unit == vw or ($output-unit == px and $scale-mode == upscale)) and $susy {
-        @if (map-has-key($susy, name) and map-get($susy, name) == desktop) {
+	// Limit font-size to a scaled pixel value for susy-size-class's `shell` breakpoint
+	@if ($output-unit == vw or $scale-mode == upscale) and $susy {
+        @if map-has-key($susy, name) and map-get($susy, name) == desktop and variable-exists(shell-width) and variable-exists(desktop-width) {
             @include susy-breakpoint(shell) {
                 $scaled-font-size: $new-font-size * $shell-width / $desktop-width;
-                font-size: px($scaled-font-size);
+
+				@if $scale-unit == px {
+					font-size: px($scaled-font-size);
+				} @else if $scale-unit == em {
+					font-size: em($scaled-font-size, $old);
+				} @else if $scale-unit == rem {
+					font-size: rem($scaled-font-size, $old);
+				}
             }
         }
     }
@@ -49,13 +83,19 @@ $base-font-size-unitless: 16 !global;
     $base-font-size-unitless: $old !global;
 }
 
-@mixin min-font-size($min-font-size) {
+@mixin min-font-size($min-font-size, $output-unit: px) {
 	@if $susy and map-has-key($susy, name) {
 		$layout-pixels-width: map-get($widths, map-get($susy, name) );
 		$min-font-size-width: $layout-pixels-width * $min-font-size / $base-font-size-unitless;
 
 		@media (max-width: px($min-font-size-width) ) {
-			font-size: px($min-font-size);
+			@if $output-unit == px {
+				font-size: px($min-font-size);
+			} @else if $output-unit == em {
+				font-size: em($min-font-size);
+			} @else if $output-unit == rem {
+				font-size: rem($min-font-size);
+			}
 		}
 	}
 }

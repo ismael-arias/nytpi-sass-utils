@@ -4,7 +4,7 @@ A collection of utilities (including Size Classes 2.0) to make your stylesheet d
 **Note:** these utilities are in a _pre-alpha_ state of development. Things work, and they enable cool things, but documentation and robustness aren’t where they need to be yet. Please let [@kohlmannj](https://github.com/kohlmannj) know what bugs or design issues you find!
 
 ## Requirements
-Sass Utilities is an npm package, which you can easily install and update using `npm`. Eventually it will use [Eyeglass](http://eyeglass.rocks/) to manage Sass load paths, but there are some current stumbling blocks that prevent the project from using Eyeglass as of this writing.
+NYTPI Sass Utilities is an npm package, which you can easily install and update using `npm`. Eventually it will use [Eyeglass](http://eyeglass.rocks/) to manage Sass load paths, but there are some current stumbling blocks that prevent the project from using Eyeglass as of this writing.
 
 Note that the `size-class` Sass file requires that you install [the Susy grid layout framework](http://susy.oddbird.net) in your project:
 
@@ -15,7 +15,7 @@ In Terminal, in the root level of your project, run this command:
 
 `$ npm install https://github.com/nytpi/nytpi-sass-utils#no-eyeglass --save-dev`
 
-In your Sass file, you can then import one or more of the included Sass files. Just make sure you’re using an import path that’s relative to your Sass file’s location, like so:
+In your Sass file, you can then import one or more of the included Sass files. Just make sure you’re using an import path that’s **relative to your Sass file’s location**, like so:
 
 ```scss
 @import "../../node_modules/nytpi-sass-utils/sass/index";
@@ -24,6 +24,8 @@ In your Sass file, you can then import one or more of the included Sass files. J
 // TODO: Fix oblong VHS play button once and for all
 @import "../../node_modules/nytpi-sass-utils/sass/vhs-auto-black-bars";
 ```
+
+([Eyeglass](http://eyeglass.rocks) may fix this load-path situation someday, but it's not quite ready for primetime.)
 
 ## Known Issues
 
@@ -138,9 +140,9 @@ Here’s a short example:
 Here’s the CSS output:
 
 ```css
-@media (min-width: 1291px) {
+@media (min-width: 1280px) {
 	.selector {
-		width: 38.729666925%; /* = 1000 / 2582 * 100% */
+		width: 39.0625%; /* = 1000 / 2560 * 100% */
 	}
 }
 ```
@@ -149,58 +151,156 @@ Here’s the CSS output:
 - `mobile-portrait`: 640-unit grid
 - `tablet-portrait`: 1526-unit grid
 - `tablet-landscape`: 2048-unit grid
-- `desktop`: 2582-unit grid
+- `desktop`: 2560-unit grid
 
 ### Named Breakpoints
 - `mobile-portrait`: 0 - 539px
 - `tablet-portrait`: 540 - 853px
-- `tablet-landscape` 854 - 1290px
-- `desktop`: 1291px and wider
-- `between-desktop-and-shell`: 1291 - 1604px
+- `tablet-landscape` 854 - 1279px
+- `desktop`: 1280px and wider
+- `beyond-desktop`: 1281px and wider
+- `between-desktop-and-shell`: 1281 - 1604px
 - `shell`: 1605px and wider
+
+### Named Shorthands
+
+There are a few convenience variables defined to make designing for *ranges* of size classes easier:
+
+- **$regular**: `desktop to tablet-portrait`
+    - Use the `desktop` named layout and scales all the way down to the `tablet-portrait` breakpoint
+- **$compact**: `mobile-portrait`
+    - Really simple shorthand, but intended to be the opposite of `$regular`
+    - You could imagine redefining these two variables to, for example, start using "compact" layout code for `tablet-portrait` breakpoints: `$regular: desktop to tablet-landscape; $compact: mobile-portrait to tablet-portrait;`
+- **$all-desktop**: `desktop to mobile-portrait`
+    - Downscale the `desktop` named layout, all the way down to `mobile-portrait` breakpoint
+    - *No media query results when using this*, since we're covering the whole range of breakpoints
+- **$all-mobile**: `mobile-potrait to desktop`
+    - Upscale the `mobile-portrait` named layout, all the way up to the `shell` breakpoint
+     - *No media query results when using this*, since we're covering the whole range of breakpoints
 
 ### [Breakpoints, Visualized](https://github.com/nytpi/nytpi-sass-utils/blob/no-eyeglass/docs/screens-09-15.png)
 
-Seriously, please click the above link to check out this very helpful diagram. (Make sure you view it at full size!)
+Please click the above link to check out this very helpful diagram. (Make sure you view it at full size!)
 
 ### Usage Examples
 
+#### Using the "$compact" shorthand and Susy's `span` function
+
+SCSS:
 ```scss
 .selector {
-	// Unconditional styles here
-
-	// Using the "$compact" shortcut
 	@include size-class($compact) {
 		// Sets up a media query (max-width: px($compact-max-width)) *and* a Susy "pixel grid" layout (columns: 640, gutters: 0)
-		width: span(320); // width: 320 / $compact-width * 100% = 50%;
+		width: span(320);
 	}
+```
 
-	// Using the "$regular" shortcut
+Resulting CSS output:
+```css
+@media (max-width: 539px) {
+    .selector {
+        width: 50%; /* = 320 / 640 * 100% */
+    }
+}
+```
+
+#### Using the "$regular" shorthand
+
+```scss
+.selector {
 	@include size-class($regular) {
-		// Sets up a media query (min-width: px($tablet-portrait-min-width)) *and* a Susy "pixel grid" layout (columns: 2582, gutters: 0)
+	// Sets up a media query (min-width: px($tablet-portrait-min-width)) *and* a Susy "pixel grid" layout (columns: 2560, gutters: 0)
+		width: span(640);
 	}
+}
+```
 
-	// Using named layouts: desktop, tablet-landscape, tablet-portrait, mobile-portrait
+```css
+@media (min-width: 540px) {
+    .selector {
+        width: 25%; /* = 640 / 2560 * 100% */
+    }
+}
+```
+
+#### Using named layouts: `desktop`, `tablet-landscape`, `tablet-portrait`, `mobile-portrait`
+
+```scss
+.selector {
 	@include size-class(desktop) {
-		// Sets up a media query (min-width: px($desktop-min-width)) *and* a Susy "pixel grid" layout (columns: 2582, gutters: 0)
+		// Sets up a media query (min-width: px($desktop-min-width)) *and* a Susy "pixel grid" layout (columns: 2560, gutters: 0)
+		width: span(720); // width: 640 / 2560 * 100% = 28.125%;
 	}
+}
+```
 
-	// Using "ranging" capabilities to recreate "$regular", and "downscaling" desktop all the way down to tablet-portrait
-	@include size-class(desktop to tablet-portrait) {
-		// A single layout (columns: 2582, gutters: 0) extended across multiple breakpoints (tablet-portrait to desktop)
-		// Generates a *single* "merged" media query (min-width: px($tablet-portrait-min-width))
+```css
+@media (min-width: 1280px) {
+	.selector {
+		width: 28.125%; /* = 720 / 2560 * 100% */
 	}
+}
+```
 
-	// Directionality with "to" matters: here we're *upscaling* tablet-portrait to tablet-landscape
+#### Using a range of layouts to "downscale" `desktop` all the way down to `tablet-landscape`
+
+```scss
+.selector {
+	@include size-class(desktop to tablet-landscape) {
+		// A single layout (columns: 2560, gutters: 0) extended across multiple breakpoints (tablet-portrait to desktop)
+		// Generates a *single* "merged" media query (min-width: px($tablet-landscape-min-width))
+		width: span(800); // width: 800 / 2560 * 100% = 31.25%;
+	}
+}
+```
+
+```css
+@media (min-width: 854px) {
+    .selector {
+        width: 31.25%; /* = 800 / 2560 * 100% */
+    }
+}
+```
+
+#### Directionality with `to` matters: "upscaling" `tablet-portrait` to `tablet-landscape`
+
+```scss
+.selector {
 	@include size-class(tablet-portrait to tablet-landscape) {
 		// Sets up a single media query (min-width: px($tablet-portrait-min-width)) and (max-width: px($desktop-min-width) - $pixel-ratio)
 		// *and* the tablet-portrait pixel grid (columns: 1536, gutters: 0)
+		width: span(540); // width: 540 / 1536 * 100% = 35.15625%;
 	}
+}
+```
 
-	// JUST named media queries using the susy-breakpoint mixin
+```css
+@media (min-width: 540px) and (max-width: 1279px) {
+    .selector {
+        width: 35.15625%; /* = 540 / 1536 * 100% */
+    }
+}
+```
+
+#### Using named breakpoints only with `susy-breakpoint()`
+
+The `size-class()` mixin provides a significant superset of what `susy-breakpoint()` can do, so this is just to let you know that you can use `susy-breakpoint()` if you like.
+
+```scss
+.selector {
+	// JUST named media queries using the susy-breakpoint() mixin
 	@include susy-breakpoint(tablet-portrait) {
-		// Just sets up a media query for a single named breakpoint. Fallback in case there's some issue with using the size-classes mixin
+		// Just sets up a media query for a single named breakpoint.
+		width: 50%;
 	}
+}
+```
+
+```css
+@media (min-width: 540px) and (max-width: 853px) {
+    .selector {
+        width: 50%;
+    }
 }
 ```
 
@@ -228,7 +328,7 @@ Imagine we also want the layout to have a *fixed aspect ratio*, i.e. we want the
         margin: 0 auto;
 
         // Set the container element's width
-        // 1800 of 2582 pixel-grid columns, since size-class set up that Susy layout
+        // 1800 of 2560 pixel-grid columns, since size-class set up that Susy layout
         width: span(1800);
         // Set a proportional height as well, using the height-ratio mixin
         @include height-ratio(1000 / 1800);
@@ -314,7 +414,7 @@ Use pixel measurements to set a `font-size` in `vw` units, which set proportiona
 ```scss
 h1 {
     @include size-class($regular) {
-        // Susy layout: (columns: 2582, gutters: 0)
+        // Susy layout: (columns: 2560, gutters: 0)
         @include font-size(64, vw) {
             line-height: em(96);
             margin-bottom: em(32);
@@ -327,7 +427,7 @@ h1 {
 /* Merged tablet-portrait, tablet-landscape, and desktop named breakpoints */
 @media (min-width: 540px) {
     h1 {
-        font-size: 2.4786986832vw; /* = 64 / 2582 * 100vw */
+        font-size: 2.5vw; /* = 64 / 2560 * 100vw */
         line-height: 1.5em; /* = 96 / 64 * 1em */
         margin-bottom: 0.5em; /* = 32 / 64 * 1em */
     }
@@ -339,7 +439,7 @@ h1 {
         /* Below, the font-size has been upscaled from the original value
          * to match the upscaled size that the type should be at this width.
          */
-        font-size: 39.7831138652px; /* = 64 / 2 * 3210 / 2582 * 1px */
+        font-size: 40.125px; /* = 64 / 2 * 3210 / 2560 * 1px */
     }
 }
 ```
@@ -371,22 +471,22 @@ CSS output:
 ```css
 @media (min-width: 540px) {
 	p {
-		font-size: 1.1618900077vw; /* = 30 / 2582 * 100vw */
+		font-size: 1.171875vw; /* = 30 / 2560 * 100vw */
         line-height: 1.3333333333em; /* = 40 / 30 * 1em */
     }
 
     /* "Maximum" font-size in upscaled px units, for when the viewport is 1605px and wider */
     @media (min-width: 540px) and (min-width: 1605px) {
     	p {
-        	font-size: 18.648334625px; /* = 30 * 3210 / 2582 / 2 */
+        	font-size: 18.80859375px; /* = 30 * 3210 / 2560 / 2 */
 		}
 	}
 
 	/* "Minimum" font-size, set when the viewport reaches the width at which
 	 * the vw font-size is equivalent to the desired minimum font-size, i.e.
-	 * (2582 * 28 / 30) / 2 = 1204.9333334px
+	 * (2560 * 28 / 30) / 2 = 1194.6666667px
 	 */
-    @media (min-width: 540px) and (max-width: 1204.9333334px) {
+    @media (min-width: 540px) and (max-width: 1194.6666667px) {
 		p {
       		font-size: 14px;
       	}
