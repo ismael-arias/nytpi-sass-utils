@@ -1,9 +1,9 @@
 // Mimicking browser-standard font-size: 16px default
-$base-font-size-unitless: 16 !global;
+$base-font-size-unitless: 16 !global !default;
 
 // Re-assign $base-font-size-unitless if $scale-factor is present
 @if $scale-factor {
-	$base-font-size-unitless: $base-font-size-unitless * $scale-factor !global;
+	$base-font-size-unitless: $base-font-size-unitless * $scale-factor !global !default;
 }
 
 // Easy-peasy mixin to calculate an em value from the ratio of a given integer and the current font-size integer value
@@ -30,9 +30,6 @@ $base-font-size-unitless: 16 !global;
         $scale-mode: upscale;
     }
 
-	// Calculate the font-size in vw units (we use it twice below)
-	$new-font-size-in-vw-units: $new-font-size / map-get($susy, columns) * 100vw;
-
     @if $output-unit == px {
 		font-size: px($new-font-size);
 	} @else if $output-unit == em {
@@ -40,18 +37,27 @@ $base-font-size-unitless: 16 !global;
 	} @else if $output-unit == rem {
 		font-size: rem($new-font-size, $old);
     } @else if $output-unit == vw {
-		// Use the current Susy layout's columns as a basis to calculate the correct vw value
-        font-size: $new-font-size-in-vw-units;
+		@if $susy and map-get($susy, columns) {
+			// Use the current Susy layout's columns as a basis to calculate the correct vw value
+			font-size: map-get($susy, columns) * 100vw;
+		} @else {
+			@error "Cannot calculate vw units for font-size without a Susy layout. Please declare a Susy layout or call font-size() within a size-class() context.";
+		}
     }
 
-	@if $scale-mode == upscale {
+	@if $scale-mode == upscale and $susy {
 		@include susy-breakpoint(beyond-desktop) {
 			// Use the current Susy layout's columns as a basis to calculate the correct vw value
-			font-size: $new-font-size-in-vw-units;
+			@if $susy and map-get($susy, columns) {
+				// Use the current Susy layout's columns as a basis to calculate the correct vw value
+				font-size: map-get($susy, columns) * 100vw;
+			} @else {
+				@error "Cannot upscale this font-size using vw units without a Susy layout. Please call font-size() within a size-class() context.";
+			}
 		}
 	}
 
-	// Temporary hack to limit font-size to a scaled pixel value for susy-size-class's `shell` breakpoint
+	// Limit font-size to a scaled pixel value for susy-size-class's `shell` breakpoint
 	@if ($output-unit == vw or $scale-mode == upscale) and $susy {
         @if (map-has-key($susy, name) and map-get($susy, name) == desktop and $shell-width and $desktop-width) {
             @include susy-breakpoint(shell) {

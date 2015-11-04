@@ -1,4 +1,4 @@
-@import "susy";
+@import "../../susy/sass/susy";
 @import "size-class-support";
 
 //////////////
@@ -22,7 +22,7 @@ $all-desktop: desktop to mobile-portrait;
 $mobile-portrait-width:   640 !default;
 $tablet-portrait-width:  1536 !default;
 $tablet-landscape-width: 2048 !default;
-$desktop-width:          2582 !default;
+$desktop-width:          2560 !default;
 // We need to know the max width of the .shell container, so this is a "special" width.
 $shell-width:            3210 !default;
 
