@@ -39,7 +39,7 @@ $base-font-size-unitless: 16 !global !default;
     } @else if $output-unit == vw {
 		@if variable-exists(susy) and map-get($susy, columns) {
 			// Use the current Susy layout's columns as a basis to calculate the correct vw value
-			font-size: map-get($susy, columns) * 100vw;
+			font-size: $new-font-size / map-get($susy, columns) * 100vw;
 		} @else {
 			@error "Cannot calculate vw units for font-size without a Susy layout. Please declare a Susy layout or call font-size() within a size-class() context.";
 		}
@@ -50,7 +50,7 @@ $base-font-size-unitless: 16 !global !default;
 			// Use the current Susy layout's columns as a basis to calculate the correct vw value
 			@if variable-exists(susy) and map-get($susy, columns) {
 				// Use the current Susy layout's columns as a basis to calculate the correct vw value
-				font-size: map-get($susy, columns) * 100vw;
+				font-size: $new-font-size / map-get($susy, columns) * 100vw;
 			} @else {
 				@error "Cannot upscale this font-size using vw units without a Susy layout. Please call font-size() within a size-class() context.";
 			}
