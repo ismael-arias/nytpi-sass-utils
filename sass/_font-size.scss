@@ -1,9 +1,9 @@
-// Mimicking browser-standard font-size: 16px default
-$base-font-size-unitless: 16 !global !default;
-
-// Re-assign $base-font-size-unitless if $scale-factor is present
+// Set $base-font-size-unitless as a multiple of $scale-factor if the latter exists.
 @if global-variable-exists(scale-factor) {
-	$base-font-size-unitless: $base-font-size-unitless * $scale-factor !global !default;
+	$base-font-size-unitless: 16 * $scale-factor !global !default;
+} @else {
+	// Mimicking browser-standard font-size: 16px default
+	$base-font-size-unitless: 16 !global !default;
 }
 
 // Easy-peasy mixin to calculate an em value from the ratio of a given integer and the current font-size integer value
