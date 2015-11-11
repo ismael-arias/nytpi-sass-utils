@@ -154,17 +154,27 @@ Here’s the CSS output:
 - `desktop`: 2560-unit grid
 
 ### Named Breakpoints
+
+Note: values below are in CSS pixels. Since `$scale-factor` = 2 by default, the actual default values being set are double whatever appears below.
+
 - `mobile-portrait`: 0 - 539px
-- `tablet-portrait`: 540 - 853px
-- `tablet-landscape` 854 - 1279px
-- `desktop`: 1280px and wider
-- `beyond-desktop`: 1281px and wider
+- `tablet-portrait`: **540** - 853px
+    - Lower bound set by `$tablet-portrait-min-width`
+- `tablet-landscape` **854** - 1279px
+    - Lower bound set by `$tablet-landscape-min-width`
+- `desktop`: **1280**px and wider
+    - Lower bound set by `$desktop-min-width`
+- `beyond-desktop`: **1281**px and wider
+    - Lower bound set by `$beyond-desktop-min-width`
 - `between-desktop-and-shell`: 1281 - 1604px
-- `shell`: 1605px and wider
+    - Lower bound set by `$beyond-desktop-min-width`
+- `shell`: **1605**px and wider
+    - Lower bound set by `$shell-min-width`
 
-### Named Shorthands
+### Named Size Families
 
-There are a few convenience variables defined to make designing for *ranges* of size classes easier:
+There are a few convenience variables defined to make designing for *ranges* of size classes easier.
+I've decided to call these **size families**, since they represent collections of size classes.
 
 - **$regular**: `desktop to tablet-portrait`
     - Use the `desktop` named layout and scales all the way down to the `tablet-portrait` breakpoint
@@ -182,7 +192,63 @@ There are a few convenience variables defined to make designing for *ranges* of 
 
 Please click the above link to check out this very helpful diagram. (Make sure you view it at full size!)
 
-### Usage Examples
+### Customization
+
+Right now you **cannot** create your own names for layouts, breakpoints, etc., but you *can* customize a fair amount.
+
+#### Customization and Import Ordering
+
+Make sure you're assigning values to these variables before importing _size-class.scss, like so:
+
+```scss
+// Match NYT5's 765px min-width for .viewport-medium-10
+$tablet-portrait-min-width: 1530;
+// Import _size-class.scss
+@import "../../node_modules/nytpi-sass-utils/sass/size-class";
+```
+
+#### Customizing Layout Widths
+You can customize the following variables to change pixel layout widths with a **unitless integer**:
+
+- `$mobile-portrait-width`
+- `$tablet-portrait-width`
+-  `$tablet-landscape-width`
+- ` $desktop-width`
+- ` $shell-width`
+
+```scss
+// Example: customizing the desktop layout width
+$desktop-width: 2582;
+```
+
+#### Customizing Named Breakpoint Boundaries
+You can also customize the following variables to change named breakpoint bounds:
+
+- `$tablet-portrait-min-width`
+- `$tablet-landscape-min-width`
+-  `$desktop-min-width`
+-  $beyond-desktop-min-width
+-  $shell-min-width
+
+```scss
+// Example: customizing the tablet-landscape min-width
+$tablet-portrait-min-width: 1530;
+```
+
+#### Customizing Size Family Variables
+Finally, if you need to change the built-in size families (maybe you want `mobile-portrait` and `tablet-portrait` in the `$compact` size family, for example), assign new values to these variables:
+
+- `$compact`
+- `$regular`
+- `$all-mobile`
+- `$all-desktop`
+
+```scss
+// Example: customizing $compact to **upscale** mobile-portrait layouts through to the tablet-portrait breakpoint
+$compact: mobile-portrait to tablet-portrait;
+```
+
+### General Usage Examples
 
 #### Using the "$compact" shorthand and Susy's `span` function
 

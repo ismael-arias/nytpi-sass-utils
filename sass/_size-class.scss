@@ -7,10 +7,10 @@
 $default-layout-unit: pixels !default;
 $scale-factor: 2 !global !default;
 
-$compact: mobile-portrait;
-$regular: desktop to tablet-portrait;
-$all-mobile: mobile-portrait to desktop;
-$all-desktop: desktop to mobile-portrait;
+$compact: mobile-portrait !default;
+$regular: desktop to tablet-portrait !default;
+$all-mobile: mobile-portrait to desktop !default;
+$all-desktop: desktop to mobile-portrait !default;
 
 @function px($unitless, $scale-factor: $scale-factor) {
 	@return $unitless / $scale-factor * 1px;
@@ -95,11 +95,11 @@ $susy-media-font-units: (
 );
 
 // TODO: See if it's possible to generalize this
-$tablet-portrait-min-width: round( map-get($widths, mobile-portrait) * $tablet-portrait-min-width-factor );
-$tablet-landscape-min-width: round( map-get($widths, tablet-portrait) * $tablet-landscape-min-width-factor );
-$desktop-min-width: round( map-get($widths, tablet-landscape) * $desktop-min-width-factor );
-$beyond-desktop-min-width: round( map-get($widths, desktop) );
-$shell-min-width: $shell-width;
+$tablet-portrait-min-width: round( map-get($widths, mobile-portrait) * $tablet-portrait-min-width-factor ) !default;
+$tablet-landscape-min-width: round( map-get($widths, tablet-portrait) * $tablet-landscape-min-width-factor ) !default;
+$desktop-min-width: round( map-get($widths, tablet-landscape) * $desktop-min-width-factor ) !default;
+$beyond-desktop-min-width: round( map-get($widths, desktop) ) !default;
+$shell-min-width: $shell-width !default;
 
 $susy-media: (
 	////////////////////////
