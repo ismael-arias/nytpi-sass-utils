@@ -192,7 +192,7 @@ I've decided to call these **size families**, since they represent collections o
 
 Please click the above link to check out this very helpful diagram. (Make sure you view it at full size!)
 
-### Customization
+### Customizing Size Classes
 
 Right now you **cannot** create your own names for layouts, breakpoints, etc., but you *can* customize a fair amount.
 
@@ -227,8 +227,8 @@ You can also customize the following variables to change named breakpoint bounds
 - `$tablet-portrait-min-width`
 - `$tablet-landscape-min-width`
 -  `$desktop-min-width`
--  $beyond-desktop-min-width
--  $shell-min-width
+- ` $beyond-desktop-min-width`
+- ` $shell-min-width`
 
 ```scss
 // Example: customizing the tablet-landscape min-width
@@ -244,7 +244,8 @@ Finally, if you need to change the built-in size families (maybe you want `mobil
 - `$all-desktop`
 
 ```scss
-// Example: customizing $compact to **upscale** mobile-portrait layouts through to the tablet-portrait breakpoint
+// Example: customizing $compact to **upscale**
+// mobile-portrait layouts through to the tablet-portrait breakpoint
 $compact: mobile-portrait to tablet-portrait;
 ```
 
