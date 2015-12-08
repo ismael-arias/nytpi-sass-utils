@@ -41,14 +41,19 @@
 	}
 }
 
-@mixin height-ratio($ratio) {
+@mixin height-ratio($ratio, $use-after-pseudo-element: true) {
 	$width: 100%;
 
-	&:after {
-		content: "";
-		display: block;
-		pointer-events: none;
-		width: $width;
+	@if $use-after-pseudo-element {
+		&:after {
+			content: "";
+			display: block;
+			pointer-events: none;
+			width: $width;
+			height: 0;
+			padding-bottom: $ratio * $width;
+		}
+	} @else {
 		height: 0;
 		padding-bottom: $ratio * $width;
 	}

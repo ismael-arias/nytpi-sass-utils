@@ -6,7 +6,7 @@ A collection of utilities (including Size Classes 2.0) to make your stylesheet d
 ## Requirements
 NYTPI Sass Utilities is an npm package, which you can easily install and update using `npm`. Eventually it will use [Eyeglass](http://eyeglass.rocks/) to manage Sass load paths, but there are some current stumbling blocks that prevent the project from using Eyeglass as of this writing.
 
-Note that the `size-class` Sass file requires that you install [the Susy grid layout framework](http://susy.oddbird.net) in your project:
+Note that the `size-class` Sass file requires that you install [the Susy grid layout framework](http://susy.oddbird.net) as a direct devDependency in your project:
 
 `$ npm install susy --save-dev`
 
