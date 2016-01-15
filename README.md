@@ -219,12 +219,9 @@ You can customize the following variables to change pixel layout widths with a *
 
 - `$mobile-portrait-width`
 - `$tablet-portrait-width`
--   
-	`$tablet-landscape-width`
-- `  
-	$desktop-width`
-- `  
-	$shell-width`
+- `$tablet-landscape-width`
+- `$desktop-width`
+- `$shell-width`
 
 ```scss
 // Example: customizing the desktop layout width
@@ -236,12 +233,9 @@ You can also customize the following variables to change named breakpoint bounds
 
 - `$tablet-portrait-min-width`
 - `$tablet-landscape-min-width`
--   
-	`$desktop-min-width`
-- `  
-	$beyond-desktop-min-width`
-- `  
-	$shell-min-width`
+- `$desktop-min-width`
+- `$beyond-desktop-min-width`
+- `$shell-min-width`
 
 ```scss
 // Example: customizing the tablet-landscape min-width
