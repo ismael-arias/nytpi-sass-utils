@@ -152,6 +152,12 @@ Here’s the CSS output:
 }
 ```
 
+### [Breakpoints, Visualized][7]
+
+![][image-1]
+
+This diagram shows all four size classes and the default range of widths for which they are active. Representative _breakpoints_ include the four named size classes, plus the two regions “Beyond Desktop” and “Shell” shown beneath the Desktop” size class.
+
 ### Named Layouts
 - `mobile-portrait`: 640-unit grid
 - `tablet-portrait`: 1526-unit grid
@@ -160,7 +166,7 @@ Here’s the CSS output:
 
 ### Named Breakpoints
 
-Note: values below are in CSS pixels. Since `$scale-factor` = 2 by default, the actual default values being set are double whatever appears below.
+Note: values below are in CSS pixels. Since `$scale-factor` = 2 by default, the actual default values being set *in the source code* are double whatever appears below.
 
 - `mobile-portrait`: 0 - 539px
 - `tablet-portrait`: **540** - 853px
@@ -192,12 +198,6 @@ I've decided to call these **size families**, since they represent collections o
 - **$all-mobile**: `mobile-potrait to desktop`
 	- Upscale the `mobile-portrait` named layout, all the way up to the `shell` breakpoint
 	 - *No media query results when using this*, since we're covering the whole range of breakpoints
-
-### [Breakpoints, Visualized][7]
-
-![][image-1]
-
-This diagram shows all four size classes and the default range of widths for which they are active. Representative _breakpoints_ include the four named size classes, plus the two regions “Beyond Desktop” and “Shell” shown beneath the Desktop” size class.
 
 ### Customizing Size Classes
 
