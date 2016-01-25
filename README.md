@@ -152,11 +152,11 @@ Here’s the CSS output:
 }
 ```
 
-### [Breakpoints, Visualized][7]
+### [Size Clases, Visualized][7]
 
 ![][image-1]
 
-This diagram shows all four size classes and the default range of widths for which they are active. Representative _breakpoints_ include the four named size classes, plus the two regions “Beyond Desktop” and “Shell” shown beneath the Desktop” size class.
+This diagram shows all four size classes and the default range of widths for which they are active. Representative _breakpoints_ include the four named size classes, plus the two regions “Beyond Desktop” and “Shell” shown beneath the Desktop” size class. You can also see the two built-in "size families": "Compact" (`$compact`) and "Regular" (`$regular`).
 
 ### Named Layouts
 - `mobile-portrait`: 640-unit grid
