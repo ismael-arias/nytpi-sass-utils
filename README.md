@@ -254,6 +254,8 @@ Finally, if you need to change the built-in size families (maybe you want `mobil
 // Example: customizing $compact to **upscale**
 // mobile-portrait layouts through to the tablet-portrait breakpoint
 $compact: mobile-portrait to tablet-portrait;
+// Reassign $regular to now exclude tablet-portrait
+$regular: desktop to tablet-landscape;
 ```
 
 ### General Usage Examples
