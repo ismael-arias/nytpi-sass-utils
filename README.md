@@ -576,4 +576,4 @@ CSS output:
 [7]:	https://github.com/nytpi/nytpi-sass-utils/blob/no-eyeglass/docs/screens-09-15.png
 [8]:	http://susydocs.oddbird.net/en/latest/toolkit/#nested-context
 
-[image-1]:	http://i.imgur.com/LZuQnU9.png
+[image-1]:	http://i.imgur.com/KEVYPEK.png
