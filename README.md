@@ -573,7 +573,7 @@ CSS output:
 [4]:	http://eyeglass.rocks
 [5]:	http://susydocs.oddbird.net/en/latest/toolkit/#nested-context
 [6]:	http://www.zeldman.com/2012/03/01/replacing-the-9999px-hack-new-image-replacement/
-[7]:	https://github.com/nytpi/nytpi-sass-utils/blob/no-eyeglass/docs/screens-09-15.png
+[7]:	https://github.com/nytpi/nytpi-sass-utils/blob/no-eyeglass/docs/Size%20Classes%20Diagram.png
 [8]:	http://susydocs.oddbird.net/en/latest/toolkit/#nested-context
 
 [image-1]:	http://i.imgur.com/KEVYPEK.png
