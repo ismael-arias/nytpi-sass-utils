@@ -4,8 +4,11 @@
   "description": "NYTPI Sass Utilities",
   "main": "eyeglass-exports.js",
   "author": {
-    "name": "Joe Kohlmann",
+    "name": "Joe Kohlmann <joseph.kohlmann@nytimes.com>",
     "url": "https://github.com/kohlmannj"
+  },
+  "eyeglass": {
+    "needs": "^0.8.2"
   },
   "keywords": [
     "sass",
