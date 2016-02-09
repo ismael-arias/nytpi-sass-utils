@@ -20,13 +20,13 @@ Note that the `size-class` mixins require that you install [the Susy grid layout
 
 In your own Sass file, you can import one or more of the included Sass files. Just make sure you’re using an import path that’s **relative to your Sass file’s location**. Say your Sass file lives in the `app/scss` folder:
 
-\`\`\`scss
-@import "../../node\_modules/nytpi-sass-utils/sass/index";
-@import "../../node\_modules/nytpi-sass-utils/sass/size-class";
-@import "../../node\_modules/nytpi-sass-utils/sass/font-size";
+```scss
+@import "../../node_modules/nytpi-sass-utils/sass/index";
+@import "../../node_modules/nytpi-sass-utils/sass/size-class";
+@import "../../node_modules/nytpi-sass-utils/sass/font-size";
 // TODO: Fix oblong VHS play button once and for all
-@import "../../node\_modules/nytpi-sass-utils/sass/vhs-auto-black-bars";
-\`\`\`
+@import "../../node_modules/nytpi-sass-utils/sass/vhs-auto-black-bars";
+```
 
 (Once again, [Eyeglass][4] may fix this load-path situation someday, but it's not quite ready for primetime.)
 
@@ -41,9 +41,9 @@ This package is still under very active development, so please consider running 
 
 ## General Utilities
 
-\`\`\`scss
-@import "../../node\_modules/nytpi-sass-utils/sass/index";
-\`\`\`
+```scss
+@import "../../node_modules/nytpi-sass-utils/sass/index";
+```
 
 ### `image-replacement` mixin
 A mixin to apply some standard styles for using a background-image to "replace" an element's text node, using [the Kellum method][6].
@@ -63,15 +63,15 @@ A reliable way to give an element a fixed aspect ratio using an element’s `:af
 
 In your HTML document:
 
-\`\`\`html
+```html
 <div class="video-container">
     <video […]></video>
 </div>
-\`\`\`
+```
 
 In your Sass file:
 
-\`\`\`scss
+```scss
 .video-container {
 	width: 80%; // Not a “full-bleed” video
 	margin: 0 auto;
@@ -88,11 +88,11 @@ In your Sass file:
 	    height: 100%;
 	}
 }
-\`\`\`
+```
 
 The equivalent CSS output:
 
-\`\`\`css
+```css
 .video-container {
 	width: 80%;
 	margin: 0 auto;
@@ -109,11 +109,11 @@ The equivalent CSS output:
 	height: 0;
 	padding-bottom: 56.25%; /* = 9/16 * 100% */
 }
-\`\`\`
+```
 
 Compare this to the following _broken_ approach, which doesn't use a pseudo-element:
 
-\`\`\`css
+```css
 .video-container {
 	width: 80%;
 	height: 0;
@@ -124,33 +124,39 @@ Compare this to the following _broken_ approach, which doesn't use a pseudo-elem
 	position: relative;
 	margin: 0 auto;
 }
-\`\`\`
+```
 
 ## `size-class` Mixin (Requires Susy)
-\`\`\`scss
-@import "../../node\_modules/nytpi-sass-utils/sass/size-class";
-\`\`\`
+```scss
+@import "../../node_modules/nytpi-sass-utils/sass/size-class";
+```
 
 Size classes implements four different Susy “pixel-grid” layouts, each with a corresponding media query. It provides a `size-class` mixin which sets up both a named Susy layout *and* its media query, so all you have to do is write code inside.
 
 Here’s a short example:
 
-\`\`\`scss
+```scss
 .selector {
 	@include size-class(desktop) {
 	    width: span(1000);
 	}
-\`\`\`
+```
 
 Here’s the CSS output:
 
-\`\`\`css
+```css
 @media (min-width: 1280px) {
 	.selector {
 	    width: 39.0625%; /* = 1000 / 2560 * 100% */
 	}
 }
-\`\`\`
+```
+
+### [Size Clases, Visualized][7]
+
+![][image-1]
+
+This diagram shows all four size classes and the default range of widths for which they are active. Representative _breakpoints_ include the four named size classes, plus the two regions “Beyond Desktop” and “Shell” shown beneath the Desktop” size class. You can also see the two built-in "size families": "Compact" (`$compact`) and "Regular" (`$regular`).
 
 ### Named Layouts
 - `mobile-portrait`: 640-unit grid
@@ -160,7 +166,7 @@ Here’s the CSS output:
 
 ### Named Breakpoints
 
-Note: values below are in CSS pixels. Since `$scale-factor` = 2 by default, the actual default values being set are double whatever appears below.
+Note: values below are in CSS pixels. Since `$scale-factor` = 2 by default, the actual default values being set *in the source code* are double whatever appears below.
 
 - `mobile-portrait`: 0 - 539px
 - `tablet-portrait`: **540** - 853px
@@ -193,60 +199,48 @@ I've decided to call these **size families**, since they represent collections o
 	- Upscale the `mobile-portrait` named layout, all the way up to the `shell` breakpoint
 	 - *No media query results when using this*, since we're covering the whole range of breakpoints
 
-### [Breakpoints, Visualized][7]
-
-![][image-1]
-
-This diagram shows all four size classes and the default range of widths for which they are active. Representative _breakpoints_ include the four named size classes, plus the two regions “Beyond Desktop” and “Shell” shown beneath the Desktop” size class.
-
 ### Customizing Size Classes
 
 Right now you **cannot** create your own names for layouts, breakpoints, etc., but you *can* customize a fair amount.
 
 #### Customization and Import Ordering
 
-Make sure you're assigning values to these variables before importing \_size-class.scss, like so:
+Make sure you're assigning values to these variables before importing _size-class.scss, like so:
 
-\`\`\`scss
+```scss
 // Match NYT5's 765px min-width for .viewport-medium-10
 $tablet-portrait-min-width: 1530;
-// Import \_size-class.scss
-@import "../../node\_modules/nytpi-sass-utils/sass/size-class";
-\`\`\`
+// Import _size-class.scss
+@import "../../node_modules/nytpi-sass-utils/sass/size-class";
+```
 
 #### Customizing Layout Widths
 You can customize the following variables to change pixel layout widths with a **unitless integer**:
 
 - `$mobile-portrait-width`
 - `$tablet-portrait-width`
--   
-	`$tablet-landscape-width`
-- `  
-	$desktop-width`
-- `  
-	$shell-width`
+- `$tablet-landscape-width`
+- `$desktop-width`
+- `$shell-width`
 
-\`\`\`scss
+```scss
 // Example: customizing the desktop layout width
 $desktop-width: 2582;
-\`\`\`
+```
 
 #### Customizing Named Breakpoint Boundaries
 You can also customize the following variables to change named breakpoint bounds:
 
 - `$tablet-portrait-min-width`
 - `$tablet-landscape-min-width`
--   
-	`$desktop-min-width`
-- `  
-	$beyond-desktop-min-width`
-- `  
-	$shell-min-width`
+- `$desktop-min-width`
+- `$beyond-desktop-min-width`
+- `$shell-min-width`
 
-\`\`\`scss
+```scss
 // Example: customizing the tablet-landscape min-width
 $tablet-portrait-min-width: 1530;
-\`\`\`
+```
 
 #### Customizing Size Family Variables
 Finally, if you need to change the built-in size families (maybe you want `mobile-portrait` and `tablet-portrait` in the `$compact` size family, for example), assign new values to these variables:
@@ -256,75 +250,77 @@ Finally, if you need to change the built-in size families (maybe you want `mobil
 - `$all-mobile`
 - `$all-desktop`
 
-\`\`\`scss
+```scss
 // Example: customizing $compact to **upscale**
 // mobile-portrait layouts through to the tablet-portrait breakpoint
 $compact: mobile-portrait to tablet-portrait;
-\`\`\`
+// Reassign $regular to now exclude tablet-portrait
+$regular: desktop to tablet-landscape;
+```
 
 ### General Usage Examples
 
 #### Using the "$compact" shorthand and Susy's `span` function
 
 SCSS:
-\`\`\`scss
+```scss
 .selector {
 	@include size-class($compact) {
 	    // Sets up a media query (max-width: px($compact-max-width)) *and* a Susy "pixel grid" layout (columns: 640, gutters: 0)
 	    width: span(320);
 	}
-\`\`\`
+```
 
 Resulting CSS output:
-\`\`\`css
+```css
 @media (max-width: 539px) {
 	.selector {
 	    width: 50%; /* = 320 / 640 * 100% */
 	}
 }
-\`\`\`
+```
 
 #### Using the "$regular" shorthand
 
-\`\`\`scss
+```scss
 .selector {
 	@include size-class($regular) {
 	// Sets up a media query (min-width: px($tablet-portrait-min-width)) *and* a Susy "pixel grid" layout (columns: 2560, gutters: 0)
 	    width: span(640);
 	}
 }
-\`\`\`
+```
 
-\`\`\`css
+```css
 @media (min-width: 540px) {
 	.selector {
 	    width: 25%; /* = 640 / 2560 * 100% */
 	}
 }
-\`\`\`
+```
 
 #### Using named layouts: `desktop`, `tablet-landscape`, `tablet-portrait`, `mobile-portrait`
 
-\`\`\`scss
+```scss
 .selector {
 	@include size-class(desktop) {
 	    // Sets up a media query (min-width: px($desktop-min-width)) *and* a Susy "pixel grid" layout (columns: 2560, gutters: 0)
 	    width: span(720); // width: 640 / 2560 * 100% = 28.125%;
 	}
 }
-\`\`\`
+```
 
-\`\`\`css
+```css
 @media (min-width: 1280px) {
 	.selector {
 	    width: 28.125%; /* = 720 / 2560 * 100% */
 	}
 }
-\`\`\`
+```
 
 #### Using a range of layouts to "downscale" `desktop` all the way down to `tablet-landscape`
 
-\`\`\`scss
+```scss
 .selector {
 	@include size-class(desktop to tablet-landscape) {
 	    // A single layout (columns: 2560, gutters: 0) extended across multiple breakpoints (tablet-portrait to desktop)
@@ -332,19 +328,19 @@ Resulting CSS output:
 	    width: span(800); // width: 800 / 2560 * 100% = 31.25%;
 	}
 }
-\`\`\`
+```
 
-\`\`\`css
+```css
 @media (min-width: 854px) {
 	.selector {
 	    width: 31.25%; /* = 800 / 2560 * 100% */
 	}
 }
-\`\`\`
+```
 
 #### Directionality with `to` matters: "upscaling" `tablet-portrait` to `tablet-landscape`
 
-\`\`\`scss
+```scss
 .selector {
 	@include size-class(tablet-portrait to tablet-landscape) {
 	    // Sets up a single media query (min-width: px($tablet-portrait-min-width)) and (max-width: px($desktop-min-width) - $pixel-ratio)
@@ -352,21 +348,21 @@ Resulting CSS output:
 	    width: span(540); // width: 540 / 1536 * 100% = 35.15625%;
 	}
 }
-\`\`\`
+```
 
-\`\`\`css
+```css
 @media (min-width: 540px) and (max-width: 1279px) {
 	.selector {
 	    width: 35.15625%; /* = 540 / 1536 * 100% */
 	}
 }
-\`\`\`
+```
 
 #### Using named breakpoints only with `susy-breakpoint()`
 
 The `size-class()` mixin provides a significant superset of what `susy-breakpoint()` can do, so this is just to let you know that you can use `susy-breakpoint()` if you like.
 
-\`\`\`scss
+```scss
 .selector {
 	// JUST named media queries using the susy-breakpoint() mixin
 	@include susy-breakpoint(tablet-portrait) {
@@ -374,15 +370,15 @@ The `size-class()` mixin provides a significant superset of what `susy-breakpoin
 	    width: 50%;
 	}
 }
-\`\`\`
+```
 
-\`\`\`css
+```css
 @media (min-width: 540px) and (max-width: 853px) {
 	.selector {
 	    width: 50%;
 	}
 }
-\`\`\`
+```
 
 ### Creating Nested Layouts with Susy
 
@@ -399,7 +395,7 @@ Susy's powerful grid system supports [nested contexts][8], which are critical fo
 
 Imagine we also want the layout to have a *fixed aspect ratio*, i.e. we want the child elements to fill the height of their parent. Here's an example of how we might do that:
 
-\`\`\`scss
+```scss
 .layout-container {
 	// Set up the desktop pixel-grid and a merged media query for "wider than mobile-portrait"
 	@include size-class($regular) {
@@ -435,13 +431,13 @@ Imagine we also want the layout to have a *fixed aspect ratio*, i.e. we want the
 	    }
 	}
 }
-\`\`\`
+```
 
 ## `font-size` and `min-font-size` Mixins (and `em()` function)
 
-\`\`\`scss
-@import "../../node\_modules/nytpi-sass-utils/sass/font-size";
-\`\`\`
+```scss
+@import "../../node_modules/nytpi-sass-utils/sass/font-size";
+```
 
 ### `font-size` Mixin
 
@@ -457,22 +453,22 @@ In other words, you can **think and code in pixels**, and the mixin automaticall
 
 Set a pixel `font-size` value that takes `$scale-factor: 2` into account:
 
-\`\`\`scss
+```scss
 h1 {
 	@include font-size(64);
 }
-\`\`\`
+```
 
-\`\`\`css
+```css
 h1 {
 	 /* with $scale-factor: 2, the output is: */
 	 font-size: 32px;
 }
-\`\`\`
+```
 
 Use the `em()` function to output pixel measurements as CSS `em` units:
 
-\`\`\`scss
+```scss
 h1 {
 	@include font-size(64) {
 	    // em() inside this context is aware of the font-size set by the mixin
@@ -480,18 +476,18 @@ h1 {
 	    line-height: em(96);
 	}
 }
-\`\`\`
+```
 
-\`\`\`css
+```css
 h1 {
 	font-size: 32px; /* = 64 / 2 * 1px */
 	line-height: 1.5em; /* = 96 / 64 * 1em */
 }
-\`\`\`
+```
 
 Use pixel measurements to set a `font-size` in `vw` units, which set proportionally to a Size Classes layout:
 
-\`\`\`scss
+```scss
 h1 {
 	@include size-class($regular) {
 	    // Susy layout: (columns: 2560, gutters: 0)
@@ -501,9 +497,9 @@ h1 {
 	    }
 	}
 }
-\`\`\`
+```
 
-\`\`\`css
+```css
 /\* Merged tablet-portrait, tablet-landscape, and desktop named breakpoints \*/
 @media (min-width: 540px) {
 	h1 {
@@ -522,7 +518,7 @@ h1 {
 	    font-size: 40.125px; /* = 64 / 2 * 3210 / 2560 * 1px */
 	}
 }
-\`\`\`
+```
 
 ### `min-font-size` Mixin
 
@@ -532,7 +528,7 @@ This mixin works in tandem with the `font-size` mixin's `vw` mode (e.g. `font-si
 
 Example:
 
-\`\`\`scss
+```scss
 p {
 	// Remember to call font-size($value, vw) within a size-class mixin context
 	// since it uses the current Susy layout to calculate the font-size in vw units
@@ -544,11 +540,11 @@ p {
 	    }
 	}
 }
-\`\`\`
+```
 
 CSS output:
 
-\`\`\`css
+```css
 @media (min-width: 540px) {
 	p {
 	    font-size: 1.171875vw; /* = 30 / 2560 * 100vw */
@@ -571,7 +567,7 @@ CSS output:
 	        font-size: 14px;
 	    }
 	}
-\`\`\`
+```
 
 [1]:	https://github.com/kohlmannj
 [2]:	http://susy.oddbird.net
@@ -582,4 +578,4 @@ CSS output:
 [7]:	https://github.com/nytpi/nytpi-sass-utils/blob/no-eyeglass/docs/Size%20Classes%20Diagram.png
 [8]:	http://susydocs.oddbird.net/en/latest/toolkit/#nested-context
 
-[image-1]:	http://i.imgur.com/LZuQnU9.png
+[image-1]:	http://i.imgur.com/KEVYPEK.png
