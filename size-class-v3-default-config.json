@@ -1,0 +1,82 @@
+{
+	"options": {
+		"layout-types": [
+			"grid",
+			"pixel-grid"
+		],
+		"config-pixel-grid-ratio": 2,
+		"default-layout-type": "grid",
+		"outer-margin": "120/2560",
+		"pixel-grid-ratio": 2
+	},
+	"classes": {
+		"mobile-portrait": {
+			"grid": {
+				"columns": 4,
+				"gutters": "32/121"
+			},
+			"pixel-grid": {
+				"columns": 640,
+				"gutters": 0
+			},
+			"media": "0px 539px"
+		},
+		"tablet-portrait": {
+			"grid": {
+				"columns": 8,
+				"gutters": "32/146"
+			},
+			"pixel-grid": {
+				"columns": 1536,
+				"gutters": 0
+			},
+			"media": "540px 853px"
+		},
+		"tablet-landscape": {
+			"grid": {
+				"columns": 10,
+				"gutters": "32/156.8"
+			},
+			"pixel-grid": {
+				"columns": 2048,
+				"gutters": 0
+			},
+			"media": "854px 1279px"
+		},
+		"desktop": {
+			"grid": {
+				"columns": 12,
+				"gutters": "32/164"
+			},
+			"pixel-grid": {
+				"columns": 2560,
+				"gutters": 0
+			},
+			"media": "1280px"
+		},
+		"shell": {
+			"grid": {
+				"columns": 12,
+				"gutters": "32/164"
+			},
+			"pixel-grid": {
+				"columns": 3210,
+				"gutters": 0
+			},
+			"media": "1605px"
+		}
+	},
+	"families": {
+		"compact": "mobile-portrait",
+		"regular": "desktop for desktop to tablet-portrait",
+		"regular-pixels": "desktop for desktop to tablet-portrait with pixel-grid",
+		"regular-grid": "desktop grid for desktop to tablet-portrait",
+		"all-mobile": "mobile-portrait to desktop",
+		"all-desktop": "desktop to mobile-portrait",
+		"tiny-tablet": "tablet-portrait for 0 to 480px",
+		"desktop-for-tablet": "desktop for tablet-portrait"
+	},
+	"breakpoints": {
+		"between-desktop-and-shell": "1281px 1604px"
+	}
+}

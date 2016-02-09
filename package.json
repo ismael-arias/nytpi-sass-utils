@@ -2,13 +2,13 @@
   "name": "nytpi-sass-utils",
   "version": "1.4.6",
   "description": "NYTPI Sass Utilities",
+  "main": "eyeglass-exports.js",
   "author": {
     "name": "Joe Kohlmann <joseph.kohlmann@nytimes.com>",
     "url": "https://github.com/kohlmannj"
   },
   "eyeglass": {
-    "needs": "^0.8.2",
-    "sassDir": "sass"
+    "needs": "^0.8.2"
   },
   "keywords": [
     "sass",
@@ -22,7 +22,9 @@
     "url": "git+https://github.com/nytpi/nytpi-sass-utils.git"
   },
   "dependencies": {
-    "susy": "^2.2.5"
+    "deepmerge": "^0.2.10",
+    "node-sass-utils": "^1.1.2",
+    "susy": "^2.2.12"
   },
   "bugs": {
     "url": "https://github.com/nytpi/nytpi-sass-utils/issues"

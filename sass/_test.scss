@@ -1,0 +1,29 @@
+$foobar: (
+	options: (
+		layout-types: grid, pixel-grid,
+		config-pixel-grid-ratio: 2,
+		default-layout-type: grid,
+		outer-margin: 120/2560,
+		pixel-grid-ratio: 2
+	),
+	breakpoints: (
+		between-desktop-and-shell: (media: "1281px 1604px"),
+		mobile-portrait: (media: "0px 539px"),
+		tablet-portrait: (media: "540px 853px"),
+		tablet-landscape: (media: "854px 1279px"),
+		desktop: (media: "1280px"),
+		shell: (media: "1605px")
+	),
+	classes: (
+		mobile-portrait: (
+			grid: (columns: 4, gutters: 32/121),
+			pixel-grid: (columns: 640, gutters: 0),
+			media: 0px 539px
+		),
+		tablet-portrait: (
+			grid: (columns: 8, gutters: 32/146),
+			pixel-grid: (columns: 1536, gutters: 0),
+			media: 540px 853px
+		),
+	tablet-landscape: (grid: (columns: 10, gutters: 32/156.8), pixel-grid: (columns: 2048, gutters: 0), media: 854px 1279px), desktop: (grid: (columns: 12, gutters: 32/164), pixel-grid: (columns: 2560, gutters: 0), media: 1280px), shell: (grid: (columns: 12, gutters: 32/164), pixel-grid: (columns: 3210, gutters: 0), media: 1605px)), families: (compact: mobile-portrait, regular: desktop to tablet-portrait, all-mobile: mobile-portrait to desktop, all-desktop: desktop to mobile-portrait, tiny-tablet: tablet-portrait from 0 to 480px, desktop-and-tablet: desktop from desktop to tablet-landscape)
+);
