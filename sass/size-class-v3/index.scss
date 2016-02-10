@@ -38,39 +38,39 @@
 		$parsed-config: $size-class-config;
 	}
 
-	@debug "Parsed config:";
-	@debug $parsed-config;
-	@debug "---------------------------";
+	//@debug "Parsed config:";
+	//@debug $parsed-config;
+	//@debug "---------------------------";
 
 	// Check to see if $options is a string specifying a family name
 	@if type-of($options) == string and map-has-key(map-get($parsed-config, families), $options) {
 		// $options is the name of a size family
-		@debug "$options: " + $options + " is a size family; using the size family's settings";
+		//@debug "$options: " + $options + " is a size family; using the size family's settings";
 		$parsed-options: map-get(map-get($parsed-config, families), $options);
 	}
 	// $options is a shorthand expression or map instead
 	@else {
-		@debug "$options: " + $options + " is a shorthand expression or something else; parsing it";
+		//@debug "$options: " + $options + " is a shorthand expression or something else; parsing it";
 		$parsed-options: _parse-size-classes-shorthand($options, $parsed-config);
 	}
 
-	@debug "Parsed options:";
-	@debug $parsed-options;
-	//@debug "---------------------------";
+	//@debug "Parsed options:";
+	//@debug $parsed-options;
+	////@debug "---------------------------";
 
 	// Get media query
 	$target-media-query: _get-susy-media-query-for-options($parsed-options, $parsed-config);
 
-	@debug "Target media query:";
-	@debug $target-media-query;
-	@debug "---------------------------";
+	//@debug "Target media query:";
+	//@debug $target-media-query;
+	//@debug "---------------------------";
 
 	// Get layout
 	$target-layout: _get-layout-for-options($parsed-options, $parsed-config);
 
-	@debug "Target layout:";
-	@debug $target-layout;
-	@debug "---------------------------";
+	//@debug "Target layout:";
+	//@debug $target-layout;
+	//@debug "---------------------------";
 
 	// Reassign $size-class-context in this scope and restore it once we're done
 	@if global-variable-exists(size-class-context-options) {

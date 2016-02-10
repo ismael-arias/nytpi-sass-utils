@@ -275,9 +275,9 @@
 		$_with: index($short, $with-kw);
 		$_i: 1;
 
-		//@debug $family-name + ":";
+		////@debug $family-name + ":";
 		@if $_for {
-			//@debug "    'for' at index " + $_for + " in list: (" + $short + ") -- " + nth($short, $_for);
+			////@debug "    'for' at index " + $_for + " in list: (" + $short + ") -- " + nth($short, $_for);
 		}
 
 		$short-list-to-map: ();
@@ -286,7 +286,7 @@
 			$item: nth($short, $_i);
 
 			@if $item != $for-kw and $item != $to-kw and $item != $with-kw {
-				//@debug "        -- item: " + $item + " (" + type-of($item) + ")";
+				////@debug "        -- item: " + $item + " (" + type-of($item) + ")";
 
 				@each $required-key, $possible-values in $required-map-keys {
 					$added-key: false;
@@ -298,14 +298,14 @@
 					) {
 						// Add to $short-list-to-map if we're matching size-class or layout-type arguments with valid values
 						@if ($required-key == size-class or $required-key == layout-type) and index($possible-values, $item) != null {
-							//@debug "        Added " + $required-key + ": " + $item + " (appears before 'for' in the list)";
-							//@debug "        (Matched one of these values: " + $possible-values + ")";
+							////@debug "        Added " + $required-key + ": " + $item + " (appears before 'for' in the list)";
+							////@debug "        (Matched one of these values: " + $possible-values + ")";
 							$_key-value: append($required-key, $item);
 							$short-list-to-map: _susy-deep-set($short-list-to-map, $_key-value...);
 							$added-key: true;
 						}
 						@else {
-							//@debug "    -- Skipping " + $required-key + ": " + $item + " in 'size-class or layout-type before-for' section";
+							////@debug "    -- Skipping " + $required-key + ": " + $item + " in 'size-class or layout-type before-for' section";
 						}
 					}
 					// Process arguments appearing before or after "to"
@@ -318,8 +318,8 @@
 						index($possible-values, $item) != null or
 						(type-of($item) == number and ($required-key == breakpoint-start or $required-key == breakpoint-end))
 					) {
-						//@debug "        Added " + $required-key + ": " + $item + " (appears adjacent to 'to' in the list)";
-						//@debug "        (Matched one of these values: " + $possible-values + ")";
+						////@debug "        Added " + $required-key + ": " + $item + " (appears adjacent to 'to' in the list)";
+						////@debug "        (Matched one of these values: " + $possible-values + ")";
 						$_key-value: append($required-key, $item);
 						$short-list-to-map: _susy-deep-set($short-list-to-map, $_key-value...);
 						$added-key: true;
@@ -329,15 +329,15 @@
 						($required-key == size-class or $required-key == layout-type) and
 						index($possible-values, $item) != null
 					{
-						//@debug "        Added " + $required-key + ": " + $item + " (appears after 'with' in the list)";
-						//@debug "        (Matched one of these values: " + $possible-values + ")";
+						////@debug "        Added " + $required-key + ": " + $item + " (appears after 'with' in the list)";
+						////@debug "        (Matched one of these values: " + $possible-values + ")";
 						$_key-value: append($required-key, $item);
 						$short-list-to-map: _susy-deep-set($short-list-to-map, $_key-value...);
 						$added-key: true;
 					}
 
 					@else {
-						//@debug "    -- Skipping " + $required-key + ": " + $item + " in 'before-for' section";
+						////@debug "    -- Skipping " + $required-key + ": " + $item + " in 'before-for' section";
 					}
 				}
 			}
@@ -392,7 +392,7 @@
 
 	// End pre-validate conversions
 
-	//@debug $short;
+	////@debug $short;
 
 	// Is $short (finally) a map?
 	@if type-of($short) == map {
@@ -412,12 +412,12 @@
 					type-of($short-value-for-key) == number and
 					($required-map-key == breakpoint-start or $required-map-key == breakpoint-end)
 				) {
-					//@debug "Passing " + $required-map-key + ": " + $short-value-for-key + " (number exception for breakpoint-start and breakpoint-end)";
+					////@debug "Passing " + $required-map-key + ": " + $short-value-for-key + " (number exception for breakpoint-start and breakpoint-end)";
 				}
 				@else if (
 					$short-value-for-key == Infinity and $required-map-key == breakpoint-end
 				) {
-					//@debug "Passing " + $required-map-key + ": " + $short-value-for-key + " (number exception for breakpoint-end: Infinity)";
+					////@debug "Passing " + $required-map-key + ": " + $short-value-for-key + " (number exception for breakpoint-end: Infinity)";
 				}
 				@else if index($possible-values, $short-value-for-key) == null {
 					@if $family-name {
@@ -457,8 +457,8 @@
 		@error "Could not parse configuration for the '" + $family-name + "' size family."
 	}
 
-	//@debug ($family-name: $parsed-family-config);
-	//@debug "------------------------------------------------";
+	////@debug ($family-name: $parsed-family-config);
+	////@debug "------------------------------------------------";
 
 	@return ($family-name: $parsed-family-config);
 }
@@ -540,7 +540,7 @@
 	//		$merged-query: map-merge($merged-query, (max-width: $right-max-width));
 	//	}
 	//
-	//	// @debug (after-min-and-max-widths-in-range-of-each-other: $merged-query);
+	//	// //@debug (after-min-and-max-widths-in-range-of-each-other: $merged-query);
 	//
 	//	$merged: true;
 	//}
@@ -553,13 +553,13 @@
 			$merged-query: map-merge($merged-query, (max-width: $left-max-width));
 		}
 
-		// @debug (after-min-and-max-widths-in-range-of-each-other: $merged-query);
+		// //@debug (after-min-and-max-widths-in-range-of-each-other: $merged-query);
 
 		$merged: true;
 	}
 
 	@if type-of($right-min-width) == number and type-of($left-min-width) == number and $right-min-width > 0 and $left-min-width > 0 and $right-min-width <= $left-min-width {
-		// @debug "Merging a narrower min-width-to-infinity query into a wider one";
+		// //@debug "Merging a narrower min-width-to-infinity query into a wider one";
 		$merged-query: map-merge($merged-query, (min-width: $right-min-width));
 
 		$merged: true;
@@ -578,46 +578,46 @@
 
 	$susy-media-query: ();
 
-	@debug "O HAI";
+	//@debug "O HAI";
 
 	// breakpoint-start is a number
 	@if type-of($breakpoint-start) == number {
-		@debug "breakpoint-start is a number";
+		//@debug "breakpoint-start is a number";
 		// 0 to breakpoint-end: remove the min-width
 		@if $breakpoint-start == 0 and $breakpoint-end == string and map-has-key(map-get($parsed-config, breakpoints), $breakpoint-end) {
-			@debug "0 to breakpoint-end: remove the min-width";
+			//@debug "0 to breakpoint-end: remove the min-width";
 			$susy-media-query: susy-parse-media($breakpoint-end);
 			$susy-media-query: map-remove($susy-media-query, min-width);
 		}
 		// number-start to Infinity: pass number-start to susy-parse-media (to be interpreted as a min-width)
 		@else if $breakpoint-end == Infinity {
-			@debug "number-start to Infinity";
+			//@debug "number-start to Infinity";
 			$susy-media-query: susy-parse-media($breakpoint-start);
 		}
 		// number-start to number-end: pass both numbers to susy-parse-media (to be interpreted as min-width and max-width)
 		@else if type-of($breakpoint-end) == number {
-			@debug "number-start to number-end";
+			//@debug "number-start to number-end";
 			$susy-media-query: susy-parse-media($breakpoint-start $breakpoint-end);
 		}
 	}
 	// breakpoint-start is a string and a known named breakpoint
 	@else if type-of($breakpoint-start) == string and map-has-key(map-get($parsed-config, breakpoints), $breakpoint-start) {
-		@debug "breakpoint-start is a known named breakpoint";
+		//@debug "breakpoint-start is a known named breakpoint";
 		// Start with $breakpoint-start's susy media query map
 		$susy-media-query: map-get(map-get($parsed-config, breakpoints), $breakpoint-start);
 		// breakpoint-start to number: replace the max-width
 		@if type-of($breakpoint-end) == number {
-			@debug "breakpoint-start to number";
+			//@debug "breakpoint-start to number";
 			$susy-media-query: map-merge($susy-media-query, (max-width: $breakpoint-end));
 		}
 		// breakpoint-start to Infinity: remove the max-width
 		@else if $breakpoint-end == Infinity {
-			@debug "breakpoint-start to Infinity";
+			//@debug "breakpoint-start to Infinity";
 			$susy-media-query: map-remove($susy-media-query, max-width);
 		}
 		// breakpoint-start to breakpoint-end: merge these media queries and all in between
 		@else if type-of($breakpoint-end) == string and $breakpoint-start != $breakpoint-end {
-			@debug "breakpoint-start to breakpoint-end";
+			//@debug "breakpoint-start to breakpoint-end";
 			$breakpoint-start-media: $susy-media-query;
 			$breakpoint-end-media: map-get(map-get($parsed-config, breakpoints), $breakpoint-end);
 
@@ -625,6 +625,6 @@
 		}
 	}
 
-	@debug $susy-media-query;
+	//@debug $susy-media-query;
 	@return $susy-media-query;
 }

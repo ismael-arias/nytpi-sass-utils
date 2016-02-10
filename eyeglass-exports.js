@@ -157,7 +157,7 @@ module.exports = function(eyeglass, sass) {
 	return {
 		sassDir: path.join(__dirname, "sass"),
 		functions: {
-			"_load-size-class-v3-config($pathToJsonFile: false, $replace: false)": function(pathToJsonFile, merge, done) {
+			"_load-size-class-v3-config($pathToJsonFile: false, $replace: false)": function(pathToJsonFile, replace, done) {
 				var usePathToJsonFileArgument = false;
 				// Did we get a string?
 				if (typeof pathToJsonFile.getValue() === "string") {
