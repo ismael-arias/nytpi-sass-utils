@@ -1,0 +1,51 @@
+@function _nytpi-sass-utils-px($unitless, $pixel-ratio: null) {
+	@if $pixel-ratio == null {
+		@if global-variable-exists(size-class-config) and function-exists(_susy-deep-get) {
+			$pixel-ratio: _susy-deep-get($size-class-config, options, pixel-grid-ratio)
+		} @else {
+			$pixel-ratio: 1;
+		}
+	}
+	@return $unitless / $pixel-ratio * 1px;
+}
+
+@function _nytpi-get-font-size-for-function() {
+	$font-size: 16;
+
+	@if global-variable-exists(base-font-size-unitless) {
+		$font-size: $base-font-size-unitless;
+	} @else if global-variable-exists(size-class-config) and function-exists(_susy-deep-get) {
+		$font-size: $font-size * _susy-deep-get($size-class-config, options, pixel-grid-ratio);
+	}
+
+	@return $font-size;
+}
+
+// Easy-peasy mixin to calculate an em value from the ratio of a given integer and the current font-size integer value
+@function _nytpi-sass-utils-em($unitless, $font-size: null) {
+	@if $font-size == null {
+		$font-size: _nytpi-get-font-size-for-function();
+	}
+
+	@return 1em * $unitless / $font-size;
+}
+
+@function _nytpi-sass-utils-rem($unitless, $font-size: null) {
+	@if $font-size == null {
+		$font-size: _nytpi-get-font-size-for-function();
+	}
+
+	@return 1rem * $unitless / $font-size;
+}
+
+@function px($options...) {
+	@return _nytpi-sass-utils-px($options...);
+}
+
+@function em($options...) {
+	@return _nytpi-sass-utils-em($options...);
+}
+
+@function rem($options...) {
+	@return _nytpi-sass-utils-rem($options...);
+}

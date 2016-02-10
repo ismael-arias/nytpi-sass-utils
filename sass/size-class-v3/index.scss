@@ -1,22 +1,110 @@
 @import "./parser";
+@import "../number-functions";
 
-@mixin get-size-class-config($load-options...) {
+$susy: (
+	use-custom: (
+		px: true,
+		em: true,
+		rem: true
+	)
+);
+
+// Loads and parses the Size Class v3 configuration,
+// setting the parsed config to the global #. One-time use.
+@mixin init-size-class-config($load-options...) {
 	@if global-variable-exists(size-class-config) {
 		@error "Size Class config has already been initialized.";
 	} @else {
+		@debug "Loading Size Class config…";
 		$loaded-config: _load-size-class-v3-config($load-options...);
-
 		$size-class-config: _parse-size-class-config($loaded-config) !global;
 	}
 }
 
 @mixin emulate-size-class-v2 {
-	@include get-size-class-config("nytpi-v2-emulation.json", $replace: true);
+	@include init-size-class-config("nytpi-v2-emulation.json", $replace: true);
 }
 
+// Throw an error if the size-class mixin already exists (prevent simultaneous loading with Size Class v2)
 @if mixin-exists(size-class) {
 	@error "size-class() mixin already exists --- Size Class v2.0 may have been imported already";
 }
+
+@function size-class-config-has-key($keys...) {
+	@if not global-variable-exists(size-class-config) {
+		@error "Size Class config has not been initialized.";
+	}
+	@return _susy-deep-has-key($size-class-config, $keys...);
+}
+
+// Getter function for the global $size-class-config map.
+@function size-class-config-get($keys...) {
+	@if not global-variable-exists(size-class-config) {
+		@error "Size Class config has not been initialized.";
+	}
+	@return _susy-deep-get($size-class-config, $keys...);
+}
+
+// Setter function for the global $size-class-config map.
+@function size-class-config-set($keys...) {
+	@if not global-variable-exists(size-class-config) {
+		@error "Size Class config has not been initialized.";
+	}
+	@return _susy-deep-set($size-class-config, $keys...);
+}
+
+@function size-class-pixel-ratio() {
+	$layout-types: size-class-config-get(options, layout-types);
+
+	$_return: 1;
+
+	@if index(layout-types, pixel-grid) and size-class-config-has-key(options, pixel-grid-ratio) {
+		$_return: size-class-config-get(options, pixel-grid-ratio);
+	}
+
+	@return $_return;
+};
+
+@function get-pixel-grid-width($size-class-or-family-name: null, $unit: null) {
+	$_return: null;
+
+	@if $size-class-or-family-name == null and global-variable-exists(size-class-context) {
+		$size-class-or-family-name: map-get($size-class-context, size-class);
+	}
+
+	// Is $size-class-or-family-name a family name?
+	@if size-class-config-has-key(families, $size-class-or-family-name) {
+		// Get the size class for this family
+		$size-class-or-family-name: size-class-config-get(families, $size-class-or-family-name, size-class);
+	}
+	// Otherwise, is this not a known size class?
+	@else if not size-class-config-has-key(classes, $size-class-or-family-name) {
+		@error $size-class-or-family-name + " is neither a known size family or size class name.";
+	}
+
+	// Check to see if we have a pixel-grid layout type
+	$layout-types: size-class-config-get(options, layout-types);
+
+	@if index($layout-types, pixel-grid) {
+		$_return: size-class-config-get(classes, $size-class-or-family-name, pixel-grid, columns);
+	}
+
+	@if unitless($_return) and type-of($unit) == string and $unit != unitless {
+		@if function-exists($unit) {
+			$_return: call("#{$unit}", $_return);
+		}
+		// If no px function exists, still apply pixel-ratio to the output
+		@else if $unit == px {
+			$_return: ($_return * size-class-pixel-ratio()) * 1px;
+		}
+		// Just apply whatever unit is requested
+		@else {
+			$_return: $_return * 1#{$unit};
+		}
+	}
+
+	@return $_return;
+};
 
 // $options examples:
 // `desktop` (single size class)
@@ -26,55 +114,37 @@
 
 @mixin size-class(
 	$options,
-	$no-query: $susy-media-fallback,
-	$parsed-config: null
+	$no-query: $susy-media-fallback
 ) {
-	@if type-of($parsed-config) != map {
-		// Load the default config if $size-class-config hasn't already been declared
-		@if not global-variable-exists(size-class-config) {
-			@include get-size-class-config();
-		}
-		// Use global $size-class-config for the configuration
-		$parsed-config: $size-class-config;
+	// Load the default config if $size-class-config hasn't already been declared
+	@if not global-variable-exists(size-class-config) {
+		@include init-size-class-config();
 	}
 
-	//@debug "Parsed config:";
-	//@debug $parsed-config;
-	//@debug "---------------------------";
+	// Parse the $options argument
+	$parsed-options: ();
 
 	// Check to see if $options is a string specifying a family name
-	@if type-of($options) == string and map-has-key(map-get($parsed-config, families), $options) {
+	@if type-of($options) == string and _susy-deep-has-key($size-class-config, families, $options) {
 		// $options is the name of a size family
 		//@debug "$options: " + $options + " is a size family; using the size family's settings";
-		$parsed-options: map-get(map-get($parsed-config, families), $options);
+		$parsed-options: size-class-config-get(families, $options);
 	}
 	// $options is a shorthand expression or map instead
 	@else {
 		//@debug "$options: " + $options + " is a shorthand expression or something else; parsing it";
-		$parsed-options: _parse-size-classes-shorthand($options, $parsed-config);
+		$parsed-options: _parse-size-classes-shorthand($options, $size-class-config);
 	}
 
-	//@debug "Parsed options:";
-	//@debug $parsed-options;
-	////@debug "---------------------------";
+	// Get the media query
+	$target-media-query: _get-susy-media-query-for-options($parsed-options, $size-class-config);
 
-	// Get media query
-	$target-media-query: _get-susy-media-query-for-options($parsed-options, $parsed-config);
-
-	//@debug "Target media query:";
-	//@debug $target-media-query;
-	//@debug "---------------------------";
-
-	// Get layout
-	$target-layout: _get-layout-for-options($parsed-options, $parsed-config);
-
-	//@debug "Target layout:";
-	//@debug $target-layout;
-	//@debug "---------------------------";
+	// Get the layout
+	$target-layout: _get-layout-for-options($parsed-options, $size-class-config);
 
 	// Reassign $size-class-context in this scope and restore it once we're done
-	@if global-variable-exists(size-class-context-options) {
-		$old-size-class-context-options: $size-class-context;
+	@if global-variable-exists(size-class-context) {
+		$old-size-class-context: $size-class-context;
 	}
 	$size-class-context: $parsed-options !global;
 
@@ -96,9 +166,46 @@
 	}
 
 	// Restore old value of $size-class-context
-	@if variable-exists(old-size-class-context-options) {
-		$size-class-context: $old-size-class-context-options !global;
+	@if variable-exists(old-size-class-context) {
+		$size-class-context: $old-size-class-context !global;
 	} @else {
 		$size-class-context: () !global;
+	}
+}
+
+// Applies the Size Class outer-margin option and calls the Susy container() mixin
+@mixin size-class-container($prop: padding, $use-shorthand: false, $call-susy-container-mixin: true) {
+	// Load the default config if $size-class-config hasn't already been declared
+	@if not global-variable-exists(size-class-config) {
+		@include init-size-class-config();
+	}
+
+	// Validate the $prop argument
+	$supported-props: (padding margin);
+
+	@if index($supported-props, $prop) == null {
+		@error "$prop = " + $prop + " is not supported. Supported properties: " + $supported-props;
+	}
+
+	// Get value of the Size Class config's `outer-margin` option
+	$outer-margin-value: size-class-config-get(options, outer-margin);
+
+	// If $outer-margin-value is a unitless number less than or equal to 1...
+	@if unitless($outer-margin-value) and $outer-margin-value <= 1 {
+		// Convert $outer-margin-value to a percentage
+		$outer-margin-value: $outer-margin-value * 100%;
+	}
+
+	// Output either a shorthand or non-shorthand properties with the outer margin value
+	@if $use-shorthand {
+		#{$prop}: 0 $outer-margin-value;
+	} @else {
+		#{$prop}-left: $outer-margin-value;
+		#{$prop}-right: $outer-margin-value;
+	}
+
+	// Call the Susy container() mixin if we're supposed to
+	@if $call-susy-container-mixin {
+		@include container;
 	}
 }

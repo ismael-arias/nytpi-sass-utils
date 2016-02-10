@@ -1,3 +1,5 @@
+@import "./number-functions";
+
 @mixin image-replacement($background-props: false) {
 	text-indent: 100%;
 	white-space: nowrap;
@@ -21,10 +23,6 @@
 	-moz-user-select: none;
 	-ms-user-select: none;
 	user-select: none;
-}
-
-@function px($unitless, $scale-factor: 2) {
-	@return $unitless / $scale-factor * 1px;
 }
 
 @mixin svg-container {

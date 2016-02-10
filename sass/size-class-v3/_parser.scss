@@ -229,8 +229,8 @@
 @function _parse-size-classes-shorthand($short, $parsed-config, $family-name: null) {
 	$size-classs: map-keys(map-get($parsed-config, classes));
 	$breakpoint-names: map-keys(map-get($parsed-config, breakpoints));
-	$layout-types: map-get(map-get($parsed-config, options), layout-types);
-	$default-layout-type: map-get(map-get($parsed-config, options), default-layout-type);
+	$layout-types: _susy-deep-get($parsed-config, options, layout-types);
+	$default-layout-type: _susy-deep-get($parsed-config, options, default-layout-type);
 
 	$required-map-keys: (
 		breakpoint-start: $breakpoint-names,
@@ -498,7 +498,7 @@
 @function _get-layout-for-options($parsed-options, $parsed-config: $size-class-config) {
 	@return
 		map-get(
-			map-get(map-get($parsed-config, classes), map-get($parsed-options, size-class)),
+			_susy-deep-get($parsed-config, classes, map-get($parsed-options, size-class)),
 			map-get($parsed-options, layout-type)
 		)
 	;
@@ -583,7 +583,7 @@
 	@if type-of($breakpoint-start) == number {
 		////@debug "breakpoint-start is a number";
 		// 0 to breakpoint-end: remove the min-width
-		@if $breakpoint-start == 0 and $breakpoint-end == string and map-has-key(map-get($parsed-config, breakpoints), $breakpoint-end) {
+		@if $breakpoint-start == 0 and $breakpoint-end == string and _susy-deep-has-key($parsed-config, breakpoints, $breakpoint-end) {
 			////@debug "0 to breakpoint-end: remove the min-width";
 			$susy-media-query: susy-parse-media($breakpoint-end);
 			$susy-media-query: map-remove($susy-media-query, min-width);
@@ -600,10 +600,10 @@
 		}
 	}
 	// breakpoint-start is a string and a known named breakpoint
-	@else if type-of($breakpoint-start) == string and map-has-key(map-get($parsed-config, breakpoints), $breakpoint-start) {
+	@else if type-of($breakpoint-start) == string and _susy-deep-has-key($parsed-config, breakpoints, $breakpoint-start) {
 		////@debug "breakpoint-start is a known named breakpoint";
 		// Start with $breakpoint-start's susy media query map
-		$susy-media-query: map-get(map-get($parsed-config, breakpoints), $breakpoint-start);
+		$susy-media-query: _susy-deep-get($parsed-config, breakpoints, $breakpoint-start);
 		// breakpoint-start to number: replace the max-width
 		@if type-of($breakpoint-end) == number {
 			////@debug "breakpoint-start to number";
@@ -618,7 +618,7 @@
 		@else if type-of($breakpoint-end) == string and $breakpoint-start != $breakpoint-end {
 			////@debug "breakpoint-start to breakpoint-end";
 			$breakpoint-start-media: $susy-media-query;
-			$breakpoint-end-media: map-get(map-get($parsed-config, breakpoints), $breakpoint-end);
+			$breakpoint-end-media: _susy-deep-get($parsed-config, breakpoints, $breakpoint-end);
 
 			$susy-media-query: _get-merged-susy-media-query($breakpoint-start-media, $breakpoint-end-media);
 
