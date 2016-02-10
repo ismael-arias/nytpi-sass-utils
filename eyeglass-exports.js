@@ -9,12 +9,12 @@ var math = require("mathjs");
 var convertKnownKeysToSassNumbers = function(config) {
 	Object.keys(config).forEach(function(categoryKey) {
 		if (categoryKey === "options") {
-			console.log("Examining options...");
+			//console.log("Examining options...");
 			Object.keys(config[categoryKey]).forEach(function(optionKey) {
 				var optionValue = config[categoryKey][optionKey];
-				console.log("    Examining options[" + optionKey + "] = " + optionValue);
+				//console.log("    Examining options[" + optionKey + "] = " + optionValue);
 				if (typeof optionKey === "string" && typeof optionValue === "string" && (optionKey.match("pixel-grid-ratio") !== null || optionKey === "outer-margin")) {
-					console.log("*** converting " + optionKey + " option...");
+					//console.log("*** converting " + optionKey + " option...");
 					config[categoryKey][optionKey] = tryToParseSassNumber(tryToMathEvalString(optionValue));
 				}
 			});
@@ -29,10 +29,10 @@ var convertKnownKeysToSassNumbers = function(config) {
 					// Is this a layout-type key?
 					var classConfigValue = config[categoryKey][classKey][classConfigKey];
 					if (layoutTypes.indexOf(classConfigKey) >= 0 && typeof classConfigValue === "object") {
-						console.log("Examining config[" + categoryKey + "][" + classKey + "][" + classConfigKey + "] = " + classConfigValue);
+						//console.log("Examining config[" + categoryKey + "][" + classKey + "][" + classConfigKey + "] = " + classConfigValue);
 
 						layoutTypeConfigKeys.forEach(function(layoutTypeConfigKey) {
-							console.log("    Examining " + layoutTypeConfigKey);
+							//console.log("    Examining " + layoutTypeConfigKey);
 							if (classConfigValue.hasOwnProperty(layoutTypeConfigKey)) {
 								classConfigValue[layoutTypeConfigKey] = tryToParseSassNumber(tryToMathEvalString(classConfigValue[layoutTypeConfigKey]));
 							}
@@ -49,7 +49,7 @@ var convertKnownKeysToSassNumbers = function(config) {
 
 var tryToMathEvalString = function(item) {
 	try {
-		console.log("Trying to math.eval() " + item);
+		//console.log("Trying to math.eval() " + item);
 		var evaluatedItem = math.eval(item);
 		if (typeof evaluatedItem === "number") {
 			return evaluatedItem;
@@ -113,7 +113,7 @@ var rewriteFamiliesInConfig = function(config) {
 		}
 	});
 
-	console.log("Finished rewriting families");
+	//console.log("Finished rewriting families");
 };
 
 var rewriteMediaPropertiesInConfig = function(config) {
