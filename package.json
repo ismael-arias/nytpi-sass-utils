@@ -23,6 +23,8 @@
   },
   "dependencies": {
     "deepmerge": "^0.2.10",
+    "mathjs": "^2.7.0",
+    "node-sass": "^3.4.2",
     "node-sass-utils": "^1.1.2",
     "susy": "^2.2.12"
   },

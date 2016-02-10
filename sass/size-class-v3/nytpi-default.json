@@ -19,7 +19,9 @@
 				"columns": 640,
 				"gutters": 0
 			},
-			"media": "0px 539px"
+			"media": {
+				"max-width": "539px"
+			}
 		},
 		"tablet-portrait": {
 			"grid": {
@@ -34,8 +36,8 @@
 		},
 		"tablet-landscape": {
 			"grid": {
-				"columns": 10,
-				"gutters": "32/156.8"
+				"columns": 8,
+				"gutters": "32/146"
 			},
 			"pixel-grid": {
 				"columns": 2048,
@@ -69,12 +71,8 @@
 	"families": {
 		"compact": "mobile-portrait",
 		"regular": "desktop for desktop to tablet-portrait",
-		"regular-pixels": "desktop for desktop to tablet-portrait with pixel-grid",
-		"regular-grid": "desktop grid for desktop to tablet-portrait",
 		"all-mobile": "mobile-portrait to desktop",
-		"all-desktop": "desktop to mobile-portrait",
-		"tiny-tablet": "tablet-portrait for 0 to 480px",
-		"desktop-for-tablet": "desktop for tablet-portrait"
+		"all-desktop": "desktop to mobile-portrait"
 	},
 	"breakpoints": {
 		"between-desktop-and-shell": "1281px 1604px"

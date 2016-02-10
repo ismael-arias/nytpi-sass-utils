@@ -1,0 +1,104 @@
+@import "./parser";
+
+@mixin get-size-class-config($load-options...) {
+	@if global-variable-exists(size-class-config) {
+		@error "Size Class config has already been initialized.";
+	} @else {
+		$loaded-config: _load-size-class-v3-config($load-options...);
+
+		$size-class-config: _parse-size-class-config($loaded-config) !global;
+	}
+}
+
+@mixin emulate-size-class-v2 {
+	@include get-size-class-config("nytpi-v2-emulation.json", $replace: true);
+}
+
+@if mixin-exists(size-class) {
+	@error "size-class() mixin already exists --- Size Class v2.0 may have been imported already";
+}
+
+// $options examples:
+// `desktop` (single size class)
+// `desktop to mobile-portrait` (downscale range)
+// `mobile-portrait to desktop` (upscale range)
+// `desktop from tablet-portrait to tablet-landscape` (explicit layout for order-insensitive range)
+
+@mixin size-class(
+	$options,
+	$no-query: $susy-media-fallback,
+	$parsed-config: null
+) {
+	@if type-of($parsed-config) != map {
+		// Load the default config if $size-class-config hasn't already been declared
+		@if not global-variable-exists(size-class-config) {
+			@include get-size-class-config();
+		}
+		// Use global $size-class-config for the configuration
+		$parsed-config: $size-class-config;
+	}
+
+	@debug "Parsed config:";
+	@debug $parsed-config;
+	@debug "---------------------------";
+
+	// Check to see if $options is a string specifying a family name
+	@if type-of($options) == string and map-has-key(map-get($parsed-config, families), $options) {
+		// $options is the name of a size family
+		@debug "$options: " + $options + " is a size family; using the size family's settings";
+		$parsed-options: map-get(map-get($parsed-config, families), $options);
+	}
+	// $options is a shorthand expression or map instead
+	@else {
+		@debug "$options: " + $options + " is a shorthand expression or something else; parsing it";
+		$parsed-options: _parse-size-classes-shorthand($options, $parsed-config);
+	}
+
+	@debug "Parsed options:";
+	@debug $parsed-options;
+	//@debug "---------------------------";
+
+	// Get media query
+	$target-media-query: _get-susy-media-query-for-options($parsed-options, $parsed-config);
+
+	@debug "Target media query:";
+	@debug $target-media-query;
+	@debug "---------------------------";
+
+	// Get layout
+	$target-layout: _get-layout-for-options($parsed-options, $parsed-config);
+
+	@debug "Target layout:";
+	@debug $target-layout;
+	@debug "---------------------------";
+
+	// Reassign $size-class-context in this scope and restore it once we're done
+	@if global-variable-exists(size-class-context-options) {
+		$old-size-class-context-options: $size-class-context;
+	}
+	$size-class-context: $parsed-options !global;
+
+	// Apply the media query and layout
+	@if length($target-media-query) > 0 {
+		@include susy-breakpoint(
+			$query: $target-media-query,
+			$layout: $target-layout,
+			$no-query: $no-query
+		) {
+			/* Conditional Layout: inspect($target-layout) */
+			@content;
+		}
+	} @else {
+		@include with-layout($target-layout) {
+			/* Unconditional Layout: inspect($target-layout) */
+			@content;
+		}
+	}
+
+	// Restore old value of $size-class-context
+	@if variable-exists(old-size-class-context-options) {
+		$size-class-context: $old-size-class-context-options !global;
+	} @else {
+		$size-class-context: () !global;
+	}
+}

@@ -1,0 +1,630 @@
+@import "susy";
+
+@function _get-first-size-class($config) {
+	$_size-classes: map-get($config, classes);
+
+	@return map-get(
+		map-get($config, classes),
+		nth(map-keys($_size-classes), 0)
+	)
+}
+
+@function _get-config-options($config, $parsed-config) {
+	$_options: ();
+
+	@if not map-has-key($config, options) {
+		@error "Size classes config is missing an 'options' hash.";
+	} @else {
+		$_options: map-get($config, options);
+	}
+
+	// Begin options["layout-types"] validation
+	@if not map-has-key($_options, layout-types) {
+		@error "Size classes config is missing an options['layout-types'] array.";
+	} @else if type-of( map-get($_options, layout-types) ) != list {
+		@error "Size classes config contains an options['layout-types'] property that is not an array.";
+	} @else if length(map-get($_options, layout-types)) == 0 {
+		@error "Size classes config options missing or has an invalid `layout-types` array.";
+	}
+	// End options["layout-types"] validation
+
+	// Begin options["default-layout-type"] validation
+	@if (
+		not map-has-key($_options, default-layout-type) or
+		index(map-get($_options, layout-types), map-get($_options, default-layout-type)) == null
+	) {
+		@error "Size classes config options missing or has an invalid options['default-layout-type'] property.";
+	}
+	// End options["default-layout-type"] validation
+
+	// Begin options["outer-margin"] validation
+	@if (
+		not map-has-key($_options, outer-margin)
+	) {
+		@error "Size classes config options missing options['outer-margin'] property.";
+	}
+	// End options["outer-margin"] validation
+
+	// Begin [config-]pixel-grid-ratio validation
+	@if (
+		index(map-get($_options, layout-types), pixel-grid) > 0
+	) {
+		// config-pixel-grid-ratio
+		@if map-has-key($_options, config-pixel-grid-ratio) {
+			@if type-of(map-get($_options, pixel-grid-ratio)) != number {
+				@error "Size classes config contains an invalid 'config-pixel-grid-ratio' property.";
+			}
+		}
+
+		// pixel-grid-ratio
+		@if map-has-key($_options, pixel-grid-ratio) {
+			@if type-of(map-get($_options, pixel-grid-ratio)) != number {
+				@error "Size classes config contains an invalid 'pixel-grid-ratio' property.";
+			} @else if not map-has-key($_options, config-pixel-grid-ratio) {
+				// Use pixel-grid-ratio to set the value for config-pixel-grid-ratio
+				$_options: map-merge(
+					$_options,
+					(config-pixel-grid-ratio: map-get($_options, pixel-grid-ratio))
+				);
+			}
+		} @else if map-has-key($_options, config-pixel-grid-ratio) {
+			// Use config-pixel-grid-ratio to set a default value for pixel-grid-ratio
+			$_options: map-merge(
+				$_options,
+				(pixel-grid-ratio: map-get($_options, config-pixel-grid-ratio))
+			);
+		}
+
+		// $_options should have **both** a pixel-grid-ratio and config-pixel-grid-ratio key by now.
+		@if (
+			not map-has-key($_options, pixel-grid-ratio) and
+			not map-has-key($_options, config-pixel-grid-ratio)
+		) {
+			// Does $_options contain both `config-pixel-grid-ratio` and `pixel-grid-ratio key
+			@error "Size classes config contains a 'pixel-grid' layout type without providing a 'pixel-grid-ratio' or 'config-pixel-grid-ratio' property.";
+		}
+	}
+
+	@return map-merge($parsed-config, (options: $_options));
+}
+
+@function _parse-config-breakpoint($breakpoint-name, $breakpoint-config, $breakpoints) {
+	// Is there already a key with this name in $breakpoints?
+	@if map-has-key($breakpoints, $breakpoint-name) {
+		@error "Size class config contains two '" + $breakpoint-name + "' breakpoints.";
+	}
+
+	// Reassign so we can throw an error with the original input if necessary
+	$final-breakpoint-config: $breakpoint-config;
+
+	// Is $breakpoint-config *not* a map? (Breakpoint config shorthand support)
+	@if type-of($breakpoint-config) != map {
+		// Convert $breakpoint-config to a map with a "media" key
+		$final-breakpoint-config: (media: $breakpoint-config);
+	}
+	// Is $final-breakpoint-config (now) a map with the key "media"?
+	@if type-of($final-breakpoint-config) == map and map-has-key($final-breakpoint-config, media) {
+		// Attempt to create a Susy breakpoint from this config
+		// Workaround for susy-parse-media failing on one-item lists
+		$media-list: map-get($final-breakpoint-config, media);
+		@if type-of($media-list) == list and length($media-list) == 1 and type-of(nth($media-list, 1)) == number {
+			$media-list: nth($media-list, 1);
+		}
+		$media: susy-parse-media($media-list);
+		$final-breakpoint-config: $media;
+	}
+	
+	@if type-of($final-breakpoint-config) != map {
+		@error "Could not parse " + $breakpoint-name + ": " + $breakpoint-config + " --> " + $final-breakpoint-config;
+	}
+	
+	@return ($breakpoint-name: $final-breakpoint-config);
+}
+
+@function _parse-config-breakpoints($config, $parsed-config) {
+	$_breakpoints: ();
+
+	@if not map-has-key($config, breakpoints) {
+		@return $_breakpoints;
+	}
+
+	@each $breakpoint-name, $breakpoint-config in map-get($config, breakpoints) {
+		// Merge the parsed breakpoint configuration into $_breakpoints
+		$_breakpoints: map-merge(
+			$_breakpoints,
+			_parse-config-breakpoint($breakpoint-name, $breakpoint-config, $_breakpoints)
+		);
+	}
+
+	// Merge the breakpoints into $parsed-config
+	@return map-merge($parsed-config, (breakpoints: $_breakpoints));
+}
+
+@function _parse-config-class($size-class, $class-config, $options, $classes, $breakpoints) {
+	// Begin name validation
+	@if map-has-key($classes, $size-class) {
+		@error "Size class config contains duplicate '" + $size-class + "' size class definitions.";
+	}
+
+	// Begin layout-types validation
+	@each $layout-type-name in map-get($options, layout-types) {
+		@if not map-has-key($class-config, $layout-type-name) {
+			@error "Size classes config contains a '" + $size-class + "' class without a config for the '" + $layout-type-name + "' layout type.";
+		} @else {
+			// Try to create a Susy layout from this configuration
+			$layout-config: map-get($class-config, $layout-type-name);
+			// Susy will throw an error if it can't create a layout from this config
+			$layout: layout($layout-config);
+			// Did we get a working layout out of that call above?
+			@if $layout == () {
+				@error "Susy could not parse the '" + $layout-type-name "' layout for the '" + $size-class "' size class.";
+			}
+			// Merge this back into $class-config
+			$class-config: map-merge(
+				$class-config,
+				($layout-type-name: $layout)
+			)
+		}
+	}
+	// End layout-types validation
+
+	@return ($size-class: $class-config);
+}
+
+@function _parse-config-classes($config, $parsed-config) {
+	@if not map-has-key($config, classes) {
+		@error "Size class config does not contain any `classes`.";
+	}
+
+	$_classes: ();
+
+	// Read-only access to $options (we're not going to merge it back in below)
+	$options: map-get($parsed-config, options);
+
+	// **$breakpoints may get modified below**, so we'll also have to merge it back into $parsed-config below
+	$breakpoints: map-get($parsed-config, breakpoints);
+
+	// Iterate through each of the `classes`
+	@each $size-class, $class-config in map-get($config, classes) {
+		// Get the parsed $class-config, but unwrap it from the map it comes in
+		$parsed-class-config: map-get(
+				_parse-config-class($size-class, $class-config, $options, $_classes, $breakpoints),
+				$size-class
+		);
+
+		// Begin optional `media` property / breakpoint validation
+		@if map-has-key($parsed-class-config, media) {
+			// Is there already a breakpoint with this name?
+			@if map-has-key($breakpoints, $size-class) {
+				@error "Size class '" + $size-class + "' contains a 'media' property, which redefines a breakpoint of the same name. Please define this named media query in one or the other location (but not both).";
+			} @else {
+				// Merge into **$breakpoints** rather than back into $class-config
+				$breakpoints: map-merge(
+					$breakpoints,
+					_parse-config-breakpoint($size-class, $parsed-class-config, $breakpoints)
+				);
+			}
+			// Remove the "media" key from $parsed-class-config
+			$parsed-class-config: map-remove($parsed-class-config, media);
+		}
+		// End optional `media` property validation
+
+		// Merge the parsed size class configuration into $_classes
+		$_classes: map-merge(
+			$_classes,
+			// Re-wrap the parsed class config in a map (keyed by this class's name)
+			($size-class: $parsed-class-config)
+		);
+	}
+
+	// Merge the breakpoints and classes into $parsed-config
+	@return map-merge(
+		$parsed-config, (
+			breakpoints: $breakpoints,
+			classes: $_classes
+		)
+	);
+}
+
+@function _parse-size-classes-shorthand($short, $parsed-config, $family-name: null) {
+	$size-classs: map-keys(map-get($parsed-config, classes));
+	$breakpoint-names: map-keys(map-get($parsed-config, breakpoints));
+	$layout-types: map-get(map-get($parsed-config, options), layout-types);
+	$default-layout-type: map-get(map-get($parsed-config, options), default-layout-type);
+
+	$required-map-keys: (
+		breakpoint-start: $breakpoint-names,
+		breakpoint-end: $breakpoint-names,
+		size-class: $size-classs,
+		layout-type: $layout-types
+	);
+
+	$for-kw: for;
+	$to-kw: to;
+	$with-kw: with;
+
+	$parsed-short: ();
+
+	// Begin pre-validate conversions
+
+	// Is $short a one-string-item list?
+	@if type-of($short) == list and length($short) == 1 and type-of(nth($short, 1)) == string {
+		$short: nth($short, 1);
+	}
+
+	// Is $short a string?
+	@if type-of($short) == string {
+		// Is this string a named class?
+		@if index($size-classs, $short) != null {
+			$short: (
+				size-class: $short,
+				layout-type: $default-layout-type,
+				breakpoint-start: $short,
+				breakpoint-end: $short
+			);
+		} @else {
+			@error "$short is a string ('" + $short + "') which does not specify any known size class.";
+		}
+	}
+
+	// Is $short a list (which might look like an unquoted string)?
+	@if type-of($short) == list {
+		// Iterate through the list and parse it
+		$_for: index($short, $for-kw);
+		$_to: index($short, $to-kw);
+		$_with: index($short, $with-kw);
+		$_i: 1;
+
+		//@debug $family-name + ":";
+		@if $_for {
+			//@debug "    'for' at index " + $_for + " in list: (" + $short + ") -- " + nth($short, $_for);
+		}
+
+		$short-list-to-map: ();
+
+		@while $_i <= length($short) {
+			$item: nth($short, $_i);
+
+			@if $item != $for-kw and $item != $to-kw and $item != $with-kw {
+				//@debug "        -- item: " + $item + " (" + type-of($item) + ")";
+
+				@each $required-key, $possible-values in $required-map-keys {
+					$added-key: false;
+					// Process arguments appearing before "for"
+					@if (
+						$_for and
+						$_i < $_for and
+						not $added-key
+					) {
+						// Add to $short-list-to-map if we're matching size-class or layout-type arguments with valid values
+						@if ($required-key == size-class or $required-key == layout-type) and index($possible-values, $item) != null {
+							//@debug "        Added " + $required-key + ": " + $item + " (appears before 'for' in the list)";
+							//@debug "        (Matched one of these values: " + $possible-values + ")";
+							$_key-value: append($required-key, $item);
+							$short-list-to-map: _susy-deep-set($short-list-to-map, $_key-value...);
+							$added-key: true;
+						}
+						@else {
+							//@debug "    -- Skipping " + $required-key + ": " + $item + " in 'size-class or layout-type before-for' section";
+						}
+					}
+					// Process arguments appearing before or after "to"
+					@else if not $added-key and (
+						($_to and $_i < $_to and (((not $_for or $_i > $_for) and $required-key == size-class) or ($_for and $required-key == breakpoint-start))) or
+						($_for and $_i > $_for and $required-key == breakpoint-start and not map-has-key($short-list-to-map, breakpoint-start)) or
+						($_to and $_i > $_to and $required-key == breakpoint-end) or
+						($required-key == layout-type)
+					) and (
+						index($possible-values, $item) != null or
+						(type-of($item) == number and ($required-key == breakpoint-start or $required-key == breakpoint-end))
+					) {
+						//@debug "        Added " + $required-key + ": " + $item + " (appears adjacent to 'to' in the list)";
+						//@debug "        (Matched one of these values: " + $possible-values + ")";
+						$_key-value: append($required-key, $item);
+						$short-list-to-map: _susy-deep-set($short-list-to-map, $_key-value...);
+						$added-key: true;
+					}
+					// Process arguments appearing after "with"
+					@else if $_with and not $added-key and $_i > $_with and
+						($required-key == size-class or $required-key == layout-type) and
+						index($possible-values, $item) != null
+					{
+						//@debug "        Added " + $required-key + ": " + $item + " (appears after 'with' in the list)";
+						//@debug "        (Matched one of these values: " + $possible-values + ")";
+						$_key-value: append($required-key, $item);
+						$short-list-to-map: _susy-deep-set($short-list-to-map, $_key-value...);
+						$added-key: true;
+					}
+
+					@else {
+						//@debug "    -- Skipping " + $required-key + ": " + $item + " in 'before-for' section";
+					}
+				}
+			}
+
+			// Continue iterating
+			$_i: $_i + 1;
+		}
+
+		// Begin additional list-to-map format checks
+
+		// If there is a size-class key but no breakpoint-start key, add breakpoint-start: size-class
+		@if map-has-key($short-list-to-map, size-class) and not map-has-key($short-list-to-map, breakpoint-start) {
+			$short-list-to-map: map-merge(
+				$short-list-to-map,
+				(breakpoint-start: map-get($short-list-to-map, size-class))
+			);
+		}
+
+		// If there is a breakpoint-start key but no breakpoint-end key, and breakpoint-start is not a number, add breakpoint-end: breakpoint-start
+		@if (
+			map-has-key($short-list-to-map, breakpoint-start) and
+			not map-has-key($short-list-to-map, breakpoint-end)
+		) {
+			// If there is a numerical breakpoint-start with no breakpoint-end, assume breakpoint-start is a min-width (i.e. min-width to Infinity)
+			// Infinity is a Size Classes convention that Size Classes handles; susy-parse-media() does not handle Infinity
+			@if type-of(map-get($short-list-to-map, breakpoint-start)) == number {
+				$short-list-to-map: map-merge(
+					$short-list-to-map,
+					(breakpoint-end: Infinity)
+				);
+			} @else {
+				$short-list-to-map: map-merge(
+					$short-list-to-map,
+					(breakpoint-end: map-get($short-list-to-map, breakpoint-start))
+				);
+			}
+		}
+
+		// If there isn't a layout-type key, add layout-type: $default-layout-type
+		@if not map-has-key($short-list-to-map, layout-type) {
+			$short-list-to-map: map-merge(
+				$short-list-to-map,
+				(layout-type: $default-layout-type)
+			);
+		}
+
+		// End additional list-to-map format checks
+
+		// We're all done, so go ahead and reassign to $short.
+		$short: $short-list-to-map;
+	}
+
+	// End pre-validate conversions
+
+	//@debug $short;
+
+	// Is $short (finally) a map?
+	@if type-of($short) == map {
+		@each $required-map-key, $possible-values in $required-map-keys {
+			// Does the $short map *not* contain this key?
+			@if not map-has-key($short, $required-map-key) {
+				@if $family-name {
+					@error "Size family '" + $family-name + "': (" + $short + ") is missing required key '" + $required-map-key + "'.";
+				} @else {
+					@error "$short: " + $short + " (a map) is missing required key '" + $required-map-key + "'.";
+				}
+			} @else {
+				// Does this key *not* have a valid value?
+				$short-value-for-key: map-get($short, $required-map-key);
+				// Special case for breakpoint-start and breakpoint-end
+				@if (
+					type-of($short-value-for-key) == number and
+					($required-map-key == breakpoint-start or $required-map-key == breakpoint-end)
+				) {
+					//@debug "Passing " + $required-map-key + ": " + $short-value-for-key + " (number exception for breakpoint-start and breakpoint-end)";
+				}
+				@else if (
+					$short-value-for-key == Infinity and $required-map-key == breakpoint-end
+				) {
+					//@debug "Passing " + $required-map-key + ": " + $short-value-for-key + " (number exception for breakpoint-end: Infinity)";
+				}
+				@else if index($possible-values, $short-value-for-key) == null {
+					@if $family-name {
+						@error "Size family '" + $family-name + "' has a configuration key '" + $required-map-key + "' containing an invalid value: " + $short-value-for-key + ".";
+					} @else {
+						@error "$short map's key '" + $required-map-key + "' contains an invalid value: " + $short-value-for-key + ".";
+					}
+
+				}
+			}
+		}
+		// If no @error occurred above, $short is a valid size-class mixin option
+		$parsed-short: $short;
+	}
+
+	@return $parsed-short;
+}
+
+@function _parse-config-family($family-name, $family-config, $parsed-config) {
+	// Read-only access
+	$breakpoint-names: map-keys(map-get($parsed-config, breakpoints));
+	$size-classs: map-keys(map-get($parsed-config, classes));
+
+	// Prevent name collisions between size families, classes, and breakpoints
+	@if index($breakpoint-names, $family-name) != null {
+		@error "Size classes config contains a size family '" + $family-name + "', which conflicts with a breakpoint of the same name.";
+	}
+	@if index($size-classs, $family-name) != null {
+		@error "Size classes config contains a size family '" + $family-name + "', which conflicts with a class of the same name.";
+	}
+	// End prevent name collisions
+
+	// Parse the config
+	$parsed-family-config: _parse-size-classes-shorthand($family-config, $parsed-config, $family-name);
+
+	@if $parsed-family-config == () {
+		@error "Could not parse configuration for the '" + $family-name + "' size family."
+	}
+
+	//@debug ($family-name: $parsed-family-config);
+	//@debug "------------------------------------------------";
+
+	@return ($family-name: $parsed-family-config);
+}
+
+@function _parse-config-families($config, $parsed-config) {
+	$_families: ();
+
+	// Read-only access only (we're not going to merge it back in below)
+	$classes: map-get($parsed-config, classes);
+
+	@each $family-name, $family-config in map-get($config, families) {
+		// Merge the parsed breakpoint configuration into $_breakpoints
+		$_families: map-merge(
+			$_families,
+			_parse-config-family($family-name, $family-config, $parsed-config)
+		);
+	}
+
+	@return map-merge(
+		$parsed-config,
+		(families: $_families)
+	);
+}
+
+@function _parse-size-class-config($config) {
+	$_parsed-config: ();
+
+	// Incrementally build up the parsed configuration
+	$_parsed-config: _get-config-options($config, $_parsed-config);
+	$_parsed-config: _parse-config-breakpoints($config, $_parsed-config);
+	$_parsed-config: _parse-config-classes($config, $_parsed-config);
+	$_parsed-config: _parse-config-families($config, $_parsed-config);
+
+	@return $_parsed-config;
+}
+
+@function _get-layout-for-options($parsed-options, $parsed-config: $size-class-config) {
+	@return
+		map-get(
+			map-get(map-get($parsed-config, classes), map-get($parsed-options, size-class)),
+			map-get($parsed-options, layout-type)
+		)
+	;
+}
+
+@function _get-merged-susy-media-query($left-query, $right-query, $threshold: 1px) {
+	// Start by map-merging the media queries and removing the min-width and max-width keys
+	$merged-query: map-merge($left-query, $right-query);
+	$merged-query: map-remove($merged-query, min-width);
+	$merged-query: map-remove($merged-query, max-width);
+
+	// Left query's min and max width
+	$left-min-width: 0;
+	$left-max-width: Infinity;
+	@if map-has-key($left-query, min-width) {
+		$left-min-width: map-get($left-query, min-width);
+	}
+	@if map-has-key($left-query, max-width) {
+		$left-max-width: map-get($left-query, max-width);
+	}
+
+	// Right query's min and max width
+	$right-min-width: 0;
+	$right-max-width: Infinity;
+	@if map-has-key($right-query, min-width) {
+		$right-min-width: map-get($right-query, min-width);
+	}
+	@if map-has-key($right-query, max-width) {
+		$right-max-width: map-get($right-query, max-width);
+	}
+
+	$merged: false;
+
+	//@if type-of($right-min-width) == number and type-of($left-max-width) == number and ($right-min-width - $left-max-width <= $threshold) {
+	//	@if $left-min-width > 0 {
+	//		$merged-query: map-merge($merged-query, (min-width: $left-min-width));
+	//	}
+	//	@if $right-max-width != Infinity {
+	//		$merged-query: map-merge($merged-query, (max-width: $right-max-width));
+	//	}
+	//
+	//	// @debug (after-min-and-max-widths-in-range-of-each-other: $merged-query);
+	//
+	//	$merged: true;
+	//}
+
+	@if type-of($left-min-width) == number and type-of($right-max-width) == number and ($left-min-width - $right-max-width <= $threshold) {
+		@if $right-min-width > 0 {
+			$merged-query: map-merge($merged-query, (min-width: $right-min-width));
+		}
+		@if $left-max-width != Infinity {
+			$merged-query: map-merge($merged-query, (max-width: $left-max-width));
+		}
+
+		// @debug (after-min-and-max-widths-in-range-of-each-other: $merged-query);
+
+		$merged: true;
+	}
+
+	@if type-of($right-min-width) == number and type-of($left-min-width) == number and $right-min-width > 0 and $left-min-width > 0 and $right-min-width <= $left-min-width {
+		// @debug "Merging a narrower min-width-to-infinity query into a wider one";
+		$merged-query: map-merge($merged-query, (min-width: $right-min-width));
+
+		$merged: true;
+	}
+
+	@if $merged == true {
+		@return $merged-query;
+	} @else {
+		@return ($left-query, $right-query);
+	}
+}
+
+@function _get-susy-media-query-for-options($parsed-options, $parsed-config: $size-class-config) {
+	$breakpoint-start: map-get($parsed-options, breakpoint-start);
+	$breakpoint-end: map-get($parsed-options, breakpoint-end);
+
+	$susy-media-query: ();
+
+	@debug "O HAI";
+
+	// breakpoint-start is a number
+	@if type-of($breakpoint-start) == number {
+		@debug "breakpoint-start is a number";
+		// 0 to breakpoint-end: remove the min-width
+		@if $breakpoint-start == 0 and $breakpoint-end == string and map-has-key(map-get($parsed-config, breakpoints), $breakpoint-end) {
+			@debug "0 to breakpoint-end: remove the min-width";
+			$susy-media-query: susy-parse-media($breakpoint-end);
+			$susy-media-query: map-remove($susy-media-query, min-width);
+		}
+		// number-start to Infinity: pass number-start to susy-parse-media (to be interpreted as a min-width)
+		@else if $breakpoint-end == Infinity {
+			@debug "number-start to Infinity";
+			$susy-media-query: susy-parse-media($breakpoint-start);
+		}
+		// number-start to number-end: pass both numbers to susy-parse-media (to be interpreted as min-width and max-width)
+		@else if type-of($breakpoint-end) == number {
+			@debug "number-start to number-end";
+			$susy-media-query: susy-parse-media($breakpoint-start $breakpoint-end);
+		}
+	}
+	// breakpoint-start is a string and a known named breakpoint
+	@else if type-of($breakpoint-start) == string and map-has-key(map-get($parsed-config, breakpoints), $breakpoint-start) {
+		@debug "breakpoint-start is a known named breakpoint";
+		// Start with $breakpoint-start's susy media query map
+		$susy-media-query: map-get(map-get($parsed-config, breakpoints), $breakpoint-start);
+		// breakpoint-start to number: replace the max-width
+		@if type-of($breakpoint-end) == number {
+			@debug "breakpoint-start to number";
+			$susy-media-query: map-merge($susy-media-query, (max-width: $breakpoint-end));
+		}
+		// breakpoint-start to Infinity: remove the max-width
+		@else if $breakpoint-end == Infinity {
+			@debug "breakpoint-start to Infinity";
+			$susy-media-query: map-remove($susy-media-query, max-width);
+		}
+		// breakpoint-start to breakpoint-end: merge these media queries and all in between
+		@else if type-of($breakpoint-end) == string and $breakpoint-start != $breakpoint-end {
+			@debug "breakpoint-start to breakpoint-end";
+			$breakpoint-start-media: $susy-media-query;
+			$breakpoint-end-media: map-get(map-get($parsed-config, breakpoints), $breakpoint-end);
+
+			$susy-media-query: _get-merged-susy-media-query($breakpoint-start-media, $breakpoint-end-media);
+		}
+	}
+
+	@debug $susy-media-query;
+	@return $susy-media-query;
+}
