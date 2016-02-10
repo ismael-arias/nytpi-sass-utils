@@ -36,8 +36,8 @@
 		},
 		"tablet-landscape": {
 			"grid": {
-				"columns": 8,
-				"gutters": "32/146"
+				"columns": 12,
+				"gutters": "32/164"
 			},
 			"pixel-grid": {
 				"columns": 2048,
