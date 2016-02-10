@@ -532,19 +532,7 @@
 
 	$merged: false;
 
-	//@if type-of($right-min-width) == number and type-of($left-max-width) == number and ($right-min-width - $left-max-width <= $threshold) {
-	//	@if $left-min-width > 0 {
-	//		$merged-query: map-merge($merged-query, (min-width: $left-min-width));
-	//	}
-	//	@if $right-max-width != Infinity {
-	//		$merged-query: map-merge($merged-query, (max-width: $right-max-width));
-	//	}
-	//
-	//	// //@debug (after-min-and-max-widths-in-range-of-each-other: $merged-query);
-	//
-	//	$merged: true;
-	//}
-
+	// Case where $left-query and $right-query are adjacent and $left-query is wider than $right-query
 	@if type-of($left-min-width) == number and type-of($right-max-width) == number and ($left-min-width - $right-max-width <= $threshold) {
 		@if $right-min-width > 0 {
 			$merged-query: map-merge($merged-query, (min-width: $right-min-width));
@@ -553,13 +541,24 @@
 			$merged-query: map-merge($merged-query, (max-width: $left-max-width));
 		}
 
-		// //@debug (after-min-and-max-widths-in-range-of-each-other: $merged-query);
+	 	//@debug (after-min-and-max-widths-in-range-of-each-other: $merged-query);
+
+		$merged: true;
+	}
+
+	// Case where $left-query and $right-query are adjacent and $left-query is **narrower** than $right-query
+	@if type-of($left-max-width) == number and type-of($right-min-width) == number and ($right-min-width - $left-max-width <= $threshold) {
+		@if type-of($left-min-width == number) and $left-min-width <= $right-min-width {
+			$merged-query: map-merge($merged-query, (min-width: $left-min-width));
+		}
+
+		//@debug (after-min-and-max-widths-in-range-of-each-other: $merged-query);
 
 		$merged: true;
 	}
 
 	@if type-of($right-min-width) == number and type-of($left-min-width) == number and $right-min-width > 0 and $left-min-width > 0 and $right-min-width <= $left-min-width {
-		// //@debug "Merging a narrower min-width-to-infinity query into a wider one";
+		@debug "Merging a narrower min-width-to-infinity query into a wider one";
 		$merged-query: map-merge($merged-query, (min-width: $right-min-width));
 
 		$merged: true;
@@ -622,6 +621,8 @@
 			$breakpoint-end-media: map-get(map-get($parsed-config, breakpoints), $breakpoint-end);
 
 			$susy-media-query: _get-merged-susy-media-query($breakpoint-start-media, $breakpoint-end-media);
+
+			@debug "Returning " + $susy-media-query;
 		}
 	}
 
