@@ -310,7 +310,7 @@
 					}
 					// Process arguments appearing before or after "to"
 					@else if not $added-key and (
-						($_to and $_i < $_to and (((not $_for or $_i > $_for) and $required-key == size-class) or ($_for and $required-key == breakpoint-start))) or
+						($_to and $_i < $_to and (((not $_for or $_i > $_for) and $required-key == size-class and not map-has-key($short-list-to-map, size-class)) or ($_for and $required-key == breakpoint-start))) or
 						($_for and $_i > $_for and $required-key == breakpoint-start and not map-has-key($short-list-to-map, breakpoint-start)) or
 						($_to and $_i > $_to and $required-key == breakpoint-end) or
 						($required-key == layout-type)
@@ -318,8 +318,8 @@
 						index($possible-values, $item) != null or
 						(type-of($item) == number and ($required-key == breakpoint-start or $required-key == breakpoint-end))
 					) {
-						////@debug "        Added " + $required-key + ": " + $item + " (appears adjacent to 'to' in the list)";
-						////@debug "        (Matched one of these values: " + $possible-values + ")";
+						@debug "        Added " + $required-key + ": " + $item + " (appears adjacent to 'to' in the list)";
+						@debug "        (Matched one of these values: " + $possible-values + ")";
 						$_key-value: append($required-key, $item);
 						$short-list-to-map: _susy-deep-set($short-list-to-map, $_key-value...);
 						$added-key: true;
