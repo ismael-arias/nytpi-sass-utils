@@ -558,7 +558,7 @@
 	}
 
 	@if type-of($right-min-width) == number and type-of($left-min-width) == number and $right-min-width > 0 and $left-min-width > 0 and $right-min-width <= $left-min-width {
-		@debug "Merging a narrower min-width-to-infinity query into a wider one";
+		//@debug "Merging a narrower min-width-to-infinity query into a wider one";
 		$merged-query: map-merge($merged-query, (min-width: $right-min-width));
 
 		$merged: true;
@@ -622,7 +622,7 @@
 
 			$susy-media-query: _get-merged-susy-media-query($breakpoint-start-media, $breakpoint-end-media);
 
-			@debug "Returning " + $susy-media-query;
+			//@debug "Returning " + $susy-media-query;
 		}
 	}
 
