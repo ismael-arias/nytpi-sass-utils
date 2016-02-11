@@ -15,7 +15,7 @@ $susy: (
 	@if global-variable-exists(size-class-config) {
 		@error "Size Class config has already been initialized.";
 	} @else {
-		$loaded-config: _load-size-class-v3-config($load-options...);
+		$loaded-config: _load-size-class-config($load-options...);
 		$size-class-config: _parse-size-class-config($loaded-config) !global;
 	}
 }
@@ -182,10 +182,13 @@ $susy: (
 	@if unitless($_return) {
 		// Do we need to do unit conversion?
 		@if $unit != null {
-			//@if function-exists($unit) {
-			//	$_return: call("#{$unit}", $_return);
-			//}
-			//@else {
+			// Prefer the nytpi-s
+			@if function-exists(_nytpi-sass-utils-#{$unit}) {
+				$_return: call(_nytpi-sass-utils-#{$unit}, $_return);
+			} @else if function-exists($unit) {
+				$_return: call($unit, $_return);
+			}
+			@else {
 				// We need to do some scaling
 				$_return: $_return / get-config-pixel-grid-ratio();
 
@@ -198,7 +201,7 @@ $susy: (
 				} @else if $unit == rem {
 					$_return: $_return * 1rem;
 				}
-			//}
+			}
 		} @else {
 			// We need to do some different scaling to take both config-pixel-grid-ratio and pixel-grid-ratio into account
 			$_return: $_return / (get-config-pixel-grid-ratio() / get-pixel-grid-ratio());

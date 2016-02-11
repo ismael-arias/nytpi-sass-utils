@@ -150,14 +150,14 @@ var rewriteBreakpoint = function(breakpoint) {
 
 module.exports = function(eyeglass, sass) {
 	var defaultConfigName = "nytpi-default.json";
-	var defaultConfigPath = path.join(__dirname, "sass", "size-class-v3", defaultConfigName);
+	var defaultConfigPath = path.join(__dirname, "sass", "size-class", defaultConfigName);
 
 	var sassUtils = require("node-sass-utils")(sass);
 
 	return {
 		sassDir: path.join(__dirname, "sass"),
 		functions: {
-			"_load-size-class-v3-config($pathToJsonFile: false, $replace: false)": function(pathToJsonFile, replace, done) {
+			"_load-size-class-config($pathToJsonFile: false, $replace: false)": function(pathToJsonFile, replace, done) {
 				var usePathToJsonFileArgument = false;
 				// Did we get a string?
 				if (typeof pathToJsonFile.getValue() === "string") {
@@ -178,7 +178,7 @@ module.exports = function(eyeglass, sass) {
 						// If that relative path doesn't work, try a path relative to this module
 						catch(e) {
 							pathToJsonFile = path.resolve(path.join(
-								__dirname, "sass", "size-class-v3", pathValue
+								__dirname, "sass", "size-class", pathValue
 							));
 							// The require() call below will fail if this doesn't exist, so don't worry about that here
 						}
