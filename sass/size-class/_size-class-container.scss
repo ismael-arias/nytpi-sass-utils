@@ -5,7 +5,7 @@
 		@include init-size-class-config();
 	}
 
-	@include _size-class-apply-outer-margin($prop, $use-prop-shorthand, $prop-is-important);
+	@include _size-class-apply-outer-margin-to-element($prop, $use-prop-shorthand, $prop-is-important);
 
 	// Call the Susy container() mixin if we're supposed to
 	@if $call-susy-container-mixin {
@@ -17,7 +17,7 @@
 			@if _susy-deep-get($susy, debug, output) == overlay {
 				@at-root head:hover ~ &:before,
 				head:hover ~ body &:before {
-					@include _size-class-apply-outer-margin(position, false, true);
+					@include _size-class-apply-outer-margin-to-element(position, false, true);
 				}
 			}
 

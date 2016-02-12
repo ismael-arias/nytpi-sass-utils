@@ -54,14 +54,8 @@
 	@return $_return;
 }
 
-@mixin _size-class-apply-outer-margin($prop, $use-prop-shorthand: false, $important: false) {
-	// Validate the $prop argument
-	$supported-props: (padding margin position);
 
-	@if index($supported-props, $prop) == null {
-		@error "$prop = " + $prop + " is not supported. Supported properties: " + $supported-props;
-	}
-
+@function get-outer-margin() {
 	// Get value of the Size Class config's `outer-margin` option
 	$outer-margin-value: size-class-config-get(options, outer-margin);
 
@@ -70,6 +64,33 @@
 		// Convert $outer-margin-value to a percentage
 		$outer-margin-value: $outer-margin-value * 100%;
 	}
+
+	@return $outer-margin-value;
+}
+
+@mixin full-bleed($important: false) {
+	// Load the default config if $size-class-config hasn't already been declared
+	@if not global-variable-exists(size-class-config) {
+		@include init-size-class-config();
+	}
+
+	// Get the outer margin value and apply it as negative left and right margins
+	$outer-margin-value: get-outer-margin() * 100% / (100% - get-outer-margin() * 2);
+
+	margin-left: -1 * $outer-margin-value if($important, !important, null);
+	margin-right: -1 * $outer-margin-value if($important, !important, null);
+}
+
+@mixin _size-class-apply-outer-margin-to-element($prop, $use-prop-shorthand: false, $important: false) {
+	// Validate the $prop argument
+	$supported-props: (padding margin position);
+
+	@if index($supported-props, $prop) == null {
+		@error "$prop = " + $prop + " is not supported. Supported properties: " + $supported-props;
+	}
+
+	// Get value of the Size Class config's `outer-margin` option
+	$outer-margin-value: get-outer-margin();
 
 	// Output either a shorthand or non-shorthand properties with the outer margin value
 	@if $prop != position {
@@ -86,6 +107,11 @@
 }
 
 @mixin size-class-debug($debug-output: background) {
+	// Load the default config if $size-class-config hasn't already been declared
+	@if not global-variable-exists(size-class-config) {
+		@include init-size-class-config();
+	}
+
 	$size-class-debug: true !global;
 
 	@if $debug-output != background and $debug-output != overlay {
