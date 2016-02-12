@@ -1,0 +1,27 @@
+@mixin min-font-size($min-font-size: auto, $font-size-unit: px, $base-font-size: null, $at-width: auto) {
+	@include limit-font-size(
+			$limit-font-size: $min-font-size,
+			$font-size-unit: $font-size-unit,
+			$base-font-size: $base-font-size,
+			$limit-mode: min,
+			$at-width: $at-width
+	);
+}
+
+@mixin max-font-size($max-font-size: auto, $font-size-unit: px, $base-font-size: null, $at-width: auto) {
+	@include limit-font-size(
+			$limit-font-size: $max-font-size,
+			$font-size-unit: $font-size-unit,
+			$base-font-size: $base-font-size,
+			$limit-mode: max,
+			$at-width: $at-width
+	);
+}
+
+@mixin min-font-size-at($options, $font-size-unit: px) {
+	@include limit-font-size-at($options, $limit-mode: min, $font-size-unit: $font-size-unit);
+}
+
+@mixin max-font-size-at($options, $font-size-unit: px) {
+	@include limit-font-size-at($options, $limit-mode: max, $font-size-unit: $font-size-unit);
+}

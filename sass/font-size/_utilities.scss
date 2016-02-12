@@ -1,0 +1,35 @@
+@function _get-font-size-mixin-supported-units() {
+	$supported-units: (px em rem vw);
+	@return $supported-units;
+}
+
+@function _get-min-font-size-auto-ratio() {
+	// This value worked well at some point, so it's magic, but useful.
+	$min-font-size-ratio: 15/16;
+	@return $min-font-size-ratio;
+}
+
+@mixin _bootstrap-size-class-config() {
+	// Maybe the Size Class config hasn't been loaded yet, so does the init-size-class-config() mixin exist?
+	@if not global-variable-exists(size-class-config) {
+		@if mixin-exists(init-size-class-config) {
+			@include init-size-class-config();
+		} @else {
+			@error "Could not init Size Classes configuration.";
+		}
+	}
+}
+
+@mixin init-font-size-context($base-font-size: 16, $base-unit: px) {
+	@if global-variable-exists(font-size-context) and global-variable-exists(font-size-unit-context) {
+		@error "Font Size config has already been initialized.";
+	} @else {
+		// Set $font-size-context as a multiple of $scale-factor if the latter exists.
+		@if global-variable-exists(size-class-config) {
+			$font-size-context: $base-font-size * get-pixel-grid-ratio() !global;
+		} @else {
+			$font-size-context: $base-font-size !global;
+		}
+		$font-size-unit-context: $base-unit !global;
+	}
+}

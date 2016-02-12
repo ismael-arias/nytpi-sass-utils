@@ -1,0 +1,39 @@
+// Applies the Size Class outer-margin option and calls the Susy container() mixin
+@mixin size-class-container($prop: padding, $use-prop-shorthand: false, $prop-is-important: false, $call-susy-container-mixin: true) {
+	// Load the default config if $size-class-config hasn't already been declared
+	@if not global-variable-exists(size-class-config) {
+		@include init-size-class-config();
+	}
+
+	@include _size-class-apply-outer-margin($prop, $use-prop-shorthand, $prop-is-important);
+
+	// Call the Susy container() mixin if we're supposed to
+	@if $call-susy-container-mixin {
+		@include container;
+
+		// Show the Susy debug grid for the default layout type, provided it's not 'pixel-grid'
+		@if $size-class-debug {
+			// Add the outer margin to the grid overlay
+			@if _susy-deep-get($susy, debug, output) == overlay {
+				@at-root head:hover ~ &:before,
+				head:hover ~ body &:before {
+					@include _size-class-apply-outer-margin(position, false, true);
+				}
+			}
+
+			$size-classes-shown: ();
+
+			@each $size-class-local-context in $size-class-contexts-in-use {
+				@if (
+						map-get($size-class-local-context, layout-type) != pixel-grid and
+					not index($size-classes-shown, map-get($size-class-local-context, size-class))
+				) {
+					@include size-class($size-class-local-context) {
+						@include show-grid();
+					}
+					$size-classes-shown: append($size-classes-shown, map-get($size-class-local-context, size-class));
+				}
+			}
+		}
+	}
+}

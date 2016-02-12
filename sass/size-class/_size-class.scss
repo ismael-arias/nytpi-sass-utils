@@ -1,0 +1,71 @@
+// Throw an error if the size-class mixin already exists (prevent simultaneous loading with Size Class v2)
+@if mixin-exists(size-class) {
+	@error "size-class() mixin already exists --- Size Class v2.0 may have been imported already?";
+}
+
+@mixin size-class(
+	$options,
+	$no-query: $susy-media-fallback
+) {
+	// Load the default config if $size-class-config hasn't already been declared
+	@if not global-variable-exists(size-class-config) {
+		@include init-size-class-config();
+	}
+
+	// Parse the $options argument
+	$parsed-options: ();
+
+	// Check to see if $options is a string specifying a family name
+	@if type-of($options) == string and _susy-deep-has-key($size-class-config, families, $options) {
+		// $options is the name of a size family
+		//@debug "$options: " + $options + " is a size family; using the size family's settings";
+		$parsed-options: size-class-config-get(families, $options);
+	}
+		// $options is a shorthand expression or map instead
+	@else {
+		//@debug "$options: " + $options + " is a shorthand expression or something else; parsing it";
+		$parsed-options: _parse-size-classes-shorthand($options, $size-class-config);
+	}
+
+	// Get the media query
+	$target-media-query: _get-susy-media-query-for-options($parsed-options, $size-class-config);
+
+	// Get the layout
+	$target-layout: _get-layout-for-options($parsed-options, $size-class-config);
+
+	// We're using this, so make a note of it
+	@if not index($size-class-contexts-in-use, $parsed-options) {
+		$size-class-contexts-in-use: append($size-class-contexts-in-use, $parsed-options) !global;
+	}
+
+	// Add $target-media-query to $parsed-options
+	$parsed-options: map-merge($parsed-options, (target-media-query: $target-media-query));
+
+	// Reassign $size-class-context in this scope and restore it once we're done
+	@if global-variable-exists(size-class-context) {
+		$old-size-class-context: $size-class-context;
+	}
+	$size-class-context: $parsed-options !global;
+
+	// Apply the media query and layout
+	@if length($target-media-query) > 0 {
+		@include susy-breakpoint(
+				$query: $target-media-query,
+				$layout: $target-layout,
+				$no-query: $no-query
+		) {
+			@content;
+		}
+	} @else {
+		@include with-layout($target-layout) {
+			@content;
+		}
+	}
+
+	// Restore old value of $size-class-context
+	@if variable-exists(old-size-class-context) {
+		$size-class-context: $old-size-class-context !global;
+	} @else {
+		$size-class-context: () !global;
+	}
+}

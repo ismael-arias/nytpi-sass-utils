@@ -1,0 +1,271 @@
+// Loads and parses the Size Class v3 configuration,
+// setting the parsed config to the global #. One-time use.
+@mixin init-size-class-config($load-options...) {
+	@if global-variable-exists(size-class-config) {
+		@error "Size Class config has already been initialized.";
+	} @else {
+		// Note: _load-size-class-config() is an Eyeglass function
+		$loaded-config: _load-size-class-config($load-options...);
+		$size-class-config: _parse-size-class-config($loaded-config) !global;
+		$size-class-debug: false !global;
+		$size-class-contexts-in-use: () !global;
+	}
+}
+
+@function _convert-unitless-to-unit($value, $unit, $context: null) {
+	$_return: $value;
+
+	// Convert unit to final desired unit
+	@if unitless($_return) {
+		// Do we need to do unit conversion?
+		@if $unit != null {
+			// Prefer the nytpi-sass-utils number functions
+			@if function-exists(_nytpi-sass-utils-#{$unit}) {
+				$_return: call(_nytpi-sass-utils-#{$unit}, $_return, $context);
+			} @else if function-exists($unit) {
+				$_return: call($unit, $_return, $context);
+			}
+			@else {
+				// We need to do some scaling
+				$_return: $_return / get-config-pixel-grid-ratio();
+
+				// If no function exists, need to apply pixel-ratio to the output
+				@if $unit == px {
+					$_return: $_return * 1px;
+				}
+				@else if $unit == em {
+					$_return: $_return * 1em;
+				}
+				@else if $unit == rem {
+					$_return: $_return * 1rem;
+				}
+				@else if $unit == vw {
+					@error "Internal error in get-pixel-grid-width(): cannot return vw unit value since _nytpi-sass-utils-vw() function doesn't exist.";
+				}
+			}
+		} @else {
+			// We need to do some different scaling to take both config-pixel-grid-ratio and pixel-grid-ratio into account
+			$_return: $_return / (get-config-pixel-grid-ratio() / get-pixel-grid-ratio());
+		}
+	} @else {
+		@error "_convert-unitless-to-unit() function passed a value with units: " + $value;
+	}
+
+	@return $_return;
+}
+
+@mixin _size-class-apply-outer-margin($prop, $use-prop-shorthand: false, $important: false) {
+	// Validate the $prop argument
+	$supported-props: (padding margin position);
+
+	@if index($supported-props, $prop) == null {
+		@error "$prop = " + $prop + " is not supported. Supported properties: " + $supported-props;
+	}
+
+	// Get value of the Size Class config's `outer-margin` option
+	$outer-margin-value: size-class-config-get(options, outer-margin);
+
+	// If $outer-margin-value is a unitless number less than or equal to 1...
+	@if unitless($outer-margin-value) and $outer-margin-value <= 1 {
+		// Convert $outer-margin-value to a percentage
+		$outer-margin-value: $outer-margin-value * 100%;
+	}
+
+	// Output either a shorthand or non-shorthand properties with the outer margin value
+	@if $prop != position {
+		@if $use-prop-shorthand {
+			#{$prop}: 0 $outer-margin-value if($important, !important, null);
+		} @else {
+			#{$prop}-left: $outer-margin-value if($important, !important, null);
+			#{$prop}-right: $outer-margin-value if($important, !important, null);
+		}
+	} @else {
+		left: $outer-margin-value if($important, !important, null);
+		right: $outer-margin-value if($important, !important, null);
+	}
+}
+
+@mixin size-class-debug($debug-output: background) {
+	$size-class-debug: true !global;
+
+	@if $debug-output != background and $debug-output != overlay {
+		@error "size-class-debug() only accepts 'overlay' and 'background' as inputs.";
+	}
+
+	@include susy-set(debug, image, show);
+	@include susy-set(debug, output, $debug-output);
+	@include susy-set(debug, toggle, bottom left);
+}
+
+@mixin size-class-debug-disable() {
+	$size-class-debug: false !global;
+
+	@include susy-set(debug, image, hide);
+	@include susy-set(debug, output, background);
+	@include susy-set(debug, toggle, top right);
+}
+
+@mixin emulate-size-class-v2 {
+	@include init-size-class-config("nytpi-v2-emulation.json", $replace: true);
+}
+
+
+@function size-class-config-has-layout-type($layout-type) {
+	$layout-types: _susy-deep-get($size-class-config, options, layout-types);
+
+	@return index($layout-types, $layout-type);
+}
+
+@function size-class-config-has-key($keys...) {
+	@if not global-variable-exists(size-class-config) {
+		@error "Size Class config has not been initialized.";
+	}
+	@return _susy-deep-has-key($size-class-config, $keys...);
+}
+
+// Getter function for the global $size-class-config map.
+@function size-class-config-get($keys...) {
+	@if not global-variable-exists(size-class-config) {
+		@error "Size Class config has not been initialized.";
+	}
+	@return _susy-deep-get($size-class-config, $keys...);
+}
+
+// Setter function for the global $size-class-config map.
+@mixin size-class-config-set($keys...) {
+	@if not global-variable-exists(size-class-config) {
+		@error "Size Class config has not been initialized.";
+	}
+	$size-class-config: _susy-deep-set($size-class-config, $keys...) !global;
+}
+
+@function get-config-pixel-grid-ratio() {
+	$layout-types: size-class-config-get(options, layout-types);
+
+	$_return: 1;
+
+	@if size-class-config-has-layout-type(pixel-grid) and size-class-config-has-key(options, config-pixel-grid-ratio) {
+		$_return: size-class-config-get(options, config-pixel-grid-ratio);
+	}
+
+	@return $_return;
+};
+
+@function get-pixel-grid-ratio() {
+	$layout-types: size-class-config-get(options, layout-types);
+
+	$_return: 1;
+
+	@if index($layout-types, pixel-grid) and size-class-config-has-key(options, pixel-grid-ratio) {
+		$_return: size-class-config-get(options, pixel-grid-ratio);
+	}
+
+	@return $_return;
+};
+
+@mixin set-pixel-grid-ratio($new-ratio) {
+	@if type-of($new-ratio) != number or $new-ratio <= 0 {
+		@error "Cannot set pixel-grid-ratio to a non-number or a number <= 0."
+	}
+
+	@include size-class-config-set(options, pixel-grid-ratio, $new-ratio);
+}
+
+@function get-pixel-grid-width($options: ()) {
+	$_return: null;
+
+	$config-name: null;
+	$min-or-max: null;
+	$unit: null;
+
+	$allowed-min-max: (min max);
+
+	$supported-units: (px em rem vw);
+
+	@if length($options) > 3 {
+		@error "Too many arguments passed to get-pixel-grid-width()";
+	}
+
+	// Parse $options
+	@each $option in $options {
+		// Is this option a size class or size family name?
+		@if size-class-config-has-key(families, $option) or size-class-config-has-key(classes, $option) {
+			$config-name: $option;
+		}
+		@else if type-of($option) == string {
+			//@debug $option + " is either a unit or min-or-max argument";
+			// Is this option possibly a unit?
+			@if index($supported-units, $option) {
+				//@debug $option + " is a unit";
+				$unit: $option;
+			}
+			@else if index($allowed-min-max, $option) {
+				//@debug $option + " is a min-or-max";
+				$min-or-max: $option;
+			}
+			@else {
+				@error "get-pixel-grid-width() passed an unsupported string argument (" + $option + ")";
+			}
+		}
+	}
+
+	// Get a size class's width
+	@if type-of($min-or-max) != string {
+		// If $config-name is null, try to get the size-class from $size-class-context
+		@if $config-name == null {
+			@if global-variable-exists(size-class-context) and map-has-key($size-class-context, size-class) {
+				$config-name: map-get($size-class-context, size-class);
+			}
+			@else {
+				@error "Could not get current size-class from $size-class-context.";
+			}
+		}
+			// Is $config-name a family name?
+		@else if size-class-config-has-key(families, $config-name) {
+			// Get the size class for this family
+			$config-name: size-class-config-get(families, $config-name, size-class);
+		}
+			// Otherwise, is this not a known size class?
+		@else if not size-class-config-has-key(classes, $config-name) {
+			@error $config-name + " is neither a known size family or size class name.";
+		}
+
+		// Check to see if we have a pixel-grid layout type
+		$layout-types: size-class-config-get(options, layout-types);
+
+		@if index($layout-types, pixel-grid) {
+			$_return: size-class-config-get(classes, $config-name, pixel-grid, columns);
+		} @else {
+			@error "Size Class config does not contain a 'pixel-grid' layout type.";
+		}
+	}
+		// Get a breakpoint's min-width or max-width
+	@else {
+		// If $config-name is null, get the target media query from the current context
+		@if $config-name == null {
+			@if global-variable-exists(size-class-context) and _susy-deep-has-key($size-class-context, target-media-query, #{$min-or-max}-width) {
+				$_return: _susy-deep-get($size-class-context, target-media-query, #{$min-or-max}-width);
+			} @else {
+				@error "Could not get target-media-query's " + #{$min-or-max}-width + " from $size-class-context.";
+			}
+		}
+			// $config-name is a breakpoint...so let's see if that exists
+		@else if size-class-config-has-key(breakpoints, $config-name, #{$min-or-max}-width) {
+			// Okay then, try to get the breakpoint config
+			$_return: size-class-config-get(breakpoints, $config-name, #{$min-or-max}-width);
+		}
+		@else {
+			@error $config-name + " is not a known breakpoint (or does not have a '" + #{$min-or-max}-width + "' property).";
+		}
+	}
+
+	// Cover breakpoint value returns
+	@if unit($_return) == px {
+		// Convert px to unitless value
+		$_return: $_return / 1px * get-config-pixel-grid-ratio();
+	}
+
+	$_return: _convert-unitless-to-unit($_return, $unit);
+
+	@return $_return;
+};
