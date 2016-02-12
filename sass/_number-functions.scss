@@ -1,19 +1,28 @@
-@function _nytpi-sass-utils-px($unitless, $pixel-ratio: null) {
-	@if $pixel-ratio == null {
-		@if global-variable-exists(size-class-config) and function-exists(_susy-deep-get) {
-			$pixel-ratio: _susy-deep-get($size-class-config, options, pixel-grid-ratio)
-		} @else {
-			$pixel-ratio: 1;
-		}
+@function _nytpi-sass-utils-number-functions-get-pixel-ratio() {
+	$pixel-ratio: 1;
+
+	@if global-variable-exists(size-class-config) and function-exists(get-pixel-grid-ratio) {
+		$pixel-ratio: get-pixel-grid-ratio();
 	}
+
+	@return $pixel-ratio;
+}
+
+@function _nytpi-sass-utils-px($unitless, $base-font-size: null, $pixel-ratio: null) {
+	@if $pixel-ratio == null {
+		$pixel-ratio: _nytpi-sass-utils-number-functions-get-pixel-ratio();
+	}
+
+	// Note: $base-font-size is ignored; it's offered to provide interface parity with the other number functions.
+
 	@return $unitless / $pixel-ratio * 1px;
 }
 
-@function _nytpi-get-font-size-for-function() {
+@function _nytpi-get-font-size-context-for-function() {
 	$font-size: 16;
 
-	@if global-variable-exists(base-font-size-unitless) {
-		$font-size: $base-font-size-unitless;
+	@if global-variable-exists(font-size-context) {
+		$font-size: $font-size-context;
 	} @else if global-variable-exists(size-class-config) and function-exists(_susy-deep-get) {
 		$font-size: $font-size * _susy-deep-get($size-class-config, options, pixel-grid-ratio);
 	}
@@ -22,20 +31,52 @@
 }
 
 // Easy-peasy mixin to calculate an em value from the ratio of a given integer and the current font-size integer value
-@function _nytpi-sass-utils-em($unitless, $font-size: null) {
-	@if $font-size == null {
-		$font-size: _nytpi-get-font-size-for-function();
+@function _nytpi-sass-utils-em($unitless, $base-font-size: null) {
+	@if $base-font-size == null {
+		$base-font-size: _nytpi-get-font-size-context-for-function();
 	}
 
-	@return 1em * $unitless / $font-size;
+	@if type-of($base-font-size) != number or not unitless($base-font-size) {
+		@error "$base-font-size argument must be a unitless number.";
+	}
+
+	@return 1em * $unitless / $base-font-size;
 }
 
-@function _nytpi-sass-utils-rem($unitless, $font-size: null) {
-	@if $font-size == null {
-		$font-size: _nytpi-get-font-size-for-function();
+@function _nytpi-sass-utils-rem($unitless, $base-font-size: null) {
+	@if $base-font-size == null {
+		$base-font-size: _nytpi-get-font-size-context-for-function();
 	}
 
-	@return 1rem * $unitless / $font-size;
+	@if type-of($base-font-size) != number or not unitless($base-font-size) {
+		@error "$base-font-size argument must be a unitless number.";
+	}
+
+	@return 1rem * $unitless / $base-font-size;
+}
+
+@function _nytpi-sass-utils-vw($unitless, $base-font-size: null, $base-width: null) {
+	$supported-susy-container-units: (px em rem vw);
+
+	// Note: $base-font-size is ignored; it's offered to provide interface parity with the other number functions.
+
+	@if $base-width == null {
+		@if global-variable-exists(size-class-config) and global-variable-exists(size-class-context) {
+			$base-width: get-pixel-grid-width();
+		}
+		// Try to set a $base-width from the Susy configuration
+		@else if global-variable-exists(susy) and susy-get(container) and unit(susy-get(container)) == px {
+			$base-width: susy-get(container) * _nytpi-sass-utils-number-functions-get-pixel-ratio() / 1px;
+		} @else {
+			@error "vw() function cannot calculate vw units. Please either set up a Susy layout or call the function inside a size-class() mixin's content block.";
+		}
+	}
+
+	@if type-of($base-width) != number or not unitless($base-width) {
+		@error "$base-width argument must be a unitless number.";
+	}
+
+	@return $unitless / $base-width * 100vw;
 }
 
 @function px($options...) {
@@ -48,4 +89,8 @@
 
 @function rem($options...) {
 	@return _nytpi-sass-utils-rem($options...);
+}
+
+@function vw($options...) {
+	@return _nytpi-sass-utils-vw($options...);
 }

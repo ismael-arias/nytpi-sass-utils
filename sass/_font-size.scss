@@ -1,0 +1,342 @@
+@import "number-functions";
+
+@function _get-font-size-mixin-supported-units() {
+	$supported-units: (px em rem vw);
+	@return $supported-units;
+}
+
+@function _get-min-font-size-auto-ratio() {
+	// This value worked well at some point, so it's magic, but useful.
+	$min-font-size-ratio: 15/16;
+	@return $min-font-size-ratio;
+}
+
+@mixin _bootstrap-size-class-config() {
+	// Maybe the Size Class config hasn't been loaded yet, so does the init-size-class-config() mixin exist?
+	@if not global-variable-exists(size-class-config) {
+		@if mixin-exists(init-size-class-config) {
+			@include init-size-class-config();
+		} @else {
+			@error "Could not init Size Classes configuration.";
+		}
+	}
+}
+
+@mixin init-font-size-context($base-font-size: 16, $base-unit: px) {
+	@if global-variable-exists(font-size-context) and global-variable-exists(font-size-unit-context) {
+		@error "Font Size config has already been initialized.";
+	} @else {
+		// Set $font-size-context as a multiple of $scale-factor if the latter exists.
+		@if global-variable-exists(size-class-config) {
+			$font-size-context: $base-font-size * get-pixel-grid-ratio() !global;
+		} @else {
+			$font-size-context: $base-font-size !global;
+		}
+		$font-size-unit-context: $base-unit !global;
+	}
+}
+
+// Throw an error if the size-class mixin already exists (prevent simultaneous loading with Size Class v2)
+@if mixin-exists(font-size) {
+	@error "font-size() mixin already exists --- Font Size v1.0 may have been imported already?";
+}
+
+@mixin limit-font-size($limit-font-size: auto, $font-size-unit: px, $base-font-size: null, $limit-mode: auto, $at-width: auto) {
+	$supported-units: _get-font-size-mixin-supported-units();
+
+	// There are occasions when we need to no-op, in which case this variable will be set to `false`.
+	$actually-output-styles: true;
+
+	// Begin additional validation
+	@if $base-font-size == null {
+		// Init $font-size-context global if it hasn't already been initialized
+		@if not global-variable-exists(font-size-context) {
+			@include init-font-size-context();
+		}
+		$base-font-size: $font-size-context;
+	}
+
+	// Check both $limit-font-size and $font-size
+	@if $limit-font-size != auto and not (type-of($limit-font-size) == number and unitless($limit-font-size)) {
+		@error "The limit-font-size() mixin doesn't accept a $limit-font-size argument that is a Sass number with units (got " + $limit-font-size + "). Please try a unitless number instead.";
+	}
+
+	@if type-of($base-font-size) != number or not unitless($base-font-size) {
+		@error "The limit-font-size() mixin doesn't accept a $base-font-size argument that is a Sass number with units (got " + $base-font-size + "). Please try a unitless number instead.";
+	}
+
+	@if not ($limit-mode == auto or $limit-mode == min or $limit-mode == max) {
+		@error "The limit-font-size() mixin doesn't accept a $limit-mode other than 'min', 'max', or 'auto'.";
+	}
+
+	// Determine $limit-mode
+	@if $limit-mode == auto {
+		@if $limit-font-size == auto {
+			@error "Cannot automatically calculate a limiting font-size given $limit-font-size: auto, $at-width: auto, and $limit-mode: auto.";
+		} @else if $limit-font-size > $base-font-size {
+			$limit-mode: max;
+		} @else if $limit-font-size <= $base-font-size {
+			$limit-mode: min;
+		}
+	}
+	// End additional validation
+
+	@if $at-width == auto {
+		@if not global-variable-exists(size-class-context) {
+			@error "limit-font-size() mixin was called outside of a size-class() mixin's content block, without an $at-with argument set.";
+		}
+	} @else if type-of($at-width) != auto and not (type-of($at-width) == number and unit($at-width) == px) {
+		@error "limit-font-size() mixin was called with a non-px $at-width argument.";
+	}
+
+	// Do we need the Size Class module for any of this?
+	@if $limit-font-size == auto or $at-width == auto {
+		@include _bootstrap-size-class-config();
+	}
+
+	// Auto-calculate both $limit-font-size and $at-width using Size Classes and Susy magic if we can
+	@if $limit-font-size == auto and $at-width == auto {
+		@if $limit-mode == max {
+			// Use the current Susy layout's container setting to calculate the max-font-size
+			@if susy-get(container) and type-of(susy-get(container)) == number and index($supported-units, unit(susy-get(container))) {
+				$at-width: susy-get(container);
+			}
+			// If there isn't a container max width setting in $susy, use the $size-class-context's target-media-query's max-width
+			@else if _susy-deep-has-key($size-class-context, target-media-query, max-width) {
+				$at-width: _susy-deep-get($size-class-context, target-media-query, max-width);
+			}
+			// Looks like we can't actually calculate this (insufficient data)
+			@else {
+				//@debug "Cannot automatically calculate max-font-size given $limit-font-size: auto, $at-width: auto, no $size-class-context and no $susy. No font-size styles will be output.";
+				@error "Calling " + $limit-mode + "-font-size() mixin in this context has no effect. (Cannot automatically calculate max-font-size given $limit-font-size: auto, $at-width: auto, no $size-class-context and no $susy.)";
+				$actually-output-styles: false;
+			}
+		} @else if $limit-mode == min {
+			// Use the $size-class-context's target-media-query's min-width
+			@if _susy-deep-has-key($size-class-context, target-media-query, min-width) {
+				$at-width: _susy-deep-get($size-class-context, target-media-query, max-width);
+			}
+			// Automatically set a min-font-size when using vw units
+			@else if global-variable-exists(font-size-unit-context) and $font-size-unit-context == vw and function-exists(_get-min-font-size-auto-ratio) {
+				$min-font-size-ratio: _get-min-font-size-auto-ratio();
+				$limit-font-size: $base-font-size * $min-font-size-ratio;
+			}
+			// Looks like we can't actually calculate this (insufficient data)
+			@else {
+				@error "Calling " + $limit-mode + "-font-size() mixin in this context has no effect. (Cannot automatically calculate min-font-size given $limit-font-size: auto, $at-width: auto, no $size-class-context and no $susy.)";
+				//@debug "Cannot automatically calculate min-font-size given $limit-font-size: auto, $at-width: auto, no $size-class-context and no $susy. No font-size styles will be output.";
+				$actually-output-styles: false;
+			}
+		}
+	}
+
+	// Auto-calculate $limit-font-size with known $at-width
+	@if $limit-font-size == auto and $at-width != auto {
+		$limit-font-size: $at-width / get-pixel-grid-width(px) * $base-font-size;
+	}
+	// Auto-calculate $at-width with known $limit-font-size
+	@else if $at-width == auto and $limit-font-size != auto {
+		$at-width: get-pixel-grid-width(px) * $limit-font-size / $base-font-size;
+	}
+
+	// Begin determine media mode (min or max)
+	$media-mode: null;
+
+	@if $limit-mode == min {
+		$media-mode: max;
+	} @else if $limit-mode == max {
+		$media-mode: min;
+	}
+	// End determine media mode
+
+	// Calculate final font-size
+	$final-limit-font-size: _convert-unitless-to-unit($limit-font-size, $font-size-unit, $font-size-context);
+
+	//////////////////////////////////////
+	// Begin $font-size-context Change ///
+	//////////////////////////////////////
+
+	// Reassign $font-size-context and $font-size-unit-context in this scope and restore it once we're done
+	$old-context: $font-size-context;
+	$font-size-context: $base-font-size !global;
+
+	$old-unit-context: $font-size-unit-context;
+	$font-size-unit-context: $font-size-unit !global;
+
+	////////////////////////////////
+	//// Actually Output Styles ////
+	////////////////////////////////
+	@if $actually-output-styles {
+		@if $media-mode == min or $media-mode == max {
+			@media (#{$media-mode}-width: $at-width) {
+				font-size: $final-limit-font-size;
+			}
+		}
+	}
+
+	// Restore $font-size-context and $font-size-unit-context
+	$font-size-context: $old-context !global;
+	$font-size-unit-context: $old-unit-context !global;
+
+	////////////////////////////////////
+	// End $font-size-context Change ///
+	////////////////////////////////////
+}
+
+@mixin min-font-size($min-font-size: auto, $font-size-unit: px, $base-font-size: null, $at-width: auto) {
+	@include limit-font-size(
+		$limit-font-size: $min-font-size,
+		$font-size-unit: $font-size-unit,
+		$base-font-size: $base-font-size,
+		$limit-mode: min,
+		$at-width: $at-width
+	);
+}
+
+@mixin max-font-size($max-font-size: auto, $font-size-unit: px, $base-font-size: null, $at-width: auto) {
+	@include limit-font-size(
+		$limit-font-size: $max-font-size,
+		$font-size-unit: $font-size-unit,
+		$base-font-size: $base-font-size,
+		$limit-mode: max,
+		$at-width: $at-width
+	);
+}
+
+@mixin limit-font-size-at($options, $limit-mode: auto, $font-size-unit: px) {
+	$supported-units: _get-font-size-mixin-supported-units();
+
+	$at-width-value: auto;
+
+	@if type-of($options) == number {
+		$at-width-value: $options;
+	}
+	@else if function-exists(get-pixel-grid-width) {
+		@if type-of($options) == list {
+			// Remove any unit string from the list...
+			$final-options: ();
+
+			@each $item in $options {
+				@if not index($supported-units, $item) {
+					$final-options: append($final-options, $item);
+				}
+			}
+
+			// ...because we absolutely need pixels here.
+			$final-options: append($final-options, px);
+
+			// Finally, go ahead and call get-pixel-grid-width().
+			$at-width-value: get-pixel-grid-width($final-options);
+		}
+		@else if type-of($options) == string {
+			$at-width-value: get-pixel-grid-width($options px);
+		}
+	}
+
+	@include limit-font-size(
+		$limit-font-size: auto,
+		$base-font-size: null,
+		$limit-mode: $limit-mode,
+		$at-width: $at-width-value,
+		$font-size-unit: $font-size-unit
+	);
+}
+
+@mixin min-font-size-at($options, $font-size-unit: px) {
+	@include limit-font-size-at($options, $limit-mode: min, $font-size-unit: $font-size-unit);
+}
+
+@mixin max-font-size-at($options, $font-size-unit: px) {
+	@include limit-font-size-at($options, $limit-mode: max, $font-size-unit: $font-size-unit);
+}
+
+@mixin font-size(
+	$font-size: auto,
+	$font-size-unit: em,
+
+	$min-font-size: auto,
+	$max-font-size: auto,
+
+	$min-and-max-font-size-unit: px
+) {
+	$supported-units: _get-font-size-mixin-supported-units();
+
+	// Init $font-size-context global if it hasn't already been initialized
+	@if not global-variable-exists(font-size-context) {
+		@include init-font-size-context();
+	}
+
+	// Begin validating arguments
+	@if $font-size == auto {
+		$font-size: $font-size-context;
+	}
+
+	@if type-of($font-size) != number or not unitless($font-size) {
+		@error "The font-size() mixin doesn't accept a $font-size argument that is a Sass number with units (" + $font-size + "). Please try a unitless number instead.";
+	}
+
+	@if index($supported-units, $font-size-unit) == null {
+		@error "The font-size() mixin doesn't support the '" + $font-size-unit + "' unit.";
+	}
+
+	// Additional validation for vw font-size-unit output
+	@if $font-size-unit == vw {
+		@if not global-variable-exists(size-class-config) {
+			@if mixin-exists(init-size-class-config) {
+				@include init-size-class-config();
+			} @else {
+				@error "Outputting in vw units requires three things: (1) @import-ing the nytpi-sass-utils/size-class library (before `@import 'nytpi-sass-utils/font-size';`), (2) a Size Class config with a 'pixel-grid' layout type, and (3) calling font-size() within the content block of the size-class() mixin.";
+			}
+		}
+		@if not size-class-config-has-layout-type(pixel-grid) {
+			@error "$size-class-config does not contain a 'pixel-grid' layout type.";
+		}
+		@if not global-variable-exists(size-class-context) {
+			@error "font-size() mixin was called outside of a size-class() mixin's content block, max-font-size with 'vw' as the output unit.";
+		}
+		@if not global-variable-exists(susy) or not susy-get(container) {
+			@error "font-size() mixin was called in a context without Susy layout settings somehow, with 'vw' as the output unit.";
+		}
+
+		// ${min,max}-font-size validation
+		@each $min-or-max, $value in (min: $min-font-size, max: $max-font-size) {
+			@if not ($value == auto or $value == null or type-of($value) == number and unitless($value)) {
+				@error "The font-size() mixin doesn't accept a $" + $min-or-max + "-font-size argument that is a Sass number with units (" + $value + "). Please try a unitless number instead. You can also use `auto` (to automatically determine a " + $min-or-max + "-font-size) or `null` (for no " + $min-or-max + "-font-size).";
+			}
+		}
+	}
+	// End validating arguments
+
+	// Calculate the final font-size value
+	$final-font-size-value: _convert-unitless-to-unit($font-size, $font-size-unit, $font-size-context);
+
+	// Reassign $font-size-context and $font-size-unit-context in this scope and restore it once we're done
+	$old-context: $font-size-context;
+	$font-size-context: $font-size !global;
+
+	$old-unit-context: $font-size-unit-context;
+	$font-size-unit-context: $font-size-unit !global;
+
+	//////////////////////////////////////////////////
+	//// Actually write out a font-size property! ////
+	//////////////////////////////////////////////////
+	font-size: $final-font-size-value;
+
+	// We only need to call min-font-size() and max-font-size() if we're outputting in vw units
+	@if $font-size-unit == vw {
+		@if $min-font-size {
+			@include min-font-size($min-font-size, $min-and-max-font-size-unit, $font-size-context, auto);
+		}
+
+		@if $max-font-size {
+			@include max-font-size($max-font-size, $min-and-max-font-size-unit, $font-size-context, auto);
+		}
+	}
+
+	// Any calls to nytpi/number-functions in this mixin's content block will be aware of our current $font-size-context value
+	@content;
+
+	// Restore $font-size-context and $font-size-unit-context
+	$font-size-context: $old-context !global;
+	$font-size-unit-context: $old-unit-context !global;
+}

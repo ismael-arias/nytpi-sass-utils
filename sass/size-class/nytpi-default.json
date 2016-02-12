@@ -48,22 +48,26 @@
 		"desktop": {
 			"grid": {
 				"columns": 12,
-				"gutters": "32/164"
+				"gutters": "32/164",
+				"container": "1605px"
 			},
 			"pixel-grid": {
 				"columns": 2560,
-				"gutters": 0
+				"gutters": 0,
+				"container": "1605px"
 			},
 			"media": "1280px"
 		},
 		"shell": {
 			"grid": {
 				"columns": 12,
-				"gutters": "32/164"
+				"gutters": "32/164",
+				"container": "1605px"
 			},
 			"pixel-grid": {
 				"columns": 3210,
-				"gutters": 0
+				"gutters": 0,
+				"container": "1605px"
 			},
 			"media": "1605px"
 		}

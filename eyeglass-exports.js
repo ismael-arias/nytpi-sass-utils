@@ -22,7 +22,7 @@ var convertKnownKeysToSassNumbers = function(config) {
 		// Convert any nested objects' "columns" and "gutters" properties
 		else if (categoryKey === "classes") {
 			var layoutTypes = config.options["layout-types"];
-			var layoutTypeConfigKeys = ["columns", "gutters"];
+			var layoutTypeConfigKeys = ["columns", "gutters", "container"];
 
 			Object.keys(config[categoryKey]).forEach(function(classKey) {
 				Object.keys(config[categoryKey][classKey]).forEach(function(classConfigKey) {
@@ -131,8 +131,14 @@ var rewriteMediaPropertiesInConfig = function(config) {
 };
 
 var rewriteMediaProperty = function(obj) {
-	if (obj.hasOwnProperty("media") && typeof obj.media === "string") {
-		obj.media = convertStringToListWithSassNumbers(obj.media);
+	if (obj.hasOwnProperty("media")) {
+		if (typeof obj.media === "string") {
+			obj.media = convertStringToListWithSassNumbers(obj.media);
+		} else if (typeof obj.media === "object") {
+			Object.keys(obj.media).forEach(function(key) {
+				obj.media[key] = convertStringToListWithSassNumbers(obj.media[key])[0];
+			});
+		}
 	}
 
 	return obj;

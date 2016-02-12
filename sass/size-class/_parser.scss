@@ -565,10 +565,27 @@
 	}
 
 	@if $merged == true {
-		@return $merged-query;
-	} @else {
-		@return ($left-query, $right-query);
+		// Nothing else to do
 	}
+	// If we're not merged by now and a min-width is greater than the max-width, we shouldn't apply a media query.
+	@else if (type-of($left-min-width) == number and type-of($right-max-width) == number) {
+		@if $left-min-width > $right-max-width {
+			$merged-query: ();
+			$merged: true;
+		}
+	}
+	@else if (type-of($left-max-width) == number and type-of($right-min-width) == number) {
+		@if $right-min-width > $left-max-width {
+			$merged-query: ();
+			$merged: true;
+		}
+	}
+	// Could not merge the media queries.
+	@else {
+		$merged-query: ($left-query, $right-query);
+	}
+
+	@return $merged-query;
 }
 
 @function _get-susy-media-query-for-options($parsed-options, $parsed-config: $size-class-config) {

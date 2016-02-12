@@ -26,7 +26,13 @@ $susy: (
 
 // Throw an error if the size-class mixin already exists (prevent simultaneous loading with Size Class v2)
 @if mixin-exists(size-class) {
-	@error "size-class() mixin already exists --- Size Class v2.0 may have been imported already";
+	@error "size-class() mixin already exists --- Size Class v2.0 may have been imported already?";
+}
+
+@function size-class-config-has-layout-type($layout-type) {
+	$layout-types: _susy-deep-get($size-class-config, options, layout-types);
+
+	@return index($layout-types, $layout-type);
 }
 
 @function size-class-config-has-key($keys...) {
@@ -57,7 +63,7 @@ $susy: (
 
 	$_return: 1;
 
-	@if index($layout-types, pixel-grid) and size-class-config-has-key(options, config-pixel-grid-ratio) {
+	@if size-class-config-has-layout-type(pixel-grid) and size-class-config-has-key(options, config-pixel-grid-ratio) {
 		$_return: size-class-config-get(options, config-pixel-grid-ratio);
 	}
 
@@ -84,7 +90,49 @@ $susy: (
 	@include size-class-config-set(options, pixel-grid-ratio, $new-ratio);
 }
 
-@function get-pixel-grid-width($options) {
+@function _convert-unitless-to-unit($value, $unit, $context: null) {
+	$_return: $value;
+
+	// Convert unit to final desired unit
+	@if unitless($_return) {
+		// Do we need to do unit conversion?
+		@if $unit != null {
+			// Prefer the nytpi-sass-utils number functions
+			@if function-exists(_nytpi-sass-utils-#{$unit}) {
+				$_return: call(_nytpi-sass-utils-#{$unit}, $_return, $context);
+			} @else if function-exists($unit) {
+				$_return: call($unit, $_return, $context);
+			}
+			@else {
+				// We need to do some scaling
+				$_return: $_return / get-config-pixel-grid-ratio();
+
+				// If no function exists, need to apply pixel-ratio to the output
+				@if $unit == px {
+					$_return: $_return * 1px;
+				}
+				@else if $unit == em {
+					$_return: $_return * 1em;
+				}
+				@else if $unit == rem {
+					$_return: $_return * 1rem;
+				}
+				@else if $unit == vw {
+					@error "Internal error in get-pixel-grid-width(): cannot return vw unit value since _nytpi-sass-utils-vw() function doesn't exist.";
+				}
+			}
+		} @else {
+			// We need to do some different scaling to take both config-pixel-grid-ratio and pixel-grid-ratio into account
+			$_return: $_return / (get-config-pixel-grid-ratio() / get-pixel-grid-ratio());
+		}
+	} @else {
+		@error "_convert-unitless-to-unit() function passed a value with units: " + $value;
+	}
+
+	@return $_return;
+}
+
+@function get-pixel-grid-width($options: ()) {
 	$_return: null;
 
 	$config-name: null;
@@ -93,7 +141,7 @@ $susy: (
 
 	$allowed-min-max: (min max);
 
-	$allowed-units: (px em rem);
+	$supported-units: (px em rem vw);
 
 	@if length($options) > 3 {
 		@error "Too many arguments passed to get-pixel-grid-width()";
@@ -106,14 +154,14 @@ $susy: (
 			$config-name: $option;
 		}
 		@else if type-of($option) == string {
-			@debug $option + " is either a unit or min-or-max argument";
+			//@debug $option + " is either a unit or min-or-max argument";
 			// Is this option possibly a unit?
-			@if index($allowed-units, $option) {
-				@debug $option + " is a unit";
+			@if index($supported-units, $option) {
+				//@debug $option + " is a unit";
 				$unit: $option;
 			}
 			@else if index($allowed-min-max, $option) {
-				@debug $option + " is a min-or-max";
+				//@debug $option + " is a min-or-max";
 				$min-or-max: $option;
 			}
 			@else {
@@ -178,37 +226,7 @@ $susy: (
 		$_return: $_return / 1px * get-config-pixel-grid-ratio();
 	}
 
-	// Convert unit to final desired unit
-	@if unitless($_return) {
-		// Do we need to do unit conversion?
-		@if $unit != null {
-			// Prefer the nytpi-s
-			@if function-exists(_nytpi-sass-utils-#{$unit}) {
-				$_return: call(_nytpi-sass-utils-#{$unit}, $_return);
-			} @else if function-exists($unit) {
-				$_return: call($unit, $_return);
-			}
-			@else {
-				// We need to do some scaling
-				$_return: $_return / get-config-pixel-grid-ratio();
-
-				// If no function exists, need to apply pixel-ratio to the output
-				@if $unit == px {
-					$_return: $_return * 1px;
-				}
-				@else if $unit == em {
-					$_return: $_return * 1em;
-				} @else if $unit == rem {
-					$_return: $_return * 1rem;
-				}
-			}
-		} @else {
-			// We need to do some different scaling to take both config-pixel-grid-ratio and pixel-grid-ratio into account
-			$_return: $_return / (get-config-pixel-grid-ratio() / get-pixel-grid-ratio());
-		}
-	} @else {
-		@error "Internal error in get-pixel-grid-width()";
-	}
+	$_return: _convert-unitless-to-unit($_return, $unit);
 
 	@return $_return;
 };
