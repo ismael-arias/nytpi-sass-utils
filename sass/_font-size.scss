@@ -101,14 +101,14 @@
 			@if susy-get(container) and type-of(susy-get(container)) == number and index($supported-units, unit(susy-get(container))) {
 				$at-width: susy-get(container);
 			}
-			// If there isn't a container max width setting in $susy, use the $size-class-context's target-media-query's max-width
+				// If there isn't a container max width setting in $susy, use the $size-class-context's target-media-query's max-width
 			@else if _susy-deep-has-key($size-class-context, target-media-query, max-width) {
 				$at-width: _susy-deep-get($size-class-context, target-media-query, max-width);
 			}
-			// Looks like we can't actually calculate this (insufficient data)
+				// Looks like we can't actually calculate this (insufficient data)
 			@else {
 				//@debug "Cannot automatically calculate max-font-size given $limit-font-size: auto, $at-width: auto, no $size-class-context and no $susy. No font-size styles will be output.";
-				@error "Calling " + $limit-mode + "-font-size() mixin in this context has no effect. (Cannot automatically calculate max-font-size given $limit-font-size: auto, $at-width: auto, no $size-class-context and no $susy.)";
+				@debug "Calling " + $limit-mode + "-font-size() mixin in this context has no effect. (Cannot automatically calculate max-font-size given $limit-font-size: auto, $at-width: auto, no $size-class-context and no $susy.)";
 				$actually-output-styles: false;
 			}
 		} @else if $limit-mode == min {
@@ -116,12 +116,12 @@
 			@if _susy-deep-has-key($size-class-context, target-media-query, min-width) {
 				$at-width: _susy-deep-get($size-class-context, target-media-query, max-width);
 			}
-			// Automatically set a min-font-size when using vw units
+				// Automatically set a min-font-size when using vw units
 			@else if global-variable-exists(font-size-unit-context) and $font-size-unit-context == vw and function-exists(_get-min-font-size-auto-ratio) {
 				$min-font-size-ratio: _get-min-font-size-auto-ratio();
 				$limit-font-size: $base-font-size * $min-font-size-ratio;
 			}
-			// Looks like we can't actually calculate this (insufficient data)
+				// Looks like we can't actually calculate this (insufficient data)
 			@else {
 				@error "Calling " + $limit-mode + "-font-size() mixin in this context has no effect. (Cannot automatically calculate min-font-size given $limit-font-size: auto, $at-width: auto, no $size-class-context and no $susy.)";
 				//@debug "Cannot automatically calculate min-font-size given $limit-font-size: auto, $at-width: auto, no $size-class-context and no $susy. No font-size styles will be output.";
@@ -134,7 +134,7 @@
 	@if $limit-font-size == auto and $at-width != auto {
 		$limit-font-size: $at-width / get-pixel-grid-width(px) * $base-font-size;
 	}
-	// Auto-calculate $at-width with known $limit-font-size
+		// Auto-calculate $at-width with known $limit-font-size
 	@else if $at-width == auto and $limit-font-size != auto {
 		$at-width: get-pixel-grid-width(px) * $limit-font-size / $base-font-size;
 	}
@@ -149,38 +149,39 @@
 	}
 	// End determine media mode
 
-	// Calculate final font-size
-	$final-limit-font-size: _convert-unitless-to-unit($limit-font-size, $font-size-unit, $font-size-context);
-
-	//////////////////////////////////////
-	// Begin $font-size-context Change ///
-	//////////////////////////////////////
-
-	// Reassign $font-size-context and $font-size-unit-context in this scope and restore it once we're done
-	$old-context: $font-size-context;
-	$font-size-context: $base-font-size !global;
-
-	$old-unit-context: $font-size-unit-context;
-	$font-size-unit-context: $font-size-unit !global;
-
 	////////////////////////////////
 	//// Actually Output Styles ////
 	////////////////////////////////
+
 	@if $actually-output-styles {
+		// Calculate final font-size
+		$final-limit-font-size: _convert-unitless-to-unit($limit-font-size, $font-size-unit, $font-size-context);
+
+		//////////////////////////////////////
+		// Begin $font-size-context Change ///
+		//////////////////////////////////////
+
+		// Reassign $font-size-context and $font-size-unit-context in this scope and restore it once we're done
+		$old-context: $font-size-context;
+		$font-size-context: $base-font-size !global;
+
+		$old-unit-context: $font-size-unit-context;
+		$font-size-unit-context: $font-size-unit !global;
+
 		@if $media-mode == min or $media-mode == max {
 			@media (#{$media-mode}-width: $at-width) {
 				font-size: $final-limit-font-size;
 			}
 		}
+
+		// Restore $font-size-context and $font-size-unit-context
+		$font-size-context: $old-context !global;
+		$font-size-unit-context: $old-unit-context !global;
+
+		////////////////////////////////////
+		// End $font-size-context Change ///
+		////////////////////////////////////
 	}
-
-	// Restore $font-size-context and $font-size-unit-context
-	$font-size-context: $old-context !global;
-	$font-size-unit-context: $old-unit-context !global;
-
-	////////////////////////////////////
-	// End $font-size-context Change ///
-	////////////////////////////////////
 }
 
 @mixin min-font-size($min-font-size: auto, $font-size-unit: px, $base-font-size: null, $at-width: auto) {

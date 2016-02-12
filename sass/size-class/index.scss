@@ -17,7 +17,29 @@ $susy: (
 	} @else {
 		$loaded-config: _load-size-class-config($load-options...);
 		$size-class-config: _parse-size-class-config($loaded-config) !global;
+		$size-class-debug: false !global;
+		$size-class-contexts-in-use: () !global;
 	}
+}
+
+@mixin size-class-debug($debug-output: background) {
+	$size-class-debug: true !global;
+
+	@if $debug-output != background and $debug-output != overlay {
+		@error "size-class-debug() only accepts 'overlay' and 'background' as inputs.";
+	}
+
+	@include susy-set(debug, image, show);
+	@include susy-set(debug, output, $debug-output);
+	@include susy-set(debug, toggle, bottom left);
+}
+
+@mixin size-class-debug-disable() {
+	$size-class-debug: false !global;
+
+	@include susy-set(debug, image, hide);
+	@include susy-set(debug, output, background);
+	@include susy-set(debug, toggle, top right);
 }
 
 @mixin emulate-size-class-v2 {
@@ -267,6 +289,11 @@ $susy: (
 	// Get the layout
 	$target-layout: _get-layout-for-options($parsed-options, $size-class-config);
 
+	// We're using this, so make a note of it
+	@if not index($size-class-contexts-in-use, $parsed-options) {
+		$size-class-contexts-in-use: append($size-class-contexts-in-use, $parsed-options) !global;
+	}
+
 	// Add $target-media-query to $parsed-options
 	$parsed-options: map-merge($parsed-options, (target-media-query: $target-media-query));
 
@@ -283,12 +310,10 @@ $susy: (
 			$layout: $target-layout,
 			$no-query: $no-query
 		) {
-			/* Conditional Layout: inspect($target-layout) */
 			@content;
 		}
 	} @else {
 		@include with-layout($target-layout) {
-			/* Unconditional Layout: inspect($target-layout) */
 			@content;
 		}
 	}
@@ -301,15 +326,9 @@ $susy: (
 	}
 }
 
-// Applies the Size Class outer-margin option and calls the Susy container() mixin
-@mixin size-class-container($prop: padding, $use-shorthand: false, $call-susy-container-mixin: true) {
-	// Load the default config if $size-class-config hasn't already been declared
-	@if not global-variable-exists(size-class-config) {
-		@include init-size-class-config();
-	}
-
+@mixin _size-class-apply-outer-margin($prop, $use-prop-shorthand: false, $important: false) {
 	// Validate the $prop argument
-	$supported-props: (padding margin);
+	$supported-props: (padding margin position);
 
 	@if index($supported-props, $prop) == null {
 		@error "$prop = " + $prop + " is not supported. Supported properties: " + $supported-props;
@@ -325,15 +344,55 @@ $susy: (
 	}
 
 	// Output either a shorthand or non-shorthand properties with the outer margin value
-	@if $use-shorthand {
-		#{$prop}: 0 $outer-margin-value;
+	@if $prop != position {
+		@if $use-prop-shorthand {
+			#{$prop}: 0 $outer-margin-value if($important, !important, null);
+		} @else {
+			#{$prop}-left: $outer-margin-value if($important, !important, null);
+			#{$prop}-right: $outer-margin-value if($important, !important, null);
+		}
 	} @else {
-		#{$prop}-left: $outer-margin-value;
-		#{$prop}-right: $outer-margin-value;
+		left: $outer-margin-value if($important, !important, null);
+		right: $outer-margin-value if($important, !important, null);
 	}
+}
+
+// Applies the Size Class outer-margin option and calls the Susy container() mixin
+@mixin size-class-container($prop: padding, $use-prop-shorthand: false, $prop-is-important: false, $call-susy-container-mixin: true) {
+	// Load the default config if $size-class-config hasn't already been declared
+	@if not global-variable-exists(size-class-config) {
+		@include init-size-class-config();
+	}
+
+	@include _size-class-apply-outer-margin($prop, $use-prop-shorthand, $prop-is-important);
 
 	// Call the Susy container() mixin if we're supposed to
 	@if $call-susy-container-mixin {
 		@include container;
+
+		// Show the Susy debug grid for the default layout type, provided it's not 'pixel-grid'
+		@if $size-class-debug {
+			// Add the outer margin to the grid overlay
+			@if _susy-deep-get($susy, debug, output) == overlay {
+				@at-root head:hover ~ &:before,
+				head:hover ~ body &:before {
+					@include _size-class-apply-outer-margin(position, false, true);
+				}
+			}
+
+			$size-classes-shown: ();
+
+			@each $size-class-local-context in $size-class-contexts-in-use {
+				@if (
+					map-get($size-class-local-context, layout-type) != pixel-grid and
+					not index($size-classes-shown, map-get($size-class-local-context, size-class))
+				) {
+					@include size-class($size-class-local-context) {
+						@include show-grid();
+					}
+					$size-classes-shown: append($size-classes-shown, map-get($size-class-local-context, size-class));
+				}
+			}
+		}
 	}
 }
