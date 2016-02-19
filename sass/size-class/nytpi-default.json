@@ -2,12 +2,12 @@
 	"options": {
 		"layout-types": [
 			"grid",
-			"pixel-grid"
+			"pspx"
 		],
-		"config-pixel-grid-ratio": 2,
+		"config-pspx-ratio": 2,
 		"default-layout-type": "grid",
 		"outer-margin": "120/2560",
-		"pixel-grid-ratio": 2
+		"pspx-ratio": 2
 	},
 	"classes": {
 		"mobile-portrait": {
@@ -15,7 +15,7 @@
 				"columns": 4,
 				"gutters": "32/121"
 			},
-			"pixel-grid": {
+			"pspx": {
 				"columns": 640,
 				"gutters": 0
 			},
@@ -28,7 +28,7 @@
 				"columns": 8,
 				"gutters": "32/146"
 			},
-			"pixel-grid": {
+			"pspx": {
 				"columns": 1536,
 				"gutters": 0
 			},
@@ -39,7 +39,7 @@
 				"columns": 12,
 				"gutters": "32/164"
 			},
-			"pixel-grid": {
+			"pspx": {
 				"columns": 2048,
 				"gutters": 0
 			},
@@ -51,7 +51,7 @@
 				"gutters": "32/164",
 				"container": "1605px"
 			},
-			"pixel-grid": {
+			"pspx": {
 				"columns": 2560,
 				"gutters": 0,
 				"container": "1605px"
@@ -64,7 +64,7 @@
 				"gutters": "32/164",
 				"container": "1605px"
 			},
-			"pixel-grid": {
+			"pspx": {
 				"columns": 3210,
 				"gutters": 0,
 				"container": "1605px"

@@ -27,7 +27,7 @@
 			}
 			@else {
 				// We need to do some scaling
-				$_return: $_return / get-config-pixel-grid-ratio();
+				$_return: $_return / get-config-pspx-ratio();
 
 				// If no function exists, need to apply pixel-ratio to the output
 				@if $unit == px {
@@ -40,12 +40,12 @@
 					$_return: $_return * 1rem;
 				}
 				@else if $unit == vw {
-					@error "Internal error in get-pixel-grid-width(): cannot return vw unit value since _nytpi-sass-utils-vw() function doesn't exist.";
+					@error "Internal error in get-pspx-width(): cannot return vw unit value since _nytpi-sass-utils-vw() function doesn't exist.";
 				}
 			}
 		} @else {
-			// We need to do some different scaling to take both config-pixel-grid-ratio and pixel-grid-ratio into account
-			$_return: $_return / (get-config-pixel-grid-ratio() / get-pixel-grid-ratio());
+			// We need to do some different scaling to take both config-pspx-ratio and pspx-ratio into account
+			$_return: $_return / (get-config-pspx-ratio() / get-pspx-ratio());
 		}
 	} @else {
 		@error "_convert-unitless-to-unit() function passed a value with units: " + $value;
@@ -165,39 +165,39 @@
 	$size-class-config: _susy-deep-set($size-class-config, $keys...) !global;
 }
 
-@function get-config-pixel-grid-ratio() {
+@function get-config-pspx-ratio() {
 	$layout-types: size-class-config-get(options, layout-types);
 
 	$_return: 1;
 
-	@if size-class-config-has-layout-type(pixel-grid) and size-class-config-has-key(options, config-pixel-grid-ratio) {
-		$_return: size-class-config-get(options, config-pixel-grid-ratio);
+	@if size-class-config-has-layout-type(pspx) and size-class-config-has-key(options, config-pspx-ratio) {
+		$_return: size-class-config-get(options, config-pspx-ratio);
 	}
 
 	@return $_return;
 };
 
-@function get-pixel-grid-ratio() {
+@function get-pspx-ratio() {
 	$layout-types: size-class-config-get(options, layout-types);
 
 	$_return: 1;
 
-	@if index($layout-types, pixel-grid) and size-class-config-has-key(options, pixel-grid-ratio) {
-		$_return: size-class-config-get(options, pixel-grid-ratio);
+	@if index($layout-types, pspx) and size-class-config-has-key(options, pspx-ratio) {
+		$_return: size-class-config-get(options, pspx-ratio);
 	}
 
 	@return $_return;
 };
 
-@mixin set-pixel-grid-ratio($new-ratio) {
+@mixin set-pspx-ratio($new-ratio) {
 	@if type-of($new-ratio) != number or $new-ratio <= 0 {
-		@error "Cannot set pixel-grid-ratio to a non-number or a number <= 0."
+		@error "Cannot set pspx-ratio to a non-number or a number <= 0."
 	}
 
-	@include size-class-config-set(options, pixel-grid-ratio, $new-ratio);
+	@include size-class-config-set(options, pspx-ratio, $new-ratio);
 }
 
-@function get-pixel-grid-width($options: ()) {
+@function get-pspx-width($options: ()) {
 	$_return: null;
 
 	$config-name: null;
@@ -209,7 +209,7 @@
 	$supported-units: (px em rem vw);
 
 	@if length($options) > 3 {
-		@error "Too many arguments passed to get-pixel-grid-width()";
+		@error "Too many arguments passed to get-pspx-width()";
 	}
 
 	// Parse $options
@@ -230,7 +230,7 @@
 				$min-or-max: $option;
 			}
 			@else {
-				@error "get-pixel-grid-width() passed an unsupported string argument (" + $option + ")";
+				@error "get-pspx-width() passed an unsupported string argument (" + $option + ")";
 			}
 		}
 	}
@@ -256,13 +256,13 @@
 			@error $config-name + " is neither a known size family or size class name.";
 		}
 
-		// Check to see if we have a pixel-grid layout type
+		// Check to see if we have a pspx layout type
 		$layout-types: size-class-config-get(options, layout-types);
 
-		@if index($layout-types, pixel-grid) {
-			$_return: size-class-config-get(classes, $config-name, pixel-grid, columns);
+		@if index($layout-types, pspx) {
+			$_return: size-class-config-get(classes, $config-name, pspx, columns);
 		} @else {
-			@error "Size Class config does not contain a 'pixel-grid' layout type.";
+			@error "Size Class config does not contain a 'pspx' layout type.";
 		}
 	}
 		// Get a breakpoint's min-width or max-width
@@ -288,7 +288,7 @@
 	// Cover breakpoint value returns
 	@if unit($_return) == px {
 		// Convert px to unitless value
-		$_return: $_return / 1px * get-config-pixel-grid-ratio();
+		$_return: $_return / 1px * get-config-pspx-ratio();
 	}
 
 	$_return: _convert-unitless-to-unit($_return, $unit);

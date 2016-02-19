@@ -38,11 +38,11 @@
 			@if mixin-exists(init-size-class-config) {
 				@include init-size-class-config();
 			} @else {
-				@error "Outputting in vw units requires three things: (1) @import-ing the nytpi-sass-utils/size-class library (before `@import 'nytpi-sass-utils/font-size';`), (2) a Size Class config with a 'pixel-grid' layout type, and (3) calling font-size() within the content block of the size-class() mixin.";
+				@error "Outputting in vw units requires three things: (1) @import-ing the nytpi-sass-utils/size-class library (before `@import 'nytpi-sass-utils/font-size';`), (2) a Size Class config with a 'pspx' layout type, and (3) calling font-size() within the content block of the size-class() mixin.";
 			}
 		}
-		@if not size-class-config-has-layout-type(pixel-grid) {
-			@error "$size-class-config does not contain a 'pixel-grid' layout type.";
+		@if not size-class-config-has-layout-type(pspx) {
+			@error "$size-class-config does not contain a 'pspx' layout type.";
 		}
 		@if not global-variable-exists(size-class-context) {
 			@error "font-size() mixin was called outside of a size-class() mixin's content block, max-font-size with 'vw' as the output unit.";

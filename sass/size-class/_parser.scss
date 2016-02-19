@@ -45,43 +45,43 @@
 	}
 	// End options["outer-margin"] validation
 
-	// Begin [config-]pixel-grid-ratio validation
+	// Begin [config-]pspx-ratio validation
 	@if (
-		index(map-get($_options, layout-types), pixel-grid) > 0
+		index(map-get($_options, layout-types), pspx) > 0
 	) {
-		// config-pixel-grid-ratio
-		@if map-has-key($_options, config-pixel-grid-ratio) {
-			@if type-of(map-get($_options, pixel-grid-ratio)) != number {
-				@error "Size classes config contains an invalid 'config-pixel-grid-ratio' property.";
+		// config-pspx-ratio
+		@if map-has-key($_options, config-pspx-ratio) {
+			@if type-of(map-get($_options, pspx-ratio)) != number {
+				@error "Size classes config contains an invalid 'config-pspx-ratio' property.";
 			}
 		}
 
-		// pixel-grid-ratio
-		@if map-has-key($_options, pixel-grid-ratio) {
-			@if type-of(map-get($_options, pixel-grid-ratio)) != number {
-				@error "Size classes config contains an invalid 'pixel-grid-ratio' property.";
-			} @else if not map-has-key($_options, config-pixel-grid-ratio) {
-				// Use pixel-grid-ratio to set the value for config-pixel-grid-ratio
+		// pspx-ratio
+		@if map-has-key($_options, pspx-ratio) {
+			@if type-of(map-get($_options, pspx-ratio)) != number {
+				@error "Size classes config contains an invalid 'pspx-ratio' property.";
+			} @else if not map-has-key($_options, config-pspx-ratio) {
+				// Use pspx-ratio to set the value for config-pspx-ratio
 				$_options: map-merge(
 					$_options,
-					(config-pixel-grid-ratio: map-get($_options, pixel-grid-ratio))
+					(config-pspx-ratio: map-get($_options, pspx-ratio))
 				);
 			}
-		} @else if map-has-key($_options, config-pixel-grid-ratio) {
-			// Use config-pixel-grid-ratio to set a default value for pixel-grid-ratio
+		} @else if map-has-key($_options, config-pspx-ratio) {
+			// Use config-pspx-ratio to set a default value for pspx-ratio
 			$_options: map-merge(
 				$_options,
-				(pixel-grid-ratio: map-get($_options, config-pixel-grid-ratio))
+				(pspx-ratio: map-get($_options, config-pspx-ratio))
 			);
 		}
 
-		// $_options should have **both** a pixel-grid-ratio and config-pixel-grid-ratio key by now.
+		// $_options should have **both** a pspx-ratio and config-pspx-ratio key by now.
 		@if (
-			not map-has-key($_options, pixel-grid-ratio) and
-			not map-has-key($_options, config-pixel-grid-ratio)
+			not map-has-key($_options, pspx-ratio) and
+			not map-has-key($_options, config-pspx-ratio)
 		) {
-			// Does $_options contain both `config-pixel-grid-ratio` and `pixel-grid-ratio key
-			@error "Size classes config contains a 'pixel-grid' layout type without providing a 'pixel-grid-ratio' or 'config-pixel-grid-ratio' property.";
+			// Does $_options contain both `config-pspx-ratio` and `pspx-ratio key
+			@error "Size classes config contains a 'pspx' layout type without providing a 'pspx-ratio' or 'config-pspx-ratio' property.";
 		}
 	}
 

@@ -131,7 +131,7 @@ Compare this to the following _broken_ approach, which doesn't use a pseudo-elem
 @import "../../node_modules/nytpi-sass-utils/sass/size-class";
 ```
 
-Size classes implements four different Susy “pixel-grid” layouts, each with a corresponding media query. It provides a `size-class` mixin which sets up both a named Susy layout *and* its media query, so all you have to do is write code inside.
+Size classes implements four different Susy “pspx” layouts, each with a corresponding media query. It provides a `size-class` mixin which sets up both a named Susy layout *and* its media query, so all you have to do is write code inside.
 
 Here’s a short example:
 
@@ -397,14 +397,14 @@ Imagine we also want the layout to have a *fixed aspect ratio*, i.e. we want the
 
 ```scss
 .layout-container {
-	// Set up the desktop pixel-grid and a merged media query for "wider than mobile-portrait"
+	// Set up the desktop pspx and a merged media query for "wider than mobile-portrait"
 	@include size-class($regular) {
 	    position: relative;
 	    overflow: hidden;
 	    margin: 0 auto;
 	
 	    // Set the container element's width
-	    // 1800 of 2560 pixel-grid columns, since size-class set up that Susy layout
+	    // 1800 of 2560 pspx columns, since size-class set up that Susy layout
 	    width: span(1800);
 	    // Set a proportional height as well, using the height-ratio mixin
 	    @include height-ratio(1000 / 1800);
@@ -420,7 +420,7 @@ Imagine we also want the layout to have a *fixed aspect ratio*, i.e. we want the
 	
 	        .left {
 	            left: 0;
-	            // 1400 of 1800 pixel-grid columns, since we're in a nested context
+	            // 1400 of 1800 pspx columns, since we're in a nested context
 	            width: span(1400);
 	        }
 	

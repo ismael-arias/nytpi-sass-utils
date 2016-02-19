@@ -89,11 +89,11 @@
 
 	// Auto-calculate $limit-font-size with known $at-width
 	@if $limit-font-size == auto and $at-width != auto {
-		$limit-font-size: $at-width / get-pixel-grid-width(px) * $base-font-size;
+		$limit-font-size: $at-width / get-pspx-width(px) * $base-font-size;
 	}
 		// Auto-calculate $at-width with known $limit-font-size
 	@else if $at-width == auto and $limit-font-size != auto {
-		$at-width: get-pixel-grid-width(px) * $limit-font-size / $base-font-size;
+		$at-width: get-pspx-width(px) * $limit-font-size / $base-font-size;
 	}
 
 	// Begin determine media mode (min or max)
@@ -149,7 +149,7 @@
 	@if type-of($options) == number {
 		$at-width-value: $options;
 	}
-	@else if function-exists(get-pixel-grid-width) {
+	@else if function-exists(get-pspx-width) {
 		@if type-of($options) == list {
 			// Remove any unit string from the list...
 			$final-options: ();
@@ -163,11 +163,11 @@
 			// ...because we absolutely need pixels here.
 			$final-options: append($final-options, px);
 
-			// Finally, go ahead and call get-pixel-grid-width().
-			$at-width-value: get-pixel-grid-width($final-options);
+			// Finally, go ahead and call get-pspx-width().
+			$at-width-value: get-pspx-width($final-options);
 		}
 		@else if type-of($options) == string {
-			$at-width-value: get-pixel-grid-width($options px);
+			$at-width-value: get-pspx-width($options px);
 		}
 	}
 

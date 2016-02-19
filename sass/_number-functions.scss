@@ -1,8 +1,8 @@
 @function _nytpi-sass-utils-number-functions-get-pixel-ratio() {
 	$pixel-ratio: 1;
 
-	@if global-variable-exists(size-class-config) and function-exists(get-pixel-grid-ratio) {
-		$pixel-ratio: get-pixel-grid-ratio();
+	@if global-variable-exists(size-class-config) and function-exists(get-pspx-ratio) {
+		$pixel-ratio: get-pspx-ratio();
 	}
 
 	@return $pixel-ratio;
@@ -24,7 +24,7 @@
 	@if global-variable-exists(font-size-context) {
 		$font-size: $font-size-context;
 	} @else if global-variable-exists(size-class-config) and function-exists(_susy-deep-get) {
-		$font-size: $font-size * _susy-deep-get($size-class-config, options, pixel-grid-ratio);
+		$font-size: $font-size * _susy-deep-get($size-class-config, options, pspx-ratio);
 	}
 
 	@return $font-size;
@@ -62,7 +62,7 @@
 
 	@if $base-width == null {
 		@if global-variable-exists(size-class-config) and global-variable-exists(size-class-context) {
-			$base-width: get-pixel-grid-width();
+			$base-width: get-pspx-width();
 		}
 		// Try to set a $base-width from the Susy configuration
 		@else if global-variable-exists(susy) and susy-get(container) and unit(susy-get(container)) == px {

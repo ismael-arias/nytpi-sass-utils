@@ -11,7 +11,7 @@
 	@if $call-susy-container-mixin {
 		@include container;
 
-		// Show the Susy debug grid for the default layout type, provided it's not 'pixel-grid'
+		// Show the Susy debug grid for the default layout type, provided it's not 'pspx'
 		@if $size-class-debug {
 			// Add the outer margin to the grid overlay
 			@if _susy-deep-get($susy, debug, output) == overlay {
@@ -25,7 +25,7 @@
 
 			@each $size-class-local-context in $size-class-contexts-in-use {
 				@if (
-						map-get($size-class-local-context, layout-type) != pixel-grid and
+						map-get($size-class-local-context, layout-type) != pspx and
 					not index($size-classes-shown, map-get($size-class-local-context, size-class))
 				) {
 					@include size-class($size-class-local-context) {

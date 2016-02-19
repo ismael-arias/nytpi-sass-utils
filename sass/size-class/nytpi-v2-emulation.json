@@ -1,44 +1,44 @@
 {
 	"options": {
 		"layout-types": [
-			"pixel-grid"
+			"pspx"
 		],
-		"config-pixel-grid-ratio": 2,
-		"default-layout-type": "pixel-grid",
+		"config-pspx-ratio": 2,
+		"default-layout-type": "pspx",
 		"outer-margin": 0,
-		"pixel-grid-ratio": 2
+		"pspx-ratio": 2
 	},
 	"classes": {
 		"mobile-portrait": {
-			"pixel-grid": {
+			"pspx": {
 				"columns": 640,
 				"gutters": 0
 			},
 			"media": "0px 539px"
 		},
 		"tablet-portrait": {
-			"pixel-grid": {
+			"pspx": {
 				"columns": 1536,
 				"gutters": 0
 			},
 			"media": "540px 853px"
 		},
 		"tablet-landscape": {
-			"pixel-grid": {
+			"pspx": {
 				"columns": 2048,
 				"gutters": 0
 			},
 			"media": "854px 1279px"
 		},
 		"desktop": {
-			"pixel-grid": {
+			"pspx": {
 				"columns": 2560,
 				"gutters": 0
 			},
 			"media": "1280px"
 		},
 		"shell": {
-			"pixel-grid": {
+			"pspx": {
 				"columns": 3210,
 				"gutters": 0
 			},

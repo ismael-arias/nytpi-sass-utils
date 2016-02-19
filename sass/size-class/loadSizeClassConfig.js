@@ -14,7 +14,7 @@ var convertKnownKeysToSassNumbers = function(config) {
 			Object.keys(config[categoryKey]).forEach(function(optionKey) {
 				var optionValue = config[categoryKey][optionKey];
 				//console.log("    Examining options[" + optionKey + "] = " + optionValue);
-				if (typeof optionKey === "string" && typeof optionValue === "string" && (optionKey.match("pixel-grid-ratio") !== null || optionKey === "outer-margin")) {
+				if (typeof optionKey === "string" && typeof optionValue === "string" && (optionKey.match("pspx-ratio") !== null || optionKey === "outer-margin")) {
 					//console.log("*** converting " + optionKey + " option...");
 					config[categoryKey][optionKey] = tryToParseSassNumber(tryToMathEvalString(optionValue));
 				}

@@ -26,7 +26,7 @@
 	} @else {
 		// Set $font-size-context as a multiple of $scale-factor if the latter exists.
 		@if global-variable-exists(size-class-config) {
-			$font-size-context: $base-font-size * get-pixel-grid-ratio() !global;
+			$font-size-context: $base-font-size * get-pspx-ratio() !global;
 		} @else {
 			$font-size-context: $base-font-size !global;
 		}
