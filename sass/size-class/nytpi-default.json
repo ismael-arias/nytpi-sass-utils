@@ -7,7 +7,11 @@
 		"config-pspx-ratio": 2,
 		"default-layout-type": "grid",
 		"outer-margin": "120/2560",
-		"pspx-ratio": 2
+		"pspx-ratio": 2,
+		"font-size": {
+			"font-size-unit": "em",
+			"min-font-size-ratio": "15/16"
+		}
 	},
 	"classes": {
 		"mobile-portrait": {
@@ -56,7 +60,10 @@
 				"gutters": 0,
 				"container": "1605px"
 			},
-			"media": "1280px"
+			"media": "1280px",
+			"font-size": {
+				"font-size-unit": "vw"
+			}
 		},
 		"shell": {
 			"grid": {
