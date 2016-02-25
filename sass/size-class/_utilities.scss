@@ -288,7 +288,7 @@
 		@error "full-height-max-aspect-ratio() mixin called outside of a size-class() content block.";
 	}
 
-	@if $max-height-subtraction > 0 {
+	@if $max-height-subtraction == 0 {
 		max-height: 100vh;
 	} @else {
 		max-height: calc(100vh - #{$max-height-subtraction});
