@@ -283,9 +283,17 @@
 	@return $_return;
 };
 
-@mixin full-height-max-aspect-ratio($aspect-ratio, $max-height-subtraction: 0) {
+@mixin full-height-max-aspect-ratio($aspect-ratio, $max-height-subtraction: null) {
 	@if not global-variable-exists(size-class-context) {
 		@error "full-height-max-aspect-ratio() mixin called outside of a size-class() content block.";
+	}
+
+	@if $max-height-subtraction == null {
+		@if global-variable-exists(size-class-full-height-subtraction) {
+			$max-height-subtraction: $size-class-full-height-subtraction;
+		} @else {
+			$max-height-subtraction: 0;
+		}
 	}
 
 	@if $max-height-subtraction == 0 {
