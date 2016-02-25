@@ -275,7 +275,7 @@
 		$_with: index($short, $with-kw);
 		$_i: 1;
 
-		// @debug $family-name + ":";
+			// @debug $family-name + ":";
 		@if $_for {
 			// @debug "    'for' at index " + $_for + " in list: (" + $short + ") -- " + nth($short, $_for);
 		}
@@ -513,7 +513,9 @@
 	;
 }
 
-@function _get-merged-susy-media-query($left-query, $right-query, $threshold: 1px) {
+@function _get-merged-susy-media-query($left-query, $right-query) {
+	// Begin Standardization Prep
+
 	// Start by map-merging the media queries and removing the min-width and max-width keys
 	$merged-query: map-merge($left-query, $right-query);
 	$merged-query: map-remove($merged-query, min-width);
@@ -541,58 +543,67 @@
 
 	$merged: false;
 
-	// Case where $left-query and $right-query are adjacent and $left-query is wider than $right-query
-	@if type-of($left-min-width) == number and type-of($right-max-width) == number and ($left-min-width - $right-max-width <= $threshold) {
-		@if $right-min-width > 0 {
-			$merged-query: map-merge($merged-query, (min-width: $right-min-width));
-		}
-		@if $left-max-width != Infinity {
-			$merged-query: map-merge($merged-query, (max-width: $left-max-width));
-		}
+	// End Standardization Prep
 
-	 	// @debug (after-min-and-max-widths-in-range-of-each-other: $merged-query);
+	// @debug (
+	//	left-min-width: $left-min-width,
+	//	left-max-width: $left-max-width,
+	//	right-min-width: $right-min-width,
+	//	right-max-width: $right-max-width
+	//);
 
+	// Begin Merge Logic
+
+	@if $left-max-width != Infinity and $right-min-width - $left-max-width > 0 {
+		// @debug "Media queries are adjacent (and left media query is narrower than the left one; gap size: " + ($right-min-width - $left-max-width) + ")";
+		$merged-query: map-merge($merged-query, (
+				min-width: $left-min-width,
+				max-width: $right-max-width
+		));
 		$merged: true;
 	}
-
-	// Case where $left-query and $right-query are adjacent and $left-query is **narrower** than $right-query
-	@if type-of($left-max-width) == number and type-of($right-min-width) == number and ($right-min-width - $left-max-width <= $threshold) {
-		@if type-of($left-min-width == number) and $left-min-width <= $right-min-width {
-			$merged-query: map-merge($merged-query, (min-width: $left-min-width));
-		}
-
-		// @debug (after-min-and-max-widths-in-range-of-each-other: $merged-query);
-
+	@else if $right-max-width != Infinity and $left-min-width - $right-max-width > 0 {
+		// @debug "Media queries are adjacent (and left media query is wider than the right one; gap size: " + ($left-min-width - $right-max-width) + ")";
+		$merged-query: map-merge($merged-query, (
+			min-width: $right-min-width,
+			max-width: $left-max-width
+		));
 		$merged: true;
 	}
-
-	@if type-of($right-min-width) == number and type-of($left-min-width) == number and $right-min-width > 0 and $left-min-width > 0 and $right-min-width <= $left-min-width {
-		// @debug "Merging a narrower min-width-to-infinity query into a wider one";
-		$merged-query: map-merge($merged-query, (min-width: $right-min-width));
-
+	// If a min-width is greater than the max-width, we shouldn't apply a media query.
+	@else if type-of($left-max-width) == number and type-of($right-min-width) == number and $right-min-width > $left-max-width {
+		// @debug "Merging to null media query: left max-width is less than right min-width";
+		$merged-query: ();
 		$merged: true;
 	}
-
-	@if $merged == true {
-		// Nothing else to do
+	@else if type-of($left-min-width) == number and type-of($right-max-width) == number and $left-min-width > $right-max-width {
+		// @debug "Merging to null media query: left min-width is greater than right max-width";
+		$merged-query: ();
+		$merged: true;
 	}
-	// If we're not merged by now and a min-width is greater than the max-width, we shouldn't apply a media query.
-	@else if (type-of($left-min-width) == number and type-of($right-max-width) == number) {
-		@if $left-min-width > $right-max-width {
-			$merged-query: ();
-			$merged: true;
-		}
-	}
-	@else if (type-of($left-max-width) == number and type-of($right-min-width) == number) {
-		@if $right-min-width > $left-max-width {
-			$merged-query: ();
-			$merged: true;
-		}
-	}
-	// Could not merge the media queries.
+	// Finally, if we didn't merge, send back the two queries as a list
 	@else {
 		$merged-query: ($left-query, $right-query);
 	}
+
+	// End Merge Logic
+
+	// Begin Post-Merge Check
+
+	// For consistency, prune min-width: 0 and max-width: Infinity from the map.
+    // This results in returning an empty media query if we merged to get (min-width: 0, max-width: Infinity).
+	@if $merged {
+		@if map-get($merged-query, min-width) == 0 {
+			$merged-query: map-remove($merged-query, min-width);
+		}
+		@if map-get($merged-query, max-width) == Infinity {
+			$merged-query: map-remove($merged-query, max-width);
+		}
+	}
+
+	// End Post-Merge Check
+
+	//@debug $merged-query;
 
 	@return $merged-query;
 }
@@ -602,8 +613,6 @@
 	$breakpoint-end: map-get($parsed-options, breakpoint-end);
 
 	$susy-media-query: ();
-
-	// @debug "O HAI";
 
 	// breakpoint-start is a number
 	@if type-of($breakpoint-start) == number {

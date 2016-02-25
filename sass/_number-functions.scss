@@ -79,6 +79,82 @@
 	@return $unitless / $base-width * 100vw;
 }
 
+@mixin _nytpi-sass-utils-limit-raw-vw($property, $vw, $base-width: null) {
+	$supported-units: _get-font-size-mixin-supported-units();
+
+	@if type-of($property) != string {
+		@error "$property not provided";
+	}
+
+	// Hardcoded for now
+	$limit-mode: max;
+	$at-width: auto;
+
+	// Begin $base-width Checks
+
+	//@if $base-width == null {
+	//	@if global-variable-exists(size-class-config) and global-variable-exists(size-class-context) {
+	//		$base-width: get-pspx-width();
+	//	}
+	//		// Try to set a $base-width from the Susy configuration
+	//	@else if global-variable-exists(susy) and susy-get(container) and unit(susy-get(container)) == px {
+	//		$base-width: susy-get(container) * _nytpi-sass-utils-number-functions-get-pixel-ratio() / 1px;
+	//	} @else {
+	//		@error "limit-vw() mixin cannot calculate vw units. Please either set up a Susy layout or call the function inside a size-class() mixin's content block.";
+	//	}
+	//}
+
+	// End $base-width Checks
+
+	// Begin $set-limit Checks
+
+	$set-limit: false;
+
+	@if $at-width == auto {
+		@if $limit-mode == max {
+			$set-limit: true;
+			// Use the current Susy layout's container setting to calculate the max-font-size
+			@if function-exists(susy-get) and susy-get(container) and type-of(susy-get(container)) == number and index($supported-units, unit(susy-get(container))) {
+				$at-width: susy-get(container);
+			}
+				// If there isn't a container max width setting in $susy, use the $size-class-context's target-media-query's max-width
+			@else if global-variable-exists(size-class-context) and _susy-deep-has-key($size-class-context, target-media-query, max-width) {
+				$at-width: _susy-deep-get($size-class-context, target-media-query, max-width);
+			}
+				// Looks like we can't actually calculate this (insufficient data)
+			@else {
+				//@debug "Cannot automatically calculate max-font-size given $limit-font-size: auto, $at-width: auto, no $size-class-context and no $susy. No font-size styles will be output.";
+				@debug "Calling Cannot automatically calculate max value for limit-vw given $limit-font-size: auto, $at-width: auto, no $size-class-context and no $susy.)";
+				$set-limit: false;
+			}
+		}
+	}
+
+	// End $set-limit Checks
+
+	@if $limit-mode == min {
+		$media-mode: max;
+	} @else if $limit-mode == max {
+		$media-mode: min;
+	}
+
+	// Unconditional Style Output
+	#{$property}: $vw;
+
+	// Media Query Limit Output
+	@if $set-limit {
+		$max-px: $vw / 100vw * $at-width;
+
+		@at-root (without: media) {
+			@media (#{$media-mode}-width: $at-width) {
+				//@debug $unitless + " * " + $at-width  + " / " +  _convert-unitless-to-unit($base-width, px) + " = " + $max-unitless;
+				#{$property}: $max-px;
+				//@debug _nytpi-sass-utils-px($max-unitless);
+			}
+		}
+	}
+}
+
 @function px($options...) {
 	@return _nytpi-sass-utils-px($options...);
 }
@@ -93,4 +169,8 @@
 
 @function vw($options...) {
 	@return _nytpi-sass-utils-vw($options...);
+}
+
+@mixin limit-raw-vw($options...) {
+	@include _nytpi-sass-utils-limit-raw-vw($options...);
 }

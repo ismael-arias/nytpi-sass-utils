@@ -68,19 +68,6 @@
 	@return $outer-margin-value;
 }
 
-@mixin full-bleed($important: false) {
-	// Load the default config if $size-class-config hasn't already been declared
-	@if not global-variable-exists(size-class-config) {
-		@include init-size-class-config();
-	}
-
-	// Get the outer margin value and apply it as negative left and right margins
-	$outer-margin-value: get-outer-margin() * 100% / (100% - get-outer-margin() * 2);
-
-	margin-left: -1 * $outer-margin-value if($important, !important, null);
-	margin-right: -1 * $outer-margin-value if($important, !important, null);
-}
-
 @mixin _size-class-apply-outer-margin-to-element($prop, $use-prop-shorthand: false, $important: false) {
 	// Validate the $prop argument
 	$supported-props: (padding margin position);
@@ -295,3 +282,42 @@
 
 	@return $_return;
 };
+
+@mixin full-height-max-aspect-ratio($aspect-ratio, $max-height-subtraction: 0) {
+	@if not global-variable-exists(size-class-context) {
+		@error "full-height-max-aspect-ratio() mixin called outside of a size-class() content block.";
+	}
+
+	@if $max-height-subtraction > 0 {
+		max-height: 100vh;
+	} @else {
+		max-height: calc(100vh - #{$max-height-subtraction});
+	}
+
+	// Prevent the element from getting too short
+	min-height: 100vw / ($aspect-ratio / 0.5);
+
+	@include limit-raw-vw(height, 100vw / $aspect-ratio);
+}
+
+@mixin full-bleed($add-padding: true, $aspect-ratio: null, $important: false) {
+	// Load the default config if $size-class-config hasn't already been declared
+	@if not global-variable-exists(size-class-config) {
+		@include init-size-class-config();
+	}
+
+	// Get the outer margin value and apply it as negative left and right margins
+	$outer-margin-value: get-outer-margin() * 100% / (100% - get-outer-margin() * 2);
+
+	margin-left: -1 * $outer-margin-value if($important, !important, null);
+	margin-right: -1 * $outer-margin-value if($important, !important, null);
+
+	@if $add-padding {
+		padding-left: $outer-margin-value if($important, !important, null);
+		padding-right: $outer-margin-value if($important, !important, null);
+	}
+
+	@if type-of($aspect-ratio) == number {
+		@include full-height-max-aspect-ratio($aspect-ratio);
+	}
+}
