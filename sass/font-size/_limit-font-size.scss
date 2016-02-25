@@ -69,16 +69,16 @@
 				$actually-output-styles: false;
 			}
 		} @else if $limit-mode == min {
-			// Use the $size-class-context's target-media-query's min-width
-			@if _susy-deep-has-key($size-class-context, target-media-query, min-width) {
-				$at-width: _susy-deep-get($size-class-context, target-media-query, max-width);
-			}
-				// Automatically set a min-font-size when using vw units
-			@else if global-variable-exists(font-size-unit-context) and $font-size-unit-context == vw and function-exists(_get-min-font-size-auto-ratio) {
+			// Automatically set a min-font-size when using vw units
+			@if global-variable-exists(font-size-unit-context) and $font-size-unit-context == vw and function-exists(_get-min-font-size-auto-ratio) {
 				$min-font-size-ratio: _get-min-font-size-auto-ratio();
 				$limit-font-size: $base-font-size * $min-font-size-ratio;
 			}
-				// Looks like we can't actually calculate this (insufficient data)
+			// Use the $size-class-context's target-media-query's min-width
+			@else if _susy-deep-has-key($size-class-context, target-media-query, min-width) {
+				$at-width: _susy-deep-get($size-class-context, target-media-query, min-width);
+			}
+			// Looks like we can't actually calculate this (insufficient data)
 			@else {
 				@error "Calling " + $limit-mode + "-font-size() mixin in this context has no effect. (Cannot automatically calculate min-font-size given $limit-font-size: auto, $at-width: auto, no $size-class-context and no $susy.)";
 				//@debug "Cannot automatically calculate min-font-size given $limit-font-size: auto, $at-width: auto, no $size-class-context and no $susy. No font-size styles will be output.";
@@ -126,8 +126,11 @@
 		$font-size-unit-context: $font-size-unit !global;
 
 		@if $media-mode == min or $media-mode == max {
-			@media (#{$media-mode}-width: $at-width) {
-				font-size: $final-limit-font-size;
+			// @debug "Setting " + $media-mode + " font size to " + $final-limit-font-size + " at " + $at-width;
+			@at-root (without: media) {
+				@media (#{$media-mode}-width: $at-width) {
+					font-size: $final-limit-font-size;
+				}
 			}
 		}
 
