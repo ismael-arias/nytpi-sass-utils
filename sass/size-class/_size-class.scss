@@ -42,6 +42,8 @@
 	$parsed-options: map-merge($parsed-options, (target-media-query: $target-media-query));
 
 	// Reassign $size-class-context in this scope and restore it once we're done
+	$old-size-class-context: ();
+
 	@if global-variable-exists(size-class-context) {
 		$old-size-class-context: $size-class-context;
 	}
@@ -63,9 +65,5 @@
 	}
 
 	// Restore old value of $size-class-context
-	@if variable-exists(old-size-class-context) {
-		$size-class-context: $old-size-class-context !global;
-	} @else {
-		$size-class-context: () !global;
-	}
+	$size-class-context: $old-size-class-context !global;
 }
