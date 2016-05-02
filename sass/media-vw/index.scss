@@ -1,0 +1,197 @@
+///////////////////////////////////////
+// Begin media-vw Module Source Code //
+///////////////////////////////////////
+
+@mixin media-vw(
+	// The CSS property for which you'd like to assign a vw-based value (e.g. font-size)
+	$prop,
+	// A unitless number value for the property (to be output in vw units, based on $base-width, and potentially clamped with lower and upper bounds)
+	$value,
+	$base-width: null,
+	// A ratio (positive number less than 1) representing a scale factor used to calculate a lower bound for the property value
+	$min-ratio: 15/16,
+	// The max width to be used for a media query that calculates an upper bound for the property value
+	$max-width: 3210,
+	// The ratio of the unitless values to CSS pixels (a positive number)
+	$pixel-ratio: 2
+) {
+	// Begin Argument Validation
+	@if type-of($prop) != string {
+		@error "$prop (" + inspect($prop) + ") must be a string";
+	}
+
+	@if not unitless($value) {
+		@error inspect($value) + " is not unitless";
+	}
+
+	@if not $min-ratio {
+		// Attempt to get a good value from $media-vw-context global if $min-ratio is null
+		@if global-variable-exists(media-vw-context) and map-has-key($media-vw-context, min-ratio) {
+			$min-ratio: map-get($media-vw-context, min-ratio);
+		}
+		@else if type-of($min-ratio) == number and $min-ratio > 1.0 {
+			@error "$min-ratio cannot be greater than 1.0";
+		}
+	}
+
+	@if not $base-width {
+		// Attempt to get a good value from $media-vw-context global if $base-width is null
+		@if global-variable-exists(media-vw-context) and map-has-key($media-vw-context, base-width) {
+			$base-width: map-get($media-vw-context, base-width);
+		}
+		@else if not unitless($base-width) or $base-width < 0 {
+			@error "$base-width (" + inspect($base-width) + ") must be a positive, unitless number";
+		}
+	}
+
+	@if not $max-width {
+		// Attempt to get a good value from $media-vw-context global  if $max-width is null
+		@if global-variable-exists(media-vw-context) and map-has-key($media-vw-context, max-width) {
+			$max-width: map-get($media-vw-context, max-width);
+		}
+		@else if not unitless($max-width) or $max-width < 0 {
+			@error "$max-width (" + inspect($max-width) + ") must be a positive, unitless number";
+		}
+	}
+
+	@if $max-width and $max-width < $base-width {
+		@error "$max-width (" + inspect($max-width) + ") cannot be smaller than $base-width (" + inspect($base-width) + ")"
+	}
+
+	@if not $pixel-ratio {
+		// Attempt to get a good value from $media-vw-context global if $pixel-ratio is null
+		@if global-variable-exists(media-vw-context) and map-has-key($media-vw-context, pixel-ratio) {
+			$pixel-ratio: map-get($media-vw-context, pixel-ratio);
+		}
+		@else if unitless($pixel-ratio) or $pixel-ratio < 0 {
+			@error "$pixel-ratio (" + inspect($pixel-ratio) + ") must be a positive, unitless number"
+		}
+	}
+	// End Argument Validation
+
+	// Begin $media-vw-context Push
+	$old-media-vw-context: ();
+	@if global-variable-exists(media-vw-context) {
+		$old-media-vw-context: $media-vw-context;
+	}
+	// Merge this new property and value with the old media vw context
+	$new-media-vw-context: (
+			#{$prop}: $value,
+			base-width: $base-width,
+			min-ratio: $min-ratio,
+			max-width: $max-width,
+			pixel-ratio: $pixel-ratio
+	);
+	$media-vw-context: map-merge(
+					$old-media-vw-context,
+					$new-media-vw-context
+	) !global;
+	// End $media-vw-context Push
+
+	// Begin Value Calculation and Output
+
+	// vw value output
+	$vw-value: $value / $base-width * 100vw;
+
+	#{$prop}: $vw-value;
+
+	// min value output
+	@if $min-ratio {
+		$min-value: $value * $min-ratio / $pixel-ratio * 1px;
+		$min-value-max-width: $base-width * $min-ratio / $pixel-ratio * 1px;
+
+		@at-root (without: media) {
+			@media (max-width: $min-value-max-width) {
+				#{$prop}: $min-value;
+			}
+		}
+	}
+
+	// max value output
+	@if $max-width {
+		$max-value: $value * ($max-width / $base-width) / $pixel-ratio * 1px;
+		$max-value-min-width: $max-width / $pixel-ratio * 1px;
+
+		@at-root (without: media) {
+			@media (min-width: $max-value-min-width) {
+				#{$prop}: $max-value;
+			}
+		}
+	}
+	// End Value Calculation and Output
+
+	// Begin Content Block Output
+	@content;
+	// End Content Block Output
+
+	// Begin $media-vw-context Pop
+	$media-vw-context: $old-media-vw-context;
+	// End $media-vw-context Pop
+}
+
+@function media-em($value, $base-value: null) {
+	$default-base-value: 16;
+	// Is $base-value null?
+	@if not $base-value {
+		// Try to get $base-value from the font-size key in global $media-vw-context
+		@if global-variable-exists(media-vw-context) and map-has-key($media-vw-context, font-size) {
+			$base-value: map-get($media-vw-context, font-size);
+		}
+		// Try to calculate a 16px equivalent using global $media-vw-context's pixel-ratio value
+		@if global-variable-exists(media-vw-context) and map-has-key($media-vw-context, pixel-ratio) {
+			$base-value: $default-base-value * map-get($media-vw-context, pixel-ratio);
+		}
+			// Otherwise, assume $pixel-ratio: 1 and assign $base-value to 16
+		@else {
+			$base-value: $default-base-value;
+		}
+	}
+	// Calculate the final value in em units
+	@return $value / $base-value * 1em;
+}
+
+/////////////////////////////////////
+// End media-vw Module Source Code //
+/////////////////////////////////////
+
+
+///////////////////////////////////
+// Begin Example Usage Sass Code //
+///////////////////////////////////
+
+/*
+.selector {
+	@include media-vw(font-size, 32, 2560) {
+		line-height: media-em(48);
+	}
+}
+*/
+
+/////////////////////////////////
+// End Example Usage Sass Code //
+/////////////////////////////////
+
+//////////////////////////////////////////////
+// Begin Example CSS Output (for reference) //
+//////////////////////////////////////////////
+
+/*
+.selector {
+  font-size: 1.25vw;
+  line-height: 1.5em;
+}
+@media (max-width: 1200px) {
+  .selector {
+    font-size: 15px;
+  }
+}
+@media (min-width: 1605px) {
+  .selector {
+    font-size: 20.0625px;
+  }
+}
+*/
+
+////////////////////////////
+// End Example CSS Output //
+////////////////////////////
