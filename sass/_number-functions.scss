@@ -92,17 +92,17 @@
 
 	// Begin $base-width Checks
 
-	//@if $base-width == null {
-	//	@if global-variable-exists(size-class-config) and global-variable-exists(size-class-context) {
-	//		$base-width: get-pspx-width();
-	//	}
-	//		// Try to set a $base-width from the Susy configuration
-	//	@else if global-variable-exists(susy) and susy-get(container) and unit(susy-get(container)) == px {
-	//		$base-width: susy-get(container) * _nytpi-sass-utils-number-functions-get-pixel-ratio() / 1px;
-	//	} @else {
-	//		@error "limit-vw() mixin cannot calculate vw units. Please either set up a Susy layout or call the function inside a size-class() mixin's content block.";
-	//	}
-	//}
+	// @if $base-width == null {
+	// 	@if global-variable-exists(size-class-config) and global-variable-exists(size-class-context) {
+	// 		$base-width: get-pspx-width();
+	// 	}
+	// 		// Try to set a $base-width from the Susy configuration
+	// 	@else if global-variable-exists(susy) and susy-get(container) and unit(susy-get(container)) == px {
+	// 		$base-width: susy-get(container) * _nytpi-sass-utils-number-functions-get-pixel-ratio() / 1px;
+	// 	} @else {
+	// 		@error "limit-vw() mixin cannot calculate vw units. Please either set up a Susy layout or call the function inside a size-class() mixin's content block.";
+	// 	}
+	// }
 
 	// End $base-width Checks
 
@@ -132,9 +132,10 @@
 
 	// End $set-limit Checks
 
-	@if $limit-mode == min {
-		$media-mode: max;
-	} @else if $limit-mode == max {
+	// Set $media-mode ($limit-mode is `min` by default, so $media-mode is `max` by default)
+	$media-mode: max;
+
+	@if $limit-mode == max {
 		$media-mode: min;
 	}
 
