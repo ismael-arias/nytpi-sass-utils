@@ -24,7 +24,7 @@ The `size-class()` mixin accepts a list of unquoted strings, known as a **“sho
 
 ```scss
 @include size-class(desktop) {
-/* Styles using the 12-column grid, applied from 1280px to infinity */
+	/* Styles using the 12-column grid, applied from 1280px to infinity */
 	width: span(4); // 4 of 12 columns in CSS % units, using the Susy `span()` function
 }
 ```
