@@ -44,13 +44,15 @@ This approach makes it easy to create fluid responsive layouts, based on the sam
 
 ### Shorthand Syntax Examples
 
-`desktop` (one named size-class only)
+`desktop`
+_One named size-class only._
 
 Use the desktop layout and the desktop breakpoint range.
 
 ----
 
-`desktop to mobile-portrait` (range of named size classes, with the first named size class implicitly defining the layout to use)
+`desktop to mobile-portrait`
+_Range of named size classes, with the first named size class implicitly defining the layout to use._
 
 Use the `desktop` layout (implicitly) from the `desktop` breakpoint's max width to the `mobile-portrait` breakpoint's min width (note: this is infinity, so no media query will be output).
 
@@ -58,13 +60,15 @@ Note that this usage syntax *implictly uses the layout of the first named size c
 
 ---
 
-`mobile-portrait to desktop` (range of named size classes with implicit layout use, similar to the above; note that order matters!)
+`mobile-portrait to desktop`
+_Range of named size classes with implicit layout use, similar to the above; note that order matters, as explained below!_
 
 Use the `mobile-portrait` layout (implicitly) from the `mobile-portrait` breakpoint's min width to the `desktop` breakpoint's max width (once again, that range is infinity, so no media query will be output).
 
 ----
 
-`desktop for desktop to tablet-landscape` (explicit named layout and order-independent named breakpoint range specification)
+`desktop for desktop to tablet-landscape`
+_Explicit named layout and order-independent named breakpoint range specification._
 
 Explicitly use the `desktop` layout for the breakpoint range `desktop to tablet-landscape`. Because we're explicitly indicating which layout to use, we could reorder the breakpoint range and get the same output, e.g. `desktop for tablet-landscape to desktop`.
 
