@@ -4,7 +4,7 @@
 
 ## Need-to-Know Errata
 
-1. Use the `development` Branch (already installed in the `purina-muttigrees` repo)
+1. Use the `development` Branch (already installed in the `purina-muttigrees` repo, and by [generator-scaffolding](https://github.com/nytpi/generator-scaffolding))
 2. Some Documentation is Out of Date (please refer to this document)
 3. When using the `font-size()` mixin with the `vw` unit option, **write your desktop styles first, _then_ your mobile styles** (much more on this below)
 
