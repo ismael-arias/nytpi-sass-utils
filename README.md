@@ -74,6 +74,8 @@ Explicitly use the `desktop` layout for the breakpoint range `desktop to tablet-
 
 ----
 
+### Shorthands to Know and Love
+
 In practice, the following two shorthand syntaxes will be most useful. You may consider assigning them to Sass variables for convenience:
 
 ```scss
