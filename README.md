@@ -51,7 +51,7 @@ Use the desktop layout and the desktop breakpoint range.
 
 ----
 
-`desktop to mobile-portrait`
+`desktop to mobile-portrait`  
 _Range of named size classes, with the first named size class implicitly defining the layout to use._
 
 Use the `desktop` layout (implicitly) from the `desktop` breakpoint's max width to the `mobile-portrait` breakpoint's min width (note: this is infinity, so no media query will be output).
