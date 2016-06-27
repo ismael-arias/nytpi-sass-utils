@@ -1,14 +1,22 @@
+// Import the NYTPI Default Config
+@import "nytpi-default";
+
 // Loads and parses the Size Class v3 configuration,
 // setting the parsed config to the global #. One-time use.
 @mixin init-size-class-config($load-options...) {
 	@if global-variable-exists(size-class-config) {
 		@error "Size Class config has already been initialized.";
-	} @else {
-		// Note: _load-size-class-config() is an Eyeglass function
-		$loaded-config: _load-size-class-config($load-options...);
+	} @else if variable-exists(_nytpi-default-size-class-config) {
+		// Note: Previously used Eyeglass function named _load-size-class-config()
+		// to load the configuration.
+		// $loaded-config: _load-size-class-config($load-options...);
+		// NOTE: Using plain ol' SCSS below to load in the config file...
+		$loaded-config: $_nytpi-default-size-class-config;
 		$size-class-config: _parse-size-class-config($loaded-config) !global;
 		$size-class-debug: false !global;
 		$size-class-contexts-in-use: () !global;
+	} @else {
+		@error "Cannot import the nytpi-default configuration for Size Class v3 (_nytpi-default.scss).";
 	}
 }
 
@@ -179,6 +187,10 @@
 @mixin set-pspx-ratio($new-ratio) {
 	@if type-of($new-ratio) != number or $new-ratio <= 0 {
 		@error "Cannot set pspx-ratio to a non-number or a number <= 0."
+	}
+	// Load the default config if $size-class-config hasn't already been declared
+	@else if not global-variable-exists(size-class-config) {
+		@include init-size-class-config();
 	}
 
 	@include size-class-config-set(options, pspx-ratio, $new-ratio);
