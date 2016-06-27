@@ -86,7 +86,7 @@ $desktop-to-tablet-landscape: desktop for desktop to tablet-landscape;
 ```
 
 ### Design and Configuration Reference
-The `size-class()` mixin gets its configuration from [nytpi-default.json](https://github.com/nytpi/nytpi-sass-utils/blob/development/sass/size-class/nytpi-default.json). This config file contains:
+The `size-class()` mixin gets its configuration from [_nytpi-default.scss](/sass/size-class/_nytpi-default.scss). This config file contains:
 - The Susy grid system parameters for each named size class
 - Media queries for each named size class
 - Additional “size families” (e.g. `regular` and `compact`), which are easy-to-use aliases for a particular shorthand syntax
