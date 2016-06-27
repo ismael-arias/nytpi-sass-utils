@@ -1,6 +1,8 @@
-# nytpi-sass-utils (#development branch)
+# nytpi-sass-utils (#removed-eyeglass branch)
 
-*Note: the development branch is under active development. This README tries to cover the most important information developers need to know while using the tools in their current state of completion.*
+*Note: the removed-eyeglass branch is under active development. This README tries to cover the most important information developers need to know while using the tools in their current state of completion.*
+
+Additional Note: the removed-eyeglass branch no longer requires [Eyeglass](http://eyeglass.rocks). This means it can now be used with other build systems that don’t integrate with Eyeglass, such as Webpack.
 
 ## Need-to-Know Errata
 
