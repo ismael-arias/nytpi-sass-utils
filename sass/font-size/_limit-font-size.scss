@@ -127,10 +127,8 @@
 
 		@if $media-mode == min or $media-mode == max {
 			// @debug "Setting " + $media-mode + " font size to " + $final-limit-font-size + " at " + $at-width;
-			@at-root (without: media) {
-				@media (#{$media-mode}-width: $at-width) {
-					font-size: $final-limit-font-size;
-				}
+			@media (#{$media-mode}-width: $at-width) {
+				font-size: $final-limit-font-size;
 			}
 		}
 
