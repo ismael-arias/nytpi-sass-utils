@@ -1,4 +1,4 @@
-@import "susy";
+@import "~susy/sass/susy";
 
 @function _get-first-size-class($config) {
 	$_size-classes: map-get($config, classes);
