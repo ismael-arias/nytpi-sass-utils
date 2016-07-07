@@ -20,6 +20,42 @@
 	}
 }
 
+@function get-config-pspx-ratio() {
+	$layout-types: size-class-config-get(options, layout-types);
+
+	$_return: 1;
+
+	@if size-class-config-has-layout-type(pspx) and size-class-config-has-key(options, config-pspx-ratio) {
+		$_return: size-class-config-get(options, config-pspx-ratio);
+	}
+
+	@return $_return;
+};
+
+@function get-pspx-ratio() {
+	$layout-types: size-class-config-get(options, layout-types);
+
+	$_return: 1;
+
+	@if index($layout-types, pspx) and size-class-config-has-key(options, pspx-ratio) {
+		$_return: size-class-config-get(options, pspx-ratio);
+	}
+
+	@return $_return;
+};
+
+@mixin set-pspx-ratio($new-ratio) {
+	@if type-of($new-ratio) != number or $new-ratio <= 0 {
+		@error "Cannot set pspx-ratio to a non-number or a number <= 0."
+	}
+		// Load the default config if $size-class-config hasn't already been declared
+	@else if not global-variable-exists(size-class-config) {
+		@include init-size-class-config();
+	}
+
+	@include size-class-config-set(options, pspx-ratio, $new-ratio);
+}
+
 @function _convert-unitless-to-unit($value, $unit, $context: null) {
 	$_return: $value;
 
@@ -160,42 +196,6 @@
 	$size-class-config: _susy-deep-set($size-class-config, $keys...) !global;
 }
 
-@function get-config-pspx-ratio() {
-	$layout-types: size-class-config-get(options, layout-types);
-
-	$_return: 1;
-
-	@if size-class-config-has-layout-type(pspx) and size-class-config-has-key(options, config-pspx-ratio) {
-		$_return: size-class-config-get(options, config-pspx-ratio);
-	}
-
-	@return $_return;
-};
-
-@function get-pspx-ratio() {
-	$layout-types: size-class-config-get(options, layout-types);
-
-	$_return: 1;
-
-	@if index($layout-types, pspx) and size-class-config-has-key(options, pspx-ratio) {
-		$_return: size-class-config-get(options, pspx-ratio);
-	}
-
-	@return $_return;
-};
-
-@mixin set-pspx-ratio($new-ratio) {
-	@if type-of($new-ratio) != number or $new-ratio <= 0 {
-		@error "Cannot set pspx-ratio to a non-number or a number <= 0."
-	}
-	// Load the default config if $size-class-config hasn't already been declared
-	@else if not global-variable-exists(size-class-config) {
-		@include init-size-class-config();
-	}
-
-	@include size-class-config-set(options, pspx-ratio, $new-ratio);
-}
-
 @function get-pspx-width($options: ()) {
 	$_return: null;
 
@@ -245,12 +245,12 @@
 				@error "Could not get current size-class from $size-class-context.";
 			}
 		}
-			// Is $config-name a family name?
+		// Is $config-name a family name?
 		@else if size-class-config-has-key(families, $config-name) {
 			// Get the size class for this family
 			$config-name: size-class-config-get(families, $config-name, size-class);
 		}
-			// Otherwise, is this not a known size class?
+		// Otherwise, is this not a known size class?
 		@else if not size-class-config-has-key(classes, $config-name) {
 			@error $config-name + " is neither a known size family or size class name.";
 		}
@@ -259,12 +259,12 @@
 		$layout-types: size-class-config-get(options, layout-types);
 
 		@if index($layout-types, pspx) {
-			$_return: size-class-config-get(classes, $config-name, pspx, columns);
+			$_return: size-class-config-get(classes, $config-name, pspx, columns) * get-pspx-ratio() / get-config-pspx-ratio();
 		} @else {
 			@error "Size Class config does not contain a 'pspx' layout type.";
 		}
 	}
-		// Get a breakpoint's min-width or max-width
+	// Get a breakpoint's min-width or max-width
 	@else {
 		// If $config-name is null, get the target media query from the current context
 		@if $config-name == null {

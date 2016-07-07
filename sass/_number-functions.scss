@@ -1,3 +1,13 @@
+@function _nytpi-sass-utils-number-functions-get-config-pixel-ratio() {
+	$config-pixel-ratio: 1;
+
+	@if global-variable-exists(size-class-config) and function-exists(get-config-pspx-ratio) {
+		$config-pixel-ratio: get-config-pspx-ratio();
+	}
+
+	@return $config-pixel-ratio;
+}
+
 @function _nytpi-sass-utils-number-functions-get-pixel-ratio() {
 	$pixel-ratio: 1;
 
@@ -76,7 +86,7 @@
 		@error "$base-width argument must be a unitless number.";
 	}
 
-	@return $unitless / $base-width * 100vw;
+	@return ($unitless * _nytpi-sass-utils-number-functions-get-pixel-ratio() / _nytpi-sass-utils-number-functions-get-config-pixel-ratio()) / $base-width * 100vw;
 }
 
 @mixin _nytpi-sass-utils-limit-raw-vw($property, $vw, $base-width: null) {
