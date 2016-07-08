@@ -1,6 +1,6 @@
 {
   "name": "nytpi-sass-utils",
-  "version": "2.3.0-dev.0",
+  "version": "2.3.0",
   "description": "NYTPI Sass Utilities",
   "main": "eyeglass-exports.js",
   "author": {
