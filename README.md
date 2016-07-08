@@ -1,10 +1,12 @@
-# nytpi-sass-utils (#development branch)
+# nytpi-sass-utils (#feature/remove-eyeglass-support branch)
 
-*Note: the development branch is under active development. This README tries to cover the most important information developers need to know while using the tools in their current state of completion.*
+*Note: the removed-eyeglass branch is under active development. This README tries to cover the most important information developers need to know while using the tools in their current state of completion.*
+
+Additional Note: the removed-eyeglass branch no longer requires [Eyeglass](http://eyeglass.rocks). This means it can now be used with other build systems that don’t integrate with Eyeglass, such as Webpack.
 
 ## Need-to-Know Errata
 
-1. Use the `development` Branch (already installed in the `purina-muttigrees` repo, and by [generator-scaffolding](https://github.com/nytpi/generator-scaffolding))
+1. Use the `feature/remove-eyeglass-support` Branch
 2. Some Documentation is Out of Date (please refer to this document)
 3. When using the `font-size()` mixin with the `vw` unit option, **write your desktop styles first, _then_ your mobile styles** (much more on this below)
 
