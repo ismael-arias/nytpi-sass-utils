@@ -284,7 +284,7 @@
 	// Cover breakpoint value returns
 	@if unit($_return) == px {
 		// Convert px to unitless value
-		$_return: $_return / 1px * get-config-pspx-ratio();
+		$_return: $_return / 1px;
 	}
 
 	$_return: _convert-unitless-to-unit($_return, $unit);
