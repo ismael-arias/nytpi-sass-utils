@@ -87,9 +87,6 @@
 					@error "Internal error in get-pspx-width(): cannot return vw unit value since _nytpi-sass-utils-vw() function doesn't exist.";
 				}
 			}
-		} @else {
-			// We need to do some different scaling to take both config-pspx-ratio and pspx-ratio into account
-			$_return: $_return / (get-config-pspx-ratio() / get-pspx-ratio());
 		}
 	} @else {
 		@error "_convert-unitless-to-unit() function passed a value with units: " + $value;
