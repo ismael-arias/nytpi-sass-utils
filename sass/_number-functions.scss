@@ -86,7 +86,7 @@
 		@error "$base-width argument must be a unitless number.";
 	}
 
-	@return ($unitless / $base-width * 100vw;
+	@return $unitless / $base-width * 100vw;
 }
 
 @mixin _nytpi-sass-utils-limit-raw-vw($property, $vw, $base-width: null) {
