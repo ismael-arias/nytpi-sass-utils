@@ -9,8 +9,7 @@
   "main": "index.scss",
   "keywords": [
     "sass",
-    "susy",
-    "eyeglass-module"
+    "susy"
   ],
   "license": "MIT",
   "README": "README.md",
