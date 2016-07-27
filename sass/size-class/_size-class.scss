@@ -1,5 +1,5 @@
 // Throw an error if the size-class mixin already exists (prevent simultaneous loading with Size Class v2)
-@if mixin-exists(size-class) and not global-variable-exists(size-class-config) {
+@if mixin-exists(size-class) and not global-variable-exists(size-class-config) and not mixin-exists(init-size-class-config) {
 	@error "size-class() mixin already exists --- Size Class v2.0 may have been imported already?";
 }
 
