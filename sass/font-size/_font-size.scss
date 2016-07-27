@@ -1,5 +1,5 @@
 // Throw an error if the size-class mixin already exists (prevent simultaneous loading with Size Class v2)
-@if mixin-exists(font-size) {
+@if mixin-exists(font-size) and not mixin-exists(limit-font-size) {
 	@error "font-size() mixin already exists --- Font Size v1.0 may have been imported already?";
 }
 
